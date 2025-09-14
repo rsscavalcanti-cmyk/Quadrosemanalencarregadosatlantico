@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+#logo{width:56px;height:56px;background:#fff;border-radius:8px;object-fit:contain}
+h1{margin:0;font-size:24px}
+.clock{font-variant-numeric:tabular-nums}
+.board{display:flex;align-items:flex-start;gap:16px;padding:16px;overflow-x:auto;height:calc(100vh - 80px)}
+.column{background:#fff;border:1px solid #cbd5e1;border-radius:8px;min-width:260px;flex:1;display:flex;flex-direction:column}
+.column h2{margin:0;padding:12px;background:#e2e8f0;font-size:16px;border-bottom:1px solid #cbd5e1;text-align:center}
+.task{background:#f9fafb;margin:8px;border:1px solid #cbd5e1;border-left:8px solid #cbd5e1;border-radius:6px;padding:8px;}
+.task.overdue{border-left-color:#b91c1c;animation:blink 1.5s infinite}
+.task.soon{border-left-color:#ca8a04}
+.task.ok{border-left-color:#16a34a}
+.task .title{font-weight:700;margin-bottom:4px}
+.task .meta{font-size:13px;color:#475569}
+@keyframes blink{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
+</style>
+</head>
+<body>
+<header>
+<div class="brand">
+<!-- Espaço para logo -->
+<img id="logo" src="" alt="Logo System Engenharia" />
+<h1>Atlântico Golf — Quadro Kanban (Semanal)</h1>
+</div>
+<div class="clock" id="clock">--:--:--</div>
+</header>
+<div class="board" id="board"></div>
+<script>
+const DATA = {
+encarregados:[
+{nome:"Severo (Hidráulica)", tarefas:[
+{titulo:"Interligar barrilete Torre 1 — Subsolo", prazo:"16/09/2025"},
+{titulo:"Teste estanqueidade prumada A — Bloco 2", prazo:"17/09/2025"}
+]},
+{nome:"Ayrton (Hidráulica)", tarefas:[
+{titulo:"Fixar suportes de reservatórios — Área Técnica", prazo:"15/09/2025"},
+{titulo:"Montar barrilete superior — Torre 3", prazo:"19/09/2025"}
+]},
+{nome:"Thiago (Elétrica)", tarefas:[
+{titulo:"Lançamento cabos QGBT→QDLs — Subsolo", prazo:"16/09/2025"},
+{titulo:"Fechamento alimentadores nos disjuntores gerais", prazo:"17/09/2025"}
+]},
+{nome:"Marcelo (Elétrica)", tarefas:[
+{titulo:"Revisão SPDA — Cobertura Bloco 2", prazo:"15/09/2025"},
+{titulo:"Checklist iluminação emergência — Térreo", prazo:"18/09/2025"}
+]}
+]
+};
+
+
+function now(){return new Date()}
+function parseBRDate(s){const [d,m,y]=s.split('/').map(Number);return new Date(y,m-1,d,17,0,0)}
+function diffHours(a,b){return (a-b)/36e5}
+function fmtClock(){const t=now();return t.toLocaleTimeString('pt-BR')}
+function urgency(prazo){const dh=diffHours(parseBRDate(prazo),now());if(dh<=0)return'overdue';if(dh<=48)return'soon';return'ok'}
+
+
+function render(){
+const board=document.getElementById('board');board.innerHTML='';
+DATA.encarregados.forEach(enc=>{
+const c=document.createElement('div');c.className='column';
+c.innerHTML=`<h2>${enc.nome}</h2>`;
+enc.tarefas.forEach(t=>{
+const div=document.createElement('div');
+div.className='task '+urgency(t.prazo);
+div.innerHTML=`<div class="title">${t.titulo}</div><div class="meta">Prazo: ${t.prazo}</div>`;
+c.appendChild(div);
+});
+board.appendChild(c);
+});
+}
+
+
+function tick(){document.getElementById('clock').textContent=fmtClock();render()}
+tick();setInterval(tick,60000);setInterval(()=>{document.getElementById('clock').textContent=fmtClock()},1000);
+</script>
+</body>
+</html>
