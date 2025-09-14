@@ -4,28 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atlântico Golf — Quadro Kanban por Encarregado</title>
-  <meta name="description" content="Kanban semanal por encarregado + coluna de Suprimentos (Requisições e OCs). Tema claro, pronto para TV/obras." />
+  <meta name="description" content="Kanban semanal por encarregado + coluna de Suprimentos (Requisições e OCs). Tema claro, pronto para TV/obras, com espaço fixo para logo." />
   <style>
     :root{
-      --bg:#f8fafc; --text:#111827; --muted:#475569; --brand:#005b96;
+      --bg:#f5f7fb; --text:#111827; --muted:#475569; --brand:#005b96;
       --card:#ffffff; --border:#cbd5e1; --header:#e2e8f0;
       --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;background:var(--bg);color:var(--text)}
-    header{padding:16px;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center}
-    .brand{display:flex;align-items:center;gap:16px}
-    #logo{width:80px;height:80px;background:#fff;border-radius:8px;object-fit:contain;border:2px solid rgba(255,255,255,.25)}
+
+    header{padding:14px 16px;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center}
+    .brand{display:flex;align-items:center;gap:14px}
+
+    /* Espaço FIXO para o logo (sempre visível) */
+    .logo-box{width:140px;height:64px;background:#fff;border-radius:10px;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .logo-img{max-width:100%;max-height:100%;display:none}
+    .logo-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#0f172a;font-weight:800;letter-spacing:.3px}
+
     h1{margin:0;font-size:24px}
     .clock{font-variant-numeric:tabular-nums}
 
-    .board{display:flex;align-items:flex-start;gap:16px;padding:16px;overflow:auto;height:calc(100% - 80px)}
+    .board{display:flex;align-items:flex-start;gap:16px;padding:16px;overflow:auto;height:calc(100% - 92px)}
     .column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:280px;max-width:420px;flex:1;display:flex;flex-direction:column}
     .column h2{margin:0;padding:12px;background:var(--header);font-size:16px;border-bottom:1px solid var(--border);text-align:center}
 
     .list{padding:10px}
-    .task{background:#f9fafb;margin:8px 0;border:1px solid var(--border);border-left:8px solid var(--border);border-radius:8px;padding:10px}
+    .task{background:#ffffff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(2,6,23,.06)}
     .task.overdue{border-left-color:var(--late);animation:blink 1.5s ease-in-out infinite}
     .task.soon{border-left-color:var(--warn)}
     .task.ok{border-left-color:var(--ok)}
@@ -38,7 +44,7 @@
     /* Suprimentos */
     .section{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}
     .section h3{margin:8px 0 6px;font-size:14px;color:#0f172a;text-align:center}
-    .item{background:#ffffff;border:1px solid var(--border);border-left:6px solid var(--border);border-radius:8px;padding:8px;margin:8px 0}
+    .item{background:#ffffff;border:1px solid var(--border);border-left:8px solid var(--border);border-radius:10px;padding:10px;margin:8px 0;box-shadow:0 2px 6px rgba(2,6,23,.06)}
     .item.overdue{border-left-color:var(--late);animation:blink 1.5s ease-in-out infinite}
     .item.soon{border-left-color:var(--warn)}
     .item.ok{border-left-color:var(--ok)}
@@ -49,8 +55,10 @@
 <body>
   <header>
     <div class="brand">
-      <!-- Logo System Engenharia -->
-      <img id="logo" src="assets/logo.jpg" alt="Logo System Engenharia" />
+      <div class="logo-box">
+        <img id="logo" class="logo-img" alt="Logo System Engenharia" />
+        <div id="logoPh" class="logo-ph">LOGO</div>
+      </div>
       <h1>Atlântico Golf — Quadro Kanban (Semanal)</h1>
     </div>
     <div class="clock" id="clock">--:--:--</div>
@@ -64,7 +72,7 @@
 
     // =================== DADOS (EDITE AQUI) ===================
     const DATA = {
-      // Se preferir outro caminho, mude a linha do <img id="logo"> no HTML
+      logo_src: 'assets/logo.jpg', // caminho padrão do logo
       encarregados:[
         {nome:"Severo (Hidráulica)", tarefas:[
           {titulo:"Interligar barrilete Torre 1 — Subsolo", prazo:"16/09/2025"},
@@ -99,14 +107,7 @@
     // Utilitários de data/urgência
     const HOUR = 36e5, DAY = 86400000;
     function now(){return new Date();}
-    function parseBRDate(s){
-      if(!s) return null;
-      const parts = s.split('/');
-      if(parts.length !== 3) return null;
-      const [d,m,y] = parts.map(Number);
-      const dt = new Date(y, m-1, d, 17, 0, 0); // cutoff às 17h
-      return isNaN(dt.getTime()) ? null : dt;
-    }
+    function parseBRDate(s){ if(!s) return null; const parts = s.split('/'); if(parts.length !== 3) return null; const [d,m,y] = parts.map(Number); const dt = new Date(y, m-1, d, 17, 0, 0); return isNaN(dt.getTime()) ? null : dt; }
     function diffHours(a,b){return (a - b) / HOUR;}
     function fmtClock(){ const t = now(); const pad=n=>String(n).padStart(2,'0'); return `${pad(t.getHours())}:${pad(t.getMinutes())}:${pad(t.getSeconds())}`; }
     function urgencyByDate(dateStr){ const d = parseBRDate(dateStr); if(!d) return 'ok'; const dh = diffHours(d, now()); if(dh <= 0) return 'overdue'; if(dh <= 48) return 'soon'; return 'ok'; }
@@ -164,13 +165,20 @@
       sup.appendChild(sList); board.appendChild(sup);
     }
 
+    function initLogo(){
+      const img = document.getElementById('logo');
+      const ph  = document.getElementById('logoPh');
+      const src = DATA.logo_src || '';
+      if(!src){ img.style.display='none'; ph.style.display='flex'; return; }
+      img.onload = ()=>{ img.style.display='block'; ph.style.display='none'; };
+      img.onerror = ()=>{ img.style.display='none'; ph.style.display='flex'; };
+      img.src = src;
+    }
+
     function tick(){ document.getElementById('clock').textContent = fmtClock(); renderBoard(); }
 
     document.addEventListener('DOMContentLoaded', function(){
-      // Logo (esconde se não carregar)
-      const logoEl = document.getElementById('logo');
-      logoEl.addEventListener('error', ()=>{ logoEl.style.display = 'none'; });
-
+      initLogo();
       tick();
       setInterval(tick, 60000);
       setInterval(()=>{ document.getElementById('clock').textContent = fmtClock(); }, 1000);
@@ -179,4 +187,3 @@
   </script>
 </body>
 </html>
-
