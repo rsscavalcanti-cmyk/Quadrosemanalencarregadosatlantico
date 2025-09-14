@@ -1,4 +1,13 @@
 <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Atlântico Golf — Quadro Kanban por Encarregado</title>
+<style>
+body{margin:0;font-family:sans-serif;background:#f8fafc;color:#111827;}
+header{padding:16px;background:#005b96;color:#fff;display:flex;justify-content:space-between;align-items:center}
+.brand{display:flex;align-items:center;gap:16px}
 #logo{width:56px;height:56px;background:#fff;border-radius:8px;object-fit:contain}
 h1{margin:0;font-size:24px}
 .clock{font-variant-numeric:tabular-nums}
@@ -57,21 +66,4 @@ function urgency(prazo){const dh=diffHours(parseBRDate(prazo),now());if(dh<=0)re
 function render(){
 const board=document.getElementById('board');board.innerHTML='';
 DATA.encarregados.forEach(enc=>{
-const c=document.createElement('div');c.className='column';
-c.innerHTML=`<h2>${enc.nome}</h2>`;
-enc.tarefas.forEach(t=>{
-const div=document.createElement('div');
-div.className='task '+urgency(t.prazo);
-div.innerHTML=`<div class="title">${t.titulo}</div><div class="meta">Prazo: ${t.prazo}</div>`;
-c.appendChild(div);
-});
-board.appendChild(c);
-});
-}
-
-
-function tick(){document.getElementById('clock').textContent=fmtClock();render()}
-tick();setInterval(tick,60000);setInterval(()=>{document.getElementById('clock').textContent=fmtClock()},1000);
-</script>
-</body>
 </html>
