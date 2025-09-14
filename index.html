@@ -1,170 +1,65 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Atlântico Golf — Quadro Kanban por Encarregado</title>
-  <meta name="description" content="Kanban semanal por encarregado com coluna final de Suprimentos (Requisições/Ordens de Compra) e prazos. Ideal para TV no canteiro." />
-  <style>
-    :root{
-      --bg:#f8fafc; --text:#111827; --muted:#475569; --brand:#005b96;
-      --card:#ffffff; --border:#cbd5e1; --header:#e2e8f0;
-      --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;background:var(--bg);color:var(--text)}
-    header{padding:16px;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center}
-    .brand{display:flex;align-items:center;gap:16px}
-    #logo{width:56px;height:56px;background:#fff;border-radius:8px;object-fit:contain;border:2px solid rgba(255,255,255,.25)}
-    h1{margin:0;font-size:24px}
-    .clock{font-variant-numeric:tabular-nums}
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Atlântico Golf — Quadro Kanban por Encarregado</title>
+<meta name="description" content="Kanban semanal por encarregado com coluna final de Suprimentos (Requisições/Ordens de Compra) e prazos. Ideal para TV no canteiro." />
+<style>
+:root{
+--bg:#f8fafc; --text:#111827; --muted:#475569; --brand:#005b96;
+--card:#ffffff; --border:#cbd5e1; --header:#e2e8f0;
+--ok:#16a34a; --warn:#ca8a04; --late:#b91c1c;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{padding:16px;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center}
+.brand{display:flex;align-items:center;gap:16px}
+#logo{width:56px;height:56px;background:#fff;border-radius:8px;object-fit:contain;border:2px solid rgba(255,255,255,.25)}
+h1{margin:0;font-size:24px}
+.clock{font-variant-numeric:tabular-nums}
 
-    .board{display:flex;align-items:flex-start;gap:16px;padding:16px;overflow:auto;height:calc(100% - 80px)}
-    .column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:280px;max-width:420px;flex:1;display:flex;flex-direction:column}
-    .column h2{margin:0;padding:12px;background:var(--header);font-size:16px;border-bottom:1px solid var(--border);text-align:center}
 
-    .list{padding:8px}
-    .task{background:#f9fafb;margin:8px 0;border:1px solid var(--border);border-left:8px solid var(--border);border-radius:8px;padding:10px}
-    .task.overdue{border-left-color:var(--late);animation:blink 1.5s ease-in-out infinite}
-    .task.soon{border-left-color:var(--warn)}
-    .task.ok{border-left-color:var(--ok)}
-    .title{font-weight:800;margin-bottom:6px}
-    .meta{font-size:13px;color:var(--muted)}
-    .date{font-weight:900;background:#fff7ed;border:1px solid rgba(124,45,18,.25);padding:1px 6px;border-radius:6px}
-    @keyframes blink{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
+.board{display:flex;align-items:flex-start;gap:16px;padding:16px;overflow:auto;height:calc(100% - 80px)}
+.column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:280px;max-width:420px;flex:1;display:flex;flex-direction:column}
+.column h2{margin:0;padding:12px;background:var(--header);font-size:16px;border-bottom:1px solid var(--border);text-align:center}
 
-    /* Suprimentos */
-    .section{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}
-    .section h3{margin:8px 0 6px;font-size:14px;color:#0f172a;text-align:center}
-    .item{background:#ffffff;border:1px solid var(--border);border-left:6px solid var(--border);border-radius:8px;padding:8px;margin:8px 0}
-    .item.overdue{border-left-color:var(--late);animation:blink 1.5s ease-in-out infinite}
-    .item.soon{border-left-color:var(--warn)}
-    .item.ok{border-left-color:var(--ok)}
-    .row{display:flex;justify-content:space-between;gap:8px;font-size:14px}
-    .kv{font-size:12px;color:var(--muted)}
-  </style>
+
+.list{padding:8px}
+.task{background:#f9fafb;margin:8px 0;border:1px solid var(--border);border-left:8px solid var(--border);border-radius:8px;padding:10px}
+.task.overdue{border-left-color:var(--late);animation:blink 1.5s ease-in-out infinite}
+.task.soon{border-left-color:var(--warn)}
+.task.ok{border-left-color:var(--ok)}
+.title{font-weight:800;margin-bottom:6px}
+.meta{font-size:13px;color:var(--muted)}
+.date{font-weight:900;background:#fff7ed;border:1px solid rgba(124,45,18,.25);padding:1px 6px;border-radius:6px}
+@keyframes blink{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
+
+
+/* Suprimentos */
+.section{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}
+.section h3{margin:8px 0 6px;font-size:14px;color:#0f172a;text-align:center}
+.item{background:#ffffff;border:1px solid var(--border);border-left:6px solid var(--border);border-radius:8px;padding:8px;margin:8px 0}
+.item.overdue{border-left-color:var(--late);animation:blink 1.5s ease-in-out infinite}
+.item.soon{border-left-color:var(--warn)}
+.item.ok{border-left-color:var(--ok)}
+.row{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.kv{font-size:12px;color:var(--muted)}
+</style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <!-- Espaço para logo -->
-      <img id="logo" src="" alt="Logo System Engenharia" />
-      <h1>Atlântico Golf — Quadro Kanban (Semanal)</h1>
-    </div>
-    <div class="clock" id="clock">--:--:--</div>
-  </header>
+<header>
+<div class="brand">
+<!-- Espaço para logo -->
+<img id="logo" src="" alt="Logo System Engenharia" />
+<h1>Atlântico Golf — Quadro Kanban (Semanal)</h1>
+</div>
+<div class="clock" id="clock">--:--:--</div>
+</header>
 
-  <div class="board" id="board"></div>
 
-  <script>
-    // =================== DADOS (EDITE AQUI) ===================
-    const DATA = {
-      logo_src: "", // opcional: ex. "assets/logo.png"
-      encarregados:[
-        {nome:"Severo (Hidráulica)", tarefas:[
-          {titulo:"Interligar barrilete Torre 1 — Subsolo", prazo:"16/09/2025"},
-          {titulo:"Teste estanqueidade prumada A — Bloco 2", prazo:"17/09/2025"}
-        ]},
-        {nome:"Ayrton (Hidráulica)", tarefas:[
-          {titulo:"Fixar suportes de reservatórios — Área Técnica", prazo:"15/09/2025"},
-          {titulo:"Montar barrilete superior — Torre 3", prazo:"19/09/2025"}
-        ]},
-        {nome:"Thiago (Elétrica)", tarefas:[
-          {titulo:"Lançamento cabos QGBT→QDLs — Subsolo", prazo:"16/09/2025"},
-          {titulo:"Fechamento alimentadores nos disjuntores gerais", prazo:"17/09/2025"}
-        ]},
-        {nome:"Marcelo (Elétrica)", tarefas:[
-          {titulo:"Revisão SPDA — Cobertura Bloco 2", prazo:"15/09/2025"},
-          {titulo:"Checklist iluminação emergência — Térreo", prazo:"18/09/2025"}
-        ]}
-      ],
-      suprimentos:{
-        requisicoes:[
-          {numero:"RQ-241", data:"12/09/2025", solicitante:"Thiago", area:"Subsolo", status:"EM ANÁLISE", obs:"Eletrocalhas 100mm", prazo:"18/09/2025"},
-          {numero:"RQ-256", data:"13/09/2025", solicitante:"Severo", area:"Hidráulica", status:"APROVADA", obs:"Conexões PPR Ø75", prazo:"20/09/2025"}
-        ],
-        ocs:[
-          {numero:"OC-1189", fornecedor:"Prysmian", status:"EMITIDA", previsao:"18/09/2025", comprador:"Carla"},
-          {numero:"OC-1197", fornecedor:"Megabarre", status:"AGUARDANDO NF", previsao:"25/09/2025", comprador:"Eduardo"}
-        ]
-      }
-    };
-    // ==========================================================
-
-    function now(){return new Date()}
-    function parseBRDate(s){const [d,m,y]=s.split('/').map(Number);return new Date(y,m-1,d,17,0,0)}
-    function diffHours(a,b){return (a-b)/36e5}
-    function fmtClock(){const t=now();return t.toLocaleTimeString('pt-BR')}
-    function urgencyByDate(dateStr){const dh=diffHours(parseBRDate(dateStr),now());if(dh<=0)return'overdue';if(dh<=48)return'soon';return'ok'}
-
-    function render(){
-      const board=document.getElementById('board');board.innerHTML='';
-      // Colunas por encarregado
-      DATA.encarregados.forEach(enc=>{
-        const col=document.createElement('section');col.className='column';
-        col.innerHTML=`<h2>${enc.nome}</h2>`;
-        const list=document.createElement('div');list.className='list';
-        enc.tarefas.forEach(t=>{
-          const div=document.createElement('div');
-          const cls=urgencyByDate(t.prazo);
-          div.className=`task ${cls}`;
-          div.innerHTML=`<div class="title">${t.titulo}</div><div class="meta">Prazo: <span class="date">${t.prazo}</span></div>`;
-          list.appendChild(div);
-        });
-        col.appendChild(list);
-        board.appendChild(col);
-      });
-
-      // Coluna final: Suprimentos
-      const sup=document.createElement('section');sup.className='column';
-      sup.innerHTML=`<h2>Suprimentos</h2>`;
-      const sList=document.createElement('div');sList.className='list';
-
-      // Requisições
-      const rqSec=document.createElement('div');rqSec.className='section';
-      rqSec.innerHTML='<h3>Requisições em Aberto</h3>';
-      DATA.suprimentos.requisicoes.forEach(rq=>{
-        const it=document.createElement('div');
-        const cls=urgencyByDate(rq.prazo || rq.previsao || rq.data);
-        it.className=`item ${cls}`;
-        it.innerHTML=`
-          <div class="row"><strong>${rq.numero}</strong><span>${rq.status}</span></div>
-          <div class="kv">Data: <span class="date">${rq.data}</span> • Prazo: <span class="date">${rq.prazo||'-'}</span></div>
-          <div class="kv">Solicitante: ${rq.solicitante} • Área: ${rq.area}</div>
-          <div class="kv">Obs.: ${rq.obs||'-'}</div>
-        `;
-        rqSec.appendChild(it);
-      });
-      sList.appendChild(rqSec);
-
-      // OCs
-      const ocSec=document.createElement('div');ocSec.className='section';
-      ocSec.innerHTML='<h3>Ordens de Compra (OC)</h3>';
-      DATA.suprimentos.ocs.forEach(oc=>{
-        const it=document.createElement('div');
-        const cls=urgencyByDate(oc.previsao);
-        it.className=`item ${cls}`;
-        it.innerHTML=`
-          <div class="row"><strong>${oc.numero}</strong><span>${oc.status}</span></div>
-          <div class="kv">Fornecedor: ${oc.fornecedor}</div>
-          <div class="kv">Previsão: <span class="date">${oc.previsao}</span> • Comprador: <b>${oc.comprador}</b></div>
-        `;
-        ocSec.appendChild(it);
-      });
-      sList.appendChild(ocSec);
-
-      sup.appendChild(sList);
-      board.appendChild(sup);
-
-      // Logo (opcional)
-      if(DATA.logo_src){document.getElementById('logo').src = DATA.logo_src}
-    }
-
-    function tick(){document.getElementById('clock').textContent=fmtClock();render()}
-    tick();setInterval(tick,60000);setInterval(()=>{document.getElementById('clock').textContent=fmtClock()},1000);
-  </script>
-</body>
 </html>
+
 
 
