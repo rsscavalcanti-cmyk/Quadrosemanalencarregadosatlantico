@@ -4,12 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atlântico Golf — Quadro Kanban por Encarregado</title>
-  <meta name="description" content="Kanban semanal por encarregado + coluna de Suprimentos (Requisições e OCs). Tema claro, pronto para TV/obras, com espaço fixo para logo e status das tarefas." />
+  <meta name="description" content="Kanban semanal por encarregado + Suprimentos. Compatível com navegadores antigos. Edição sem código, status, lead time esperado (Requisições) e lead time real (OC)." />
   <style>
+    /* ======= Tema claro ======= */
     :root{
       --bg:#f5f7fb; --text:#111827; --muted:#475569; --brand:#005b96;
-      --card:#ffffff; --border:#cbd5e1; --header:#f1f5f9;
-      --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c; --block:#9333ea; --exec:#0ea5e9;
+      --card:#ffffff; --border:#cbd5e1; --header:#f1f5f9; /* cinza claro */
+      --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c; --block:#9333ea; --exec:#0ea5e9; --recv:#15803d;
+      --chip:#e2e8f0;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -18,20 +20,23 @@
     header{padding:14px 16px;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center}
     .brand{display:flex;align-items:center;gap:14px}
 
-    .logo-box{width:140px;height:64px;background:#fff;border-radius:10px;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;overflow:hidden}
+    /* Espaço fixo para o logo */
+    .logo-box{width:160px;height:70px;background:#fff;border-radius:10px;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;overflow:hidden}
     .logo-img{max-width:100%;max-height:100%;display:none}
     .logo-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#0f172a;font-weight:800;letter-spacing:.3px}
 
     h1{margin:0;font-size:24px}
+    .right{display:flex;align-items:center;gap:10px}
     .clock{font-variant-numeric:tabular-nums}
+    .btn{background:#fff;color:#0f172a;border:0;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer}
 
     .board{display:flex;align-items:flex-start;gap:16px;padding:16px;overflow:auto;height:calc(100% - 92px)}
-    .column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:280px;max-width:420px;flex:1;display:flex;flex-direction:column}
+    .column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:300px;max-width:460px;flex:1;display:flex;flex-direction:column}
     .column h2{margin:0;padding:14px;background:var(--header);font-size:18px;font-weight:800;text-decoration:underline;border-bottom:1px solid var(--border);text-align:center}
 
     .list{padding:10px}
-    .task{background:#ffffff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(2,6,23,.06)}
-    .task.overdue{border-left-color:var(--late);animation:blink 1.5s ease-in-out infinite}
+    .task{background:#ffffff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(2,6,23,.06);position:relative}
+    .task.overdue{border-left-color:var(--late);animation:blink 1.6s ease-in-out infinite, jitter .6s linear infinite}
     .task.block{border-left-color:var(--block)}
     .task.exec{border-left-color:var(--exec)}
     .task.done{border-left-color:var(--ok)}
@@ -39,30 +44,39 @@
     .meta{font-size:13px;color:var(--muted)}
     .date{font-weight:900;background:#fff7ed;border:1px solid rgba(124,45,18,.25);padding:1px 6px;border-radius:6px}
     .d{font-weight:700}
-    .status{font-weight:700;display:inline-block;margin-top:4px}
-    .trophy{font-size:16px;margin-left:6px}
-    @keyframes blink{0%{opacity:1}50%{opacity:.45}100%{opacity:1}}
+    .chip{display:inline-block;background:var(--chip);padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700;margin-left:6px}
 
+    /* Suprimentos */
     .section{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}
     .section h3{margin:8px 0 6px;font-size:14px;color:#0f172a;text-align:center}
-    .item{background:#ffffff;border:1px solid var(--border);border-left:8px solid var(--border);border-radius:10px;padding:10px;margin:8px 0;box-shadow:0 2px 6px rgba(2,6,23,.06)}
-    .item.overdue{border-left-color:var(--late);animation:blink 1.5s ease-in-out infinite}
+    .item{background:#ffffff;border:1px solid var(--border);border-left:8px solid var(--border);border-radius:10px;padding:10px;margin:8px 0;box-shadow:0 2px 6px rgba(2,6,23,.06);position:relative}
+    .item.overdue{border-left-color:var(--late)}
     .item.soon{border-left-color:var(--warn)}
     .item.ok{border-left-color:var(--ok)}
+    .item.recv{border-left-color:var(--recv)}
     .row{display:flex;justify-content:space-between;gap:8px;font-size:14px}
     .kv{font-size:12px;color:var(--muted)}
+
+    /* Controles (edit mode) */
+    .controls{display:none;margin-top:8px;gap:8px;flex-wrap:wrap}
+    .controls input,.controls select{border:1px solid var(--border);border-radius:8px;padding:6px 8px}
+
+    /* Efeitos */
+    @keyframes blink{0%{opacity:1}50%{opacity:.45}100%{opacity:1}}
+    @keyframes jitter{0%,100%{transform:translateX(0)}25%{transform:translateX(1px)}75%{transform:translateX(-1px)}}
   </style>
 </head>
 <body>
   <header>
     <div class="brand">
-      <div class="logo-box">
-        <img id="logo" class="logo-img" alt="Logo System Engenharia" />
-        <div id="logoPh" class="logo-ph">LOGO</div>
-      </div>
+      <div class="logo-box"><img id="logo" class="logo-img" alt="Logo System Engenharia" /><div id="logoPh" class="logo-ph">LOGO</div></div>
       <h1>Atlântico Golf — Quadro Kanban (Semanal)</h1>
     </div>
-    <div class="clock" id="clock">--:--:--</div>
+    <div class="right">
+      <button id="editToggle" class="btn" title="Ativar edição">✏️ Editar</button>
+      <button id="resetBtn" class="btn" title="Restaurar padrão">↩️ Reset</button>
+      <div class="clock" id="clock">--:--:--</div>
+    </div>
   </header>
 
   <div class="board" id="board"></div>
@@ -70,117 +84,261 @@
   <script>
   (function(){
     'use strict';
-    const DATA = {
+
+    /* =================== ESTADO PADRÃO =================== */
+    var STATE_VERSION = 'v9-2025-09-14';
+    var DATA_DEFAULT = {
       logo_src: 'assets/logo.jpg',
       encarregados:[
-        {nome:"Severo (Hidráulica)", tarefas:[
-          {titulo:"Interligar barrilete Torre 1 — Subsolo", prazo:"16/09/2025", status:"exec"},
-          {titulo:"Teste estanqueidade prumada A — Bloco 2", prazo:"17/09/2025", status:"block"}
+        {nome:'Severo (Hidráulica)', tarefas:[
+          {titulo:'Interligar barrilete Torre 1 — Subsolo', prazo:'16/09/2025', status:'exec'},
+          {titulo:'Teste estanqueidade prumada A — Bloco 2', prazo:'17/09/2025', status:'block'}
         ]},
-        {nome:"Ayrton (Hidráulica)", tarefas:[
-          {titulo:"Fixar suportes de reservatórios — Área Técnica", prazo:"15/09/2025", status:"done"},
-          {titulo:"Montar barrilete superior — Torre 3", prazo:"19/09/2025", status:"exec"}
+        {nome:'Ayrton (Hidráulica)', tarefas:[
+          {titulo:'Fixar suportes de reservatórios — Área Técnica', prazo:'15/09/2025', status:'done'},
+          {titulo:'Montar barrilete superior — Torre 3', prazo:'19/09/2025', status:'exec'}
         ]},
-        {nome:"Thiago (Elétrica)", tarefas:[
-          {titulo:"Lançamento cabos QGBT→QDLs — Subsolo", prazo:"16/09/2025", status:"exec"},
-          {titulo:"Fechamento alimentadores nos disjuntores gerais", prazo:"17/09/2025", status:"block"}
+        {nome:'Thiago (Elétrica)', tarefas:[
+          {titulo:'Lançamento cabos QGBT→QDLs — Subsolo', prazo:'16/09/2025', status:'exec'},
+          {titulo:'Fechamento alimentadores nos disjuntores gerais', prazo:'17/09/2025', status:'block'}
         ]},
-        {nome:"Marcelo (Elétrica)", tarefas:[
-          {titulo:"Revisão SPDA — Cobertura Bloco 2", prazo:"15/09/2025", status:"done"},
-          {titulo:"Checklist iluminação emergência — Térreo", prazo:"18/09/2025", status:"exec"}
+        {nome:'Marcelo (Elétrica)', tarefas:[
+          {titulo:'Revisão SPDA — Cobertura Bloco 2', prazo:'15/09/2025', status:'done'},
+          {titulo:'Checklist iluminação emergência — Térreo', prazo:'18/09/2025', status:'exec'}
         ]}
       ],
       suprimentos:{
         requisicoes:[
-          {numero:"RQ-241", data:"12/09/2025", solicitante:"Thiago", area:"Subsolo", status:"EM ANÁLISE", obs:"Eletrocalhas 100mm", prazo:"18/09/2025"},
-          {numero:"RQ-256", data:"13/09/2025", solicitante:"Severo", area:"Hidráulica", status:"APROVADA", obs:"Conexões PPR Ø75", prazo:"20/09/2025"}
+          // Lead time ESPERADO = prazo (previsto) - data (solicitação)
+          {numero:'RQ-241', data:'12/09/2025', solicitante:'Thiago', area:'Subsolo', status:'EM ANÁLISE', obs:'Eletrocalhas 100mm', prazo:'18/09/2025'},
+          {numero:'RQ-256', data:'13/09/2025', solicitante:'Severo', area:'Hidráulica', status:'APROVADA', obs:'Conexões PPR Ø75', prazo:'20/09/2025'}
         ],
         ocs:[
-          {numero:"OC-1189", fornecedor:"Prysmian", status:"EMITIDA", previsao:"18/09/2025", comprador:"Carla"},
-          {numero:"OC-1197", fornecedor:"Megabarre", status:"AGUARDANDO NF", previsao:"25/09/2025", comprador:"Eduardo"}
+          // Lead time REAL = recebido - emissao (quando recebido)
+          {numero:'OC-1189', emissao:'14/09/2025', fornecedor:'Prysmian', status:'EMITIDA', previsao:'18/09/2025', comprador:'Carla', recebido:''},
+          {numero:'OC-1197', emissao:'17/09/2025', fornecedor:'Megabarre', status:'AGUARDANDO NF', previsao:'25/09/2025', comprador:'Eduardo', recebido:'26/09/2025'}
         ]
       }
     };
 
-    const HOUR = 36e5, DAY = 86400000;
-    function now(){return new Date();}
-    function parseBRDate(s){ if(!s) return null; const [d,m,y] = s.split('/').map(Number); return new Date(y, m-1, d, 17, 0, 0); }
-    function diffHours(a,b){return (a - b) / HOUR;}
-    function fmtClock(){ const t = now(); const pad=n=>String(n).padStart(2,'0'); return `${pad(t.getHours())}:${pad(t.getMinutes())}:${pad(t.getSeconds())}`; }
+    /* =================== PERSISTÊNCIA =================== */
+    var DATA = null;
+    function loadState(){
+      try{
+        var ver = localStorage.getItem('atlGolfStateVersion');
+        var raw = localStorage.getItem('atlGolfState');
+        if(!raw || ver !== STATE_VERSION){ return JSON.parse(JSON.stringify(DATA_DEFAULT)); }
+        return JSON.parse(raw);
+      }catch(e){ return JSON.parse(JSON.stringify(DATA_DEFAULT)); }
+    }
+    function saveState(){ try{ localStorage.setItem('atlGolfState', JSON.stringify(DATA)); localStorage.setItem('atlGolfStateVersion', STATE_VERSION); }catch(e){} }
+
+    DATA = loadState();
+
+    /* =================== UTIL DE DATAS =================== */
+    var DAY = 86400000, HOUR = 36e5;
+    function toBR(d){ if(!d) return ''; var dd = String(d.getDate()).padStart(2,'0'); var mm = String(d.getMonth()+1).padStart(2,'0'); var yy = d.getFullYear(); return dd+'/'+mm+'/'+yy; }
+    function toISO(br){ if(!br) return ''; var p = br.split('/'); if(p.length!==3) return ''; var dd=Number(p[0]), mm=Number(p[1]), yy=Number(p[2]); return yy+'-'+String(mm).padStart(2,'0')+'-'+String(dd).padStart(2,'0'); }
+    function fromISO(iso){ if(!iso) return ''; var p = iso.split('-'); if(p.length!==3) return ''; var yy=Number(p[0]), mm=Number(p[1]), dd=Number(p[2]); return String(dd).padStart(2,'0')+'/'+String(mm).padStart(2,'0')+'/'+yy; }
+    function parseBRDate(s){ if(!s) return null; var a=s.split('/'); if(a.length!==3) return null; var d=Number(a[0]), m=Number(a[1]), y=Number(a[2]); var dt = new Date(y, m-1, d, 12, 0, 0); if(isNaN(dt.getTime())) return null; return dt; }
+    function diffDays(a,b){ return Math.round((a-b)/DAY); }
+    function diffHours(a,b){ return (a-b)/HOUR; }
+    function fmtClock(){ var t=new Date(); function pad(n){return String(n).padStart(2,'0')} return pad(t.getHours())+':'+pad(t.getMinutes())+':'+pad(t.getSeconds()); }
+    function dLabel(dateStr){ var d=parseBRDate(dateStr); if(!d) return ''; var delta = Math.floor((d - new Date())/DAY); if(delta===0) return 'D-0'; return (delta>0)? ('D-'+delta) : ('D+'+Math.abs(delta)); }
     function urgencyByDate(dateStr, status){
-      if(status === 'done') return 'done';
-      if(status === 'block') return 'block';
-      if(status === 'exec') return 'exec';
-      const d = parseBRDate(dateStr);
-      if(!d) return 'ok';
-      const dh = diffHours(d, now());
-      if(dh <= 0) return 'overdue';
-      if(dh <= 48) return 'soon';
+      if(status==='done') return 'done';
+      if(status==='block') return 'block';
+      if(status==='exec') return 'exec';
+      if(status==='recebido') return 'recv';
+      var d = parseBRDate(dateStr); if(!d) return 'ok';
+      var dh = diffHours(d, new Date());
+      if(dh<=0) return 'overdue';
+      if(dh<=48) return 'soon';
       return 'ok';
     }
-    function dLabel(dateStr){ const d = parseBRDate(dateStr); if(!d) return ''; const delta = Math.floor((d - new Date())/DAY); if(delta === 0) return 'D-0'; return delta>0? `D-${delta}` : `D+${Math.abs(delta)}`; }
 
-    function renderBoard(){
-      const board = document.getElementById('board');
-      board.innerHTML = '';
-      DATA.encarregados.forEach(enc => {
-        const col = document.createElement('section'); col.className = 'column';
-        const h2 = document.createElement('h2'); h2.textContent = enc.nome; col.appendChild(h2);
-        const list = document.createElement('div'); list.className = 'list';
-        (enc.tarefas||[]).forEach(t => {
-          const cls = urgencyByDate(t.prazo, t.status);
-          const statusLabel = t.status === 'exec' ? 'Em execução' : t.status === 'block' ? 'Bloqueada' : t.status === 'done' ? 'Finalizada' : (cls === 'overdue' ? 'Atrasada' : 'Pendente');
-          const trophy = t.status === 'done' ? ' 🏆' : '';
-          const card = document.createElement('div'); card.className = `task ${cls}`;
-          card.innerHTML = `<div class="title">${t.titulo}</div>
-                            <div class="meta">Prazo: <span class="date">${t.prazo||'-'}</span> • <span class="d">${dLabel(t.prazo)}</span></div>
-                            <div class="status">${statusLabel}${trophy}</div>`;
+    /* =================== DOM HELPERS =================== */
+    function el(tag, cls, text){ var e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
+
+    var boardEl = document.getElementById('board');
+
+    function render(){
+      boardEl.innerHTML = '';
+
+      // Colunas por encarregado
+      for(var i=0;i<DATA.encarregados.length;i++){
+        var enc = DATA.encarregados[i];
+        var col = el('section','column');
+        col.appendChild(el('h2','',enc.nome));
+        var list = el('div','list');
+
+        for(var j=0;j<enc.tarefas.length;j++){
+          var t = enc.tarefas[j];
+          var cls = urgencyByDate(t.prazo, t.status);
+          var card = el('div','task '+cls);
+
+          var title = el('div','title',t.titulo);
+          var meta = el('div','meta');
+          var metaTxt = 'Prazo: ' + (t.prazo||'-') + ' • ' + dLabel(t.prazo);
+          meta.textContent = metaTxt;
+
+          var statusLabel = 'Pendente';
+          if(t.status==='exec') statusLabel='Em execução';
+          else if(t.status==='block') statusLabel='Bloqueada';
+          else if(t.status==='done') statusLabel='Finalizada 🏆';
+          else if(cls==='overdue') statusLabel='Atrasada';
+          var chip = el('span','chip',statusLabel);
+
+          card.appendChild(title);
+          card.appendChild(meta);
+          meta.appendChild(chip);
+
+          // Controles (edição)
+          var controls = el('div','controls');
+          var labS = el('label',''); labS.textContent=' Status: ';
+          var sel = el('select','');
+          var opts=[['exec','Em execução'],['block','Bloqueada'],['done','Finalizada']];
+          for(var oi=0;oi<opts.length;oi++){ var op=document.createElement('option'); op.value=opts[oi][0]; op.textContent=opts[oi][1]; if(t.status===op.value) op.selected=true; sel.appendChild(op); }
+          labS.appendChild(sel);
+
+          var labD = el('label',''); labD.textContent=' Prazo: ';
+          var inp = document.createElement('input'); inp.type='date'; inp.value=toISO(t.prazo);
+          labD.appendChild(inp);
+
+          controls.appendChild(labS); controls.appendChild(labD);
+          card.appendChild(controls);
+
+          // Eventos
+          (function(encIdx,taskIdx){
+            sel.addEventListener('change', function(){ DATA.encarregados[encIdx].tarefas[taskIdx].status = sel.value; saveState(); render(); });
+            inp.addEventListener('change', function(){ DATA.encarregados[encIdx].tarefas[taskIdx].prazo = fromISO(inp.value); saveState(); render(); });
+          })(i,j);
+
           list.appendChild(card);
-        });
-        col.appendChild(list); board.appendChild(col);
-      });
+        }
 
-      const sup = document.createElement('section'); sup.className = 'column'; sup.innerHTML = `<h2>Suprimentos</h2>`;
-      const sList = document.createElement('div'); sList.className = 'list';
-      const rqSec = document.createElement('div'); rqSec.className = 'section'; rqSec.innerHTML = '<h3>Requisições em Aberto</h3>';
-      (DATA.suprimentos.requisicoes||[]).forEach(rq => {
-        const it = document.createElement('div'); it.className = 'item';
-        it.innerHTML = `<div class="row"><strong>${rq.numero}</strong><span>${rq.status||''}</span></div>
-                        <div class="kv">Data: <span class="date">${rq.data||'-'}</span> • Prazo: <span class="date">${rq.prazo||'-'}</span></div>
-                        <div class="kv">Solicitante: ${rq.solicitante||'-'} • Área: ${rq.area||'-'}</div>
-                        <div class="kv">Obs.: ${rq.obs||'-'}</div>`;
+        col.appendChild(list);
+        boardEl.appendChild(col);
+      }
+
+      // Coluna Suprimentos
+      var sup = el('section','column');
+      sup.appendChild(el('h2','','Suprimentos'));
+      var sList = el('div','list');
+
+      // Requisições — lead time esperado
+      var rqSec = el('div','section');
+      rqSec.appendChild(el('h3','', 'Requisições em Aberto'));
+      for(var r=0;r<DATA.suprimentos.requisicoes.length;r++){
+        var rq = DATA.suprimentos.requisicoes[r];
+        var dtPrazo = parseBRDate(rq.prazo); var dtData = parseBRDate(rq.data);
+        var ltEsperado = (dtPrazo && dtData) ? (diffDays(dtPrazo, dtData)+'d') : '-';
+        var clsRq = urgencyByDate(rq.prazo, rq.status);
+        var it = el('div','item '+clsRq);
+
+        var rowTop = el('div','row');
+        rowTop.appendChild(el('strong','', rq.numero));
+        rowTop.appendChild(el('span','', rq.status||''));
+
+        var kv1 = el('div','kv','Data: '+(rq.data||'-')+' • Prazo: '+(rq.prazo||'-')+' • Lead time esperado: '+ltEsperado);
+        var kv2 = el('div','kv','Solicitante: '+(rq.solicitante||'-')+' • Área: '+(rq.area||'-')+' • Obs.: '+(rq.obs||'-'));
+
+        // Controles
+        var ctr = el('div','controls');
+        var l1 = el('label',''); l1.textContent=' Data:'; var d1=document.createElement('input'); d1.type='date'; d1.value=toISO(rq.data); l1.appendChild(d1);
+        var l2 = el('label',''); l2.textContent=' Prazo:'; var d2=document.createElement('input'); d2.type='date'; d2.value=toISO(rq.prazo); l2.appendChild(d2);
+        var l3 = el('label',''); l3.textContent=' Status:'; var s1=document.createElement('input'); s1.type='text'; s1.value=rq.status||''; l3.appendChild(s1);
+        ctr.appendChild(l1); ctr.appendChild(l2); ctr.appendChild(l3);
+
+        (function(idx){
+          d1.addEventListener('change', function(){ DATA.suprimentos.requisicoes[idx].data = fromISO(d1.value); saveState(); render(); });
+          d2.addEventListener('change', function(){ DATA.suprimentos.requisicoes[idx].prazo = fromISO(d2.value); saveState(); render(); });
+          s1.addEventListener('change', function(){ DATA.suprimentos.requisicoes[idx].status = s1.value; saveState(); render(); });
+        })(r);
+
+        it.appendChild(rowTop); it.appendChild(kv1); it.appendChild(kv2); it.appendChild(ctr);
         rqSec.appendChild(it);
-      });
+      }
       sList.appendChild(rqSec);
-      const ocSec = document.createElement('div'); ocSec.className = 'section'; ocSec.innerHTML = '<h3>Ordens de Compra (OC)</h3>';
-      (DATA.suprimentos.ocs||[]).forEach(oc => {
-        const it = document.createElement('div'); it.className = 'item';
-        it.innerHTML = `<div class="row"><strong>${oc.numero}</strong><span>${oc.status||''}</span></div>
-                        <div class="kv">Fornecedor: ${oc.fornecedor||'-'}</div>
-                        <div class="kv">Previsão: <span class="date">${oc.previsao||'-'}</span> • Comprador: <b>${oc.comprador||'-'}</b></div>`;
-        ocSec.appendChild(it);
-      });
+
+      // OCs — lead time real (recebido - emissão)
+      var ocSec = el('div','section');
+      ocSec.appendChild(el('h3','', 'Ordens de Compra (OC)'));
+      for(var o=0;o<DATA.suprimentos.ocs.length;o++){
+        var oc = DATA.suprimentos.ocs[o];
+        var dtRec = parseBRDate(oc.recebido); var dtEmi = parseBRDate(oc.emissao);
+        var ltReal = (dtRec && dtEmi) ? (diffDays(dtRec, dtEmi)+'d') : '-';
+        var clsOc = oc.recebido ? 'recv' : urgencyByDate(oc.previsao, oc.status);
+        var it2 = el('div','item '+clsOc);
+
+        var rowTop2 = el('div','row');
+        rowTop2.appendChild(el('strong','', oc.numero));
+        rowTop2.appendChild(el('span','', oc.status||''));
+
+        var kv3 = el('div','kv','Fornecedor: '+(oc.fornecedor||'-')+' • Comprador: '+(oc.comprador||'-'));
+        var kv4 = el('div','kv','Emissão: '+(oc.emissao||'-')+' • Previsão: '+(oc.previsao||'-')+' • Lead time real: '+ltReal);
+        var st = el('div','kv', oc.recebido? ('Recebido em '+oc.recebido) : 'Pendente');
+
+        // Controles
+        var ctr2 = el('div','controls');
+        var L1 = el('label',''); L1.textContent=' Emissão:'; var E1=document.createElement('input'); E1.type='date'; E1.value=toISO(oc.emissao); L1.appendChild(E1);
+        var L2 = el('label',''); L2.textContent=' Previsão:'; var E2=document.createElement('input'); E2.type='date'; E2.value=toISO(oc.previsao); L2.appendChild(E2);
+        var L3 = el('label',''); L3.textContent=' Recebido:'; var E3=document.createElement('input'); E3.type='date'; E3.value=toISO(oc.recebido); L3.appendChild(E3);
+        var L4 = el('label',''); L4.textContent=' Status:'; var S2=document.createElement('input'); S2.type='text'; S2.value=oc.status||''; L4.appendChild(S2);
+        ctr2.appendChild(L1); ctr2.appendChild(L2); ctr2.appendChild(L3); ctr2.appendChild(L4);
+
+        (function(idx){
+          E1.addEventListener('change', function(){ DATA.suprimentos.ocs[idx].emissao = fromISO(E1.value); saveState(); render(); });
+          E2.addEventListener('change', function(){ DATA.suprimentos.ocs[idx].previsao = fromISO(E2.value); saveState(); render(); });
+          E3.addEventListener('change', function(){ DATA.suprimentos.ocs[idx].recebido = fromISO(E3.value); saveState(); render(); });
+          S2.addEventListener('change', function(){ DATA.suprimentos.ocs[idx].status = S2.value; saveState(); render(); });
+        })(o);
+
+        it2.appendChild(rowTop2); it2.appendChild(kv3); it2.appendChild(kv4); it2.appendChild(st); it2.appendChild(ctr2);
+        ocSec.appendChild(it2);
+      }
       sList.appendChild(ocSec);
-      sup.appendChild(sList); board.appendChild(sup);
+
+      sup.appendChild(sList); boardEl.appendChild(sup);
+
+      // Mostrar controles se edição ativa
+      var editing = document.body.getAttribute('data-edit')==='1';
+      var ctrs = document.querySelectorAll('.controls');
+      for(var c=0;c<ctrs.length;c++){ ctrs[c].style.display = editing ? 'flex' : 'none'; }
     }
 
+    /* =================== LOGO & RELÓGIO =================== */
     function initLogo(){
-      const img = document.getElementById('logo');
-      const ph  = document.getElementById('logoPh');
-      const src = DATA.logo_src || '';
+      var img = document.getElementById('logo');
+      var ph  = document.getElementById('logoPh');
+      var src = DATA.logo_src || '';
       if(!src){ img.style.display='none'; ph.style.display='flex'; return; }
-      img.onload = ()=>{ img.style.display='block'; ph.style.display='none'; };
-      img.onerror = ()=>{ img.style.display='none'; ph.style.display='flex'; };
+      img.onload = function(){ img.style.display='block'; ph.style.display='none'; };
+      img.onerror = function(){ img.style.display='none'; ph.style.display='flex'; };
       img.src = src;
     }
+    function tick(){ document.getElementById('clock').textContent = fmtClock(); }
 
-    function tick(){ document.getElementById('clock').textContent = fmtClock(); renderBoard(); }
+    /* =================== BOTÕES HEADER =================== */
+    var editBtn = document.getElementById('editToggle');
+    editBtn.addEventListener('click', function(){
+      var isOn = document.body.getAttribute('data-edit')==='1';
+      document.body.setAttribute('data-edit', isOn ? '0' : '1');
+      editBtn.textContent = isOn ? '✏️ Editar' : '✅ Concluir';
+      render();
+    });
 
+    var resetBtn = document.getElementById('resetBtn');
+    resetBtn.addEventListener('click', function(){
+      if(confirm('Restaurar dados padrão?')){ DATA = JSON.parse(JSON.stringify(DATA_DEFAULT)); saveState(); render(); initLogo(); }
+    });
+
+    /* =================== BOOT =================== */
     document.addEventListener('DOMContentLoaded', function(){
       initLogo();
-      tick();
-      setInterval(tick, 60000);
-      setInterval(()=>{ document.getElementById('clock').textContent = fmtClock(); }, 1000);
+      render();
+      setInterval(function(){ tick(); }, 1000);
+      setInterval(function(){ render(); }, 60000); // atualização de urgência
     });
   })();
   </script>
