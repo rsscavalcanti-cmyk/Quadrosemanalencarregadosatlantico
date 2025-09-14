@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atlântico Golf — Quadro Kanban por Encarregado</title>
-  <meta name="description" content="Kanban semanal por encarregado + coluna de Suprimentos (Requisições e OCs). Tema claro, pronto para TV/obras, com espaço fixo para logo." />
+  <meta name="description" content="Kanban semanal por encarregado + coluna de Suprimentos (Requisições e OCs). Tema claro, pronto para TV/obras, com espaço fixo para logo e status das tarefas." />
   <style>
     :root{
       --bg:#f5f7fb; --text:#111827; --muted:#475569; --brand:#005b96;
-      --card:#ffffff; --border:#cbd5e1; --header:#f1f5f9; /* cinza mais claro */
-      --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c;
+      --card:#ffffff; --border:#cbd5e1; --header:#f1f5f9;
+      --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c; --block:#9333ea; --exec:#0ea5e9;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -32,12 +32,15 @@
     .list{padding:10px}
     .task{background:#ffffff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(2,6,23,.06)}
     .task.overdue{border-left-color:var(--late);animation:blink 1.5s ease-in-out infinite}
-    .task.soon{border-left-color:var(--warn)}
-    .task.ok{border-left-color:var(--ok)}
+    .task.block{border-left-color:var(--block)}
+    .task.exec{border-left-color:var(--exec)}
+    .task.done{border-left-color:var(--ok)}
     .title{font-weight:800;margin-bottom:6px}
     .meta{font-size:13px;color:var(--muted)}
     .date{font-weight:900;background:#fff7ed;border:1px solid rgba(124,45,18,.25);padding:1px 6px;border-radius:6px}
     .d{font-weight:700}
+    .status{font-weight:700;display:inline-block;margin-top:4px}
+    .trophy{font-size:16px;margin-left:6px}
     @keyframes blink{0%{opacity:1}50%{opacity:.45}100%{opacity:1}}
 
     .section{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}
@@ -71,20 +74,20 @@
       logo_src: 'assets/logo.jpg',
       encarregados:[
         {nome:"Severo (Hidráulica)", tarefas:[
-          {titulo:"Interligar barrilete Torre 1 — Subsolo", prazo:"16/09/2025"},
-          {titulo:"Teste estanqueidade prumada A — Bloco 2", prazo:"17/09/2025"}
+          {titulo:"Interligar barrilete Torre 1 — Subsolo", prazo:"16/09/2025", status:"exec"},
+          {titulo:"Teste estanqueidade prumada A — Bloco 2", prazo:"17/09/2025", status:"block"}
         ]},
         {nome:"Ayrton (Hidráulica)", tarefas:[
-          {titulo:"Fixar suportes de reservatórios — Área Técnica", prazo:"15/09/2025"},
-          {titulo:"Montar barrilete superior — Torre 3", prazo:"19/09/2025"}
+          {titulo:"Fixar suportes de reservatórios — Área Técnica", prazo:"15/09/2025", status:"done"},
+          {titulo:"Montar barrilete superior — Torre 3", prazo:"19/09/2025", status:"exec"}
         ]},
         {nome:"Thiago (Elétrica)", tarefas:[
-          {titulo:"Lançamento cabos QGBT→QDLs — Subsolo", prazo:"16/09/2025"},
-          {titulo:"Fechamento alimentadores nos disjuntores gerais", prazo:"17/09/2025"}
+          {titulo:"Lançamento cabos QGBT→QDLs — Subsolo", prazo:"16/09/2025", status:"exec"},
+          {titulo:"Fechamento alimentadores nos disjuntores gerais", prazo:"17/09/2025", status:"block"}
         ]},
         {nome:"Marcelo (Elétrica)", tarefas:[
-          {titulo:"Revisão SPDA — Cobertura Bloco 2", prazo:"15/09/2025"},
-          {titulo:"Checklist iluminação emergência — Térreo", prazo:"18/09/2025"}
+          {titulo:"Revisão SPDA — Cobertura Bloco 2", prazo:"15/09/2025", status:"done"},
+          {titulo:"Checklist iluminação emergência — Térreo", prazo:"18/09/2025", status:"exec"}
         ]}
       ],
       suprimentos:{
@@ -104,7 +107,17 @@
     function parseBRDate(s){ if(!s) return null; const [d,m,y] = s.split('/').map(Number); return new Date(y, m-1, d, 17, 0, 0); }
     function diffHours(a,b){return (a - b) / HOUR;}
     function fmtClock(){ const t = now(); const pad=n=>String(n).padStart(2,'0'); return `${pad(t.getHours())}:${pad(t.getMinutes())}:${pad(t.getSeconds())}`; }
-    function urgencyByDate(dateStr){ const d = parseBRDate(dateStr); if(!d) return 'ok'; const dh = diffHours(d, now()); if(dh <= 0) return 'overdue'; if(dh <= 48) return 'soon'; return 'ok'; }
+    function urgencyByDate(dateStr, status){
+      if(status === 'done') return 'done';
+      if(status === 'block') return 'block';
+      if(status === 'exec') return 'exec';
+      const d = parseBRDate(dateStr);
+      if(!d) return 'ok';
+      const dh = diffHours(d, now());
+      if(dh <= 0) return 'overdue';
+      if(dh <= 48) return 'soon';
+      return 'ok';
+    }
     function dLabel(dateStr){ const d = parseBRDate(dateStr); if(!d) return ''; const delta = Math.floor((d - new Date())/DAY); if(delta === 0) return 'D-0'; return delta>0? `D-${delta}` : `D+${Math.abs(delta)}`; }
 
     function renderBoard(){
@@ -115,10 +128,13 @@
         const h2 = document.createElement('h2'); h2.textContent = enc.nome; col.appendChild(h2);
         const list = document.createElement('div'); list.className = 'list';
         (enc.tarefas||[]).forEach(t => {
-          const cls = urgencyByDate(t.prazo);
+          const cls = urgencyByDate(t.prazo, t.status);
+          const statusLabel = t.status === 'exec' ? 'Em execução' : t.status === 'block' ? 'Bloqueada' : t.status === 'done' ? 'Finalizada' : (cls === 'overdue' ? 'Atrasada' : 'Pendente');
+          const trophy = t.status === 'done' ? ' 🏆' : '';
           const card = document.createElement('div'); card.className = `task ${cls}`;
           card.innerHTML = `<div class="title">${t.titulo}</div>
-                            <div class="meta">Prazo: <span class="date">${t.prazo||'-'}</span> • <span class="d">${dLabel(t.prazo)}</span></div>`;
+                            <div class="meta">Prazo: <span class="date">${t.prazo||'-'}</span> • <span class="d">${dLabel(t.prazo)}</span></div>
+                            <div class="status">${statusLabel}${trophy}</div>`;
           list.appendChild(card);
         });
         col.appendChild(list); board.appendChild(col);
@@ -128,8 +144,7 @@
       const sList = document.createElement('div'); sList.className = 'list';
       const rqSec = document.createElement('div'); rqSec.className = 'section'; rqSec.innerHTML = '<h3>Requisições em Aberto</h3>';
       (DATA.suprimentos.requisicoes||[]).forEach(rq => {
-        const cls = urgencyByDate(rq.prazo || rq.previsao || rq.data);
-        const it = document.createElement('div'); it.className = `item ${cls}`;
+        const it = document.createElement('div'); it.className = 'item';
         it.innerHTML = `<div class="row"><strong>${rq.numero}</strong><span>${rq.status||''}</span></div>
                         <div class="kv">Data: <span class="date">${rq.data||'-'}</span> • Prazo: <span class="date">${rq.prazo||'-'}</span></div>
                         <div class="kv">Solicitante: ${rq.solicitante||'-'} • Área: ${rq.area||'-'}</div>
@@ -139,8 +154,7 @@
       sList.appendChild(rqSec);
       const ocSec = document.createElement('div'); ocSec.className = 'section'; ocSec.innerHTML = '<h3>Ordens de Compra (OC)</h3>';
       (DATA.suprimentos.ocs||[]).forEach(oc => {
-        const cls = urgencyByDate(oc.previsao);
-        const it = document.createElement('div'); it.className = `item ${cls}`;
+        const it = document.createElement('div'); it.className = 'item';
         it.innerHTML = `<div class="row"><strong>${oc.numero}</strong><span>${oc.status||''}</span></div>
                         <div class="kv">Fornecedor: ${oc.fornecedor||'-'}</div>
                         <div class="kv">Previsão: <span class="date">${oc.previsao||'-'}</span> • Comprador: <b>${oc.comprador||'-'}</b></div>`;
@@ -172,4 +186,5 @@
   </script>
 </body>
 </html>
+
 
