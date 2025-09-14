@@ -8,7 +8,7 @@
   <style>
     :root{
       --bg:#f5f7fb; --text:#111827; --muted:#475569; --brand:#005b96;
-      --card:#ffffff; --border:#cbd5e1; --header:#e2e8f0;
+      --card:#ffffff; --border:#cbd5e1; --header:#f1f5f9; /* cinza mais claro */
       --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c;
     }
     *{box-sizing:border-box}
@@ -18,7 +18,6 @@
     header{padding:14px 16px;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center}
     .brand{display:flex;align-items:center;gap:14px}
 
-    /* Espaço FIXO para o logo (sempre visível) */
     .logo-box{width:140px;height:64px;background:#fff;border-radius:10px;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;overflow:hidden}
     .logo-img{max-width:100%;max-height:100%;display:none}
     .logo-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#0f172a;font-weight:800;letter-spacing:.3px}
@@ -28,7 +27,7 @@
 
     .board{display:flex;align-items:flex-start;gap:16px;padding:16px;overflow:auto;height:calc(100% - 92px)}
     .column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:280px;max-width:420px;flex:1;display:flex;flex-direction:column}
-    .column h2{margin:0;padding:12px;background:var(--header);font-size:16px;border-bottom:1px solid var(--border);text-align:center}
+    .column h2{margin:0;padding:14px;background:var(--header);font-size:18px;font-weight:800;text-decoration:underline;border-bottom:1px solid var(--border);text-align:center}
 
     .list{padding:10px}
     .task{background:#ffffff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(2,6,23,.06)}
@@ -41,7 +40,6 @@
     .d{font-weight:700}
     @keyframes blink{0%{opacity:1}50%{opacity:.45}100%{opacity:1}}
 
-    /* Suprimentos */
     .section{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}
     .section h3{margin:8px 0 6px;font-size:14px;color:#0f172a;text-align:center}
     .item{background:#ffffff;border:1px solid var(--border);border-left:8px solid var(--border);border-radius:10px;padding:10px;margin:8px 0;box-shadow:0 2px 6px rgba(2,6,23,.06)}
@@ -69,10 +67,8 @@
   <script>
   (function(){
     'use strict';
-
-    // =================== DADOS (EDITE AQUI) ===================
     const DATA = {
-      logo_src: 'assets/logo.jpg', // caminho padrão do logo
+      logo_src: 'assets/logo.jpg',
       encarregados:[
         {nome:"Severo (Hidráulica)", tarefas:[
           {titulo:"Interligar barrilete Torre 1 — Subsolo", prazo:"16/09/2025"},
@@ -102,23 +98,18 @@
         ]
       }
     };
-    // ==========================================================
 
-    // Utilitários de data/urgência
     const HOUR = 36e5, DAY = 86400000;
     function now(){return new Date();}
-    function parseBRDate(s){ if(!s) return null; const parts = s.split('/'); if(parts.length !== 3) return null; const [d,m,y] = parts.map(Number); const dt = new Date(y, m-1, d, 17, 0, 0); return isNaN(dt.getTime()) ? null : dt; }
+    function parseBRDate(s){ if(!s) return null; const [d,m,y] = s.split('/').map(Number); return new Date(y, m-1, d, 17, 0, 0); }
     function diffHours(a,b){return (a - b) / HOUR;}
     function fmtClock(){ const t = now(); const pad=n=>String(n).padStart(2,'0'); return `${pad(t.getHours())}:${pad(t.getMinutes())}:${pad(t.getSeconds())}`; }
     function urgencyByDate(dateStr){ const d = parseBRDate(dateStr); if(!d) return 'ok'; const dh = diffHours(d, now()); if(dh <= 0) return 'overdue'; if(dh <= 48) return 'soon'; return 'ok'; }
     function dLabel(dateStr){ const d = parseBRDate(dateStr); if(!d) return ''; const delta = Math.floor((d - new Date())/DAY); if(delta === 0) return 'D-0'; return delta>0? `D-${delta}` : `D+${Math.abs(delta)}`; }
 
-    // Renderização
     function renderBoard(){
       const board = document.getElementById('board');
       board.innerHTML = '';
-
-      // Colunas por encarregado
       DATA.encarregados.forEach(enc => {
         const col = document.createElement('section'); col.className = 'column';
         const h2 = document.createElement('h2'); h2.textContent = enc.nome; col.appendChild(h2);
@@ -133,11 +124,8 @@
         col.appendChild(list); board.appendChild(col);
       });
 
-      // Coluna final: Suprimentos
       const sup = document.createElement('section'); sup.className = 'column'; sup.innerHTML = `<h2>Suprimentos</h2>`;
       const sList = document.createElement('div'); sList.className = 'list';
-
-      // Requisições
       const rqSec = document.createElement('div'); rqSec.className = 'section'; rqSec.innerHTML = '<h3>Requisições em Aberto</h3>';
       (DATA.suprimentos.requisicoes||[]).forEach(rq => {
         const cls = urgencyByDate(rq.prazo || rq.previsao || rq.data);
@@ -149,8 +137,6 @@
         rqSec.appendChild(it);
       });
       sList.appendChild(rqSec);
-
-      // OCs
       const ocSec = document.createElement('div'); ocSec.className = 'section'; ocSec.innerHTML = '<h3>Ordens de Compra (OC)</h3>';
       (DATA.suprimentos.ocs||[]).forEach(oc => {
         const cls = urgencyByDate(oc.previsao);
@@ -161,7 +147,6 @@
         ocSec.appendChild(it);
       });
       sList.appendChild(ocSec);
-
       sup.appendChild(sList); board.appendChild(sup);
     }
 
@@ -187,3 +172,4 @@
   </script>
 </body>
 </html>
+
