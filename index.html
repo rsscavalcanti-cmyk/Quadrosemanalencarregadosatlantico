@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atlântico Golf — Quadro Kanban por Encarregado</title>
-  <meta name="description" content="Visualização Kanban semanal por encarregado + Suprimentos. Sem edição via UI. Ordenação automática por urgência e conclusão." />
+  <meta name="description" content="Visualização Kanban por encarregado + Suprimentos, com códigos numéricos únicos por processo (tarefas, requisições e OCs). Sem edição via UI." />
   <style>
     :root{
       --bg:#f5f7fb; --text:#111827; --muted:#475569; --brand:#005b96;
       --card:#ffffff; --border:#cbd5e1; --header:#f1f5f9;
       --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c; --block:#9333ea; --exec:#0ea5e9; --recv:#15803d;
-      --chip:#e2e8f0;
+      --chip:#e2e8f0; --mono:#0f172a;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -37,6 +37,7 @@
     .title{font-weight:800;margin-bottom:6px}
     .meta{font-size:13px;color:var(--muted)}
     .chip{display:inline-block;background:var(--chip);padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700;margin-left:6px}
+    .code{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;background:#eef2ff;color:var(--mono);border:1px solid #c7d2fe;padding:2px 6px;border-radius:6px;margin-right:6px}
 
     .section{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}
     .section h3{margin:8px 0 6px;font-size:14px;color:#0f172a;text-align:center}
@@ -68,35 +69,41 @@
     'use strict';
 
     /* =================== DADOS (edite aqui no código) =================== */
+    // Regras de código:
+    // - Tarefas: código "T-0001", "T-0002", ... gerado na ordem de criação (global).
+    //   Você pode definir manualmente: { codigo:'T-0015', ... }
+    // - Requisições: se tiver "codigo" usa ele; senão, usa o campo "numero" como código.
+    // - OCs: idem, se não houver "codigo", usa "numero".
+
     var DATA = {
       logo_src: 'assets/logo.jpg',
       encarregados:[
         {nome:'Severo (Hidráulica)', tarefas:[
-          {titulo:'Interligar barrilete Torre 1 — Subsolo', prazo:'16/09/2025', status:'exec'},
-          {titulo:'Teste estanqueidade prumada A — Bloco 2', prazo:'17/09/2025', status:'block'}
+          {codigo:'', titulo:'Interligar barrilete Torre 1 — Subsolo', prazo:'16/09/2025', status:'exec'},
+          {codigo:'', titulo:'Teste estanqueidade prumada A — Bloco 2', prazo:'17/09/2025', status:'block'}
         ]},
         {nome:'Ayrton (Hidráulica)', tarefas:[
-          {titulo:'Fixar suportes de reservatórios — Área Técnica', prazo:'15/09/2025', status:'done', finalizado_em:'15/09/2025'},
-          {titulo:'Montar barrilete superior — Torre 3', prazo:'19/09/2025', status:'exec'}
+          {codigo:'', titulo:'Fixar suportes de reservatórios — Área Técnica', prazo:'15/09/2025', status:'done', finalizado_em:'15/09/2025'},
+          {codigo:'', titulo:'Montar barrilete superior — Torre 3', prazo:'19/09/2025', status:'exec'}
         ]},
         {nome:'Thiago (Elétrica)', tarefas:[
-          {titulo:'Lançamento cabos QGBT→QDLs — Subsolo', prazo:'16/09/2025', status:'exec'},
-          {titulo:'Fechamento alimentadores nos disjuntores gerais', prazo:'17/09/2025', status:'block'}
+          {codigo:'', titulo:'Lançamento cabos QGBT→QDLs — Subsolo', prazo:'16/09/2025', status:'exec'},
+          {codigo:'', titulo:'Fechamento alimentadores nos disjuntores gerais', prazo:'17/09/2025', status:'block'}
         ]},
         {nome:'Marcelo (Elétrica)', tarefas:[
-          {titulo:'Revisão SPDA — Cobertura Bloco 2', prazo:'15/09/2025', status:'done', finalizado_em:'15/09/2025'},
-          {titulo:'Checklist iluminação emergência — Térreo', prazo:'18/09/2025', status:'exec'}
+          {codigo:'', titulo:'Revisão SPDA — Cobertura Bloco 2', prazo:'15/09/2025', status:'done', finalizado_em:'15/09/2025'},
+          {codigo:'', titulo:'Checklist iluminação emergência — Térreo', prazo:'18/09/2025', status:'exec'}
         ]}
       ],
       suprimentos:{
         requisicoes:[
-          {numero:'RQ-241', data:'12/09/2025', solicitante:'Thiago', area:'Subsolo', status:'EM ANÁLISE', obs:'Eletrocalhas 100mm', prazo:'18/09/2025'},
-          {numero:'RQ-256', data:'13/09/2025', solicitante:'Severo', area:'Hidráulica', status:'APROVADA', obs:'Conexões PPR Ø75', prazo:'20/09/2025'}
-          // Use status 'FINALIZADA' para fazer subir
+          {codigo:'', numero:'RQ-241', data:'12/09/2025', solicitante:'Thiago', area:'Subsolo', status:'EM ANÁLISE', obs:'Eletrocalhas 100mm', prazo:'18/09/2025'},
+          {codigo:'', numero:'RQ-256', data:'13/09/2025', solicitante:'Severo', area:'Hidráulica', status:'APROVADA', obs:'Conexões PPR Ø75', prazo:'20/09/2025'}
+          // Para finalizar e fazer "subir": status: 'FINALIZADA' e (opcional) finalizado_em:'dd/mm/aaaa'
         ],
         ocs:[
-          {numero:'OC-1189', emissao:'14/09/2025', fornecedor:'Prysmian', status:'EMITIDA', previsao:'18/09/2025', comprador:'Carla', recebido:''},
-          {numero:'OC-1197', emissao:'17/09/2025', fornecedor:'Megabarre', status:'AGUARDANDO NF', previsao:'25/09/2025', comprador:'Eduardo', recebido:'26/09/2025'}
+          {codigo:'', numero:'OC-1189', emissao:'14/09/2025', fornecedor:'Prysmian', status:'EMITIDA', previsao:'18/09/2025', comprador:'Carla', recebido:''},
+          {codigo:'', numero:'OC-1197', emissao:'17/09/2025', fornecedor:'Megabarre', status:'AGUARDANDO NF', previsao:'25/09/2025', comprador:'Eduardo', recebido:'26/09/2025'}
         ]
       }
     };
@@ -104,18 +111,9 @@
     /* =================== UTIL DE DATAS =================== */
     var DAY = 86400000, HOUR = 36e5;
     function parseBRDate(s){ if(!s) return null; var a=s.split('/'); if(a.length!==3) return null; var d=+a[0], m=+a[1], y=+a[2]; var dt=new Date(y, m-1, d, 12, 0, 0); return isNaN(dt)?null:dt; }
-    function toISO(br){ if(!br) return ''; var p=br.split('/'); if(p.length!==3) return ''; var dd=Number(p[0]), mm=Number(p[1]), yy=Number(p[2]); return yy+'-'+String(mm).padStart(2,'0')+'-'+String(dd).padStart(2,'0'); }
-    function fromISO(iso){ if(!iso) return ''; var p=iso.split('-'); if(p.length!==3) return ''; var yy=+p[0], mm=+p[1], dd=+p[2]; return String(dd).padStart(2,'0')+'/'+String(mm).padStart(2,'0')+'/'+yy; }
     function diffDays(a,b){ return Math.round((a-b)/DAY); }
     function fmtClock(){ var t=new Date(); var pad=n=>String(n).padStart(2,'0'); return pad(t.getHours())+':'+pad(t.getMinutes())+':'+pad(t.getSeconds()); }
-
-    function dLabel(dateStr){
-      var d=parseBRDate(dateStr); if(!d) return '';
-      var delta = Math.floor((d - new Date())/DAY);
-      if(delta===0) return 'D-0';
-      return (delta>0)?('D-'+delta):('D+'+Math.abs(delta));
-    }
-
+    function dLabel(dateStr){ var d=parseBRDate(dateStr); if(!d) return ''; var delta = Math.floor((d - new Date())/DAY); if(delta===0) return 'D-0'; return (delta>0)?('D-'+delta):('D+'+Math.abs(delta)); }
     function urgencyByDate(dateStr, status){
       if(status==='done' || status==='FINALIZADA') return 'done';
       if(status==='block') return 'block';
@@ -128,77 +126,67 @@
       return 'ok';
     }
 
-    /* ===== Ordenação: finalizados sobem, atrasados na frente ===== */
-    function weightStatus(status){
-      // Menor peso = mais alto na coluna
-      if(status==='done' || status==='FINALIZADA') return -2;    // sobe
-      // pendências
-      return 0;
-    }
-    function weightUrgencyByDate(dateStr){
-      var d=parseBRDate(dateStr); if(!d) return 3;
-      var hours=(d - new Date())/HOUR;
-      if(hours<=0) return 0;        // atrasado (na frente)
-      if(hours<=48) return 1;       // chegando
-      return 2;                      // tranquilo
+    /* =================== CÓDIGOS (IDs) =================== */
+    // Sequência numérica global para tarefas (T-0001, T-0002, ...)
+    var SEQ = 1; // se quiser iniciar em outro número, altere aqui
+    function nextTaskCode(){ var n=String(SEQ).padStart(4,'0'); SEQ++; return 'T-'+n; }
+    function ensureCodes(){
+      // Tarefas: percorre em ordem de declaração e atribui código se estiver vazio
+      for(var i=0;i<DATA.encarregados.length;i++){
+        var ts = DATA.encarregados[i].tarefas||[];
+        for(var j=0;j<ts.length;j++){
+          if(!ts[j].codigo){ ts[j].codigo = nextTaskCode(); }
+        }
+      }
+      // Requisições: se não houver codigo, usa numero
+      var rqs = DATA.suprimentos.requisicoes||[];
+      for(var r=0;r<rqs.length;r++){
+        if(!rqs[r].codigo){ rqs[r].codigo = rqs[r].numero ? String(rqs[r].numero) : ('RQ-'+String(r+1).padStart(4,'0')); }
+      }
+      // OCs: se não houver codigo, usa numero
+      var ocs = DATA.suprimentos.ocs||[];
+      for(var o=0;o<ocs.length;o++){
+        if(!ocs[o].codigo){ ocs[o].codigo = ocs[o].numero ? String(ocs[o].numero) : ('OC-'+String(o+1).padStart(4,'0')); }
+      }
     }
 
+    /* ===== Ordenação ===== */
+    function weightStatus(status){ if(status==='done' || status==='FINALIZADA') return -2; return 0; }
+    function weightUrgencyByDate(dateStr){ var d=parseBRDate(dateStr); if(!d) return 3; var hours=(d - new Date())/HOUR; if(hours<=0) return 0; if(hours<=48) return 1; return 2; }
     function compareByPrazo(a,b){
-      // pesos por status (finalizados primeiro)
       var wa = weightStatus(a.status), wb = weightStatus(b.status);
       if(wa!==wb) return wa - wb;
-
-      // se ambos finalizados: ordenar por finalizado_em (mais recente no topo)
       if((a.status==='done'||a.status==='FINALIZADA') && (b.status==='done'||b.status==='FINALIZADA')){
         var da=parseBRDate(a.finalizado_em||a.prazo||''), db=parseBRDate(b.finalizado_em||b.prazo||'');
-        if(da && db) return db - da; // mais recente primeiro
-        if(da && !db) return -1;
-        if(!da && db) return 1;
-        return 0;
+        if(da && db) return db - da; if(da && !db) return -1; if(!da && db) return 1; return 0;
       }
-
-      // pendências: urgência primeiro (atrasado -> soon -> ok), depois data crescente
       var ua = weightUrgencyByDate(a.prazo||a.previsao||a.data||'');
       var ub = weightUrgencyByDate(b.prazo||b.previsao||b.data||'');
       if(ua!==ub) return ua - ub;
-
       var da2=parseBRDate(a.prazo||a.previsao||a.data||'');
       var db2=parseBRDate(b.prazo||b.previsao||b.data||'');
-      if(da2 && db2) return da2 - db2;
-      if(da2 && !db2) return -1;
-      if(!da2 && db2) return 1;
-      return 0;
+      if(da2 && db2) return da2 - db2; if(da2 && !db2) return -1; if(!da2 && db2) return 1; return 0;
     }
-
     function compareOC(a,b){
-      // recebidas sobem e ordenam por recebido (mais recente primeiro)
       var ar = !!a.recebido, br = !!b.recebido;
-      if(ar!==br) return br - ar; // true antes de false -> recebidas sobem
-      if(ar && br){
-        var da=parseBRDate(a.recebido), db=parseBRDate(b.recebido);
-        if(da && db) return db - da;
-        if(da && !db) return -1;
-        if(!da && db) return 1;
-        return 0;
-      }
-      // pendentes: atrasadas na frente, depois previsão crescente
-      return compareByPrazo(
-        {status:a.status, prazo:a.previsao},
-        {status:b.status, prazo:b.previsao}
-      );
+      if(ar!==br) return br - ar;
+      if(ar && br){ var da=parseBRDate(a.recebido), db=parseBRDate(b.recebido); if(da && db) return db - da; if(da && !db) return -1; if(!da && db) return 1; return 0; }
+      return compareByPrazo({status:a.status, prazo:a.previsao},{status:b.status, prazo:b.previsao});
     }
 
-    /* =================== DOM HELPERS =================== */
+    /* =================== DOM =================== */
     function el(tag, cls, text){ var e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
     var boardEl = document.getElementById('board');
 
     function render(){
       boardEl.innerHTML = '';
 
+      // garante códigos
+      ensureCodes();
+
       // === Colunas por Encarregado ===
       for(var i=0;i<DATA.encarregados.length;i++){
         var enc = DATA.encarregados[i];
-        // ordena tarefas
         var tasks = (enc.tarefas||[]).slice().sort(compareByPrazo);
 
         var col = el('section','column');
@@ -210,17 +198,19 @@
           var cls = urgencyByDate(t.prazo, t.status);
           var card = el('div','task '+cls);
 
-          var title = el('div','title',t.titulo);
-          var meta = el('div','meta');
+          var code = el('span','code', '#'+(t.codigo||''));
+          var title = el('span','title'); title.textContent = t.titulo;
 
-          var linhaPrazo = [];
+          var header = el('div'); header.appendChild(code); header.appendChild(title);
+
+          var meta = el('div','meta');
+          var linha = [];
           if(t.status==='done' || t.status==='FINALIZADA'){
-            var fin = t.finalizado_em ? 'Concluído: '+t.finalizado_em : ('Prazo: '+(t.prazo||'-'));
-            linhaPrazo.push(fin);
+            linha.push(t.finalizado_em ? ('Concluído: '+t.finalizado_em) : ('Prazo: '+(t.prazo||'-')));
           }else{
-            linhaPrazo.push('Prazo: '+(t.prazo||'-')+' • '+dLabel(t.prazo||''));
+            linha.push('Prazo: '+(t.prazo||'-')+' • '+dLabel(t.prazo||''));
           }
-          meta.textContent = linhaPrazo.join(' ');
+          meta.textContent = linha.join(' ');
 
           var statusLabel = 'Pendente';
           if(t.status==='exec') statusLabel='Em execução';
@@ -229,7 +219,7 @@
           else if(cls==='overdue') statusLabel='Atrasada';
           var chip = el('span','chip',statusLabel);
 
-          card.appendChild(title);
+          card.appendChild(header);
           card.appendChild(meta);
           meta.appendChild(chip);
           list.appendChild(card);
@@ -248,7 +238,6 @@
       var rqSec = el('div','section');
       rqSec.appendChild(el('h3','', 'Requisições em Aberto'));
       var rqs = (DATA.suprimentos.requisicoes||[]).slice().sort(function(a,b){
-        // FINALIZADA sobe, depois urgência/prazo
         return compareByPrazo(
           {status:a.status, prazo:a.prazo, finalizado_em:a.finalizado_em},
           {status:b.status, prazo:b.prazo, finalizado_em:b.finalizado_em}
@@ -262,7 +251,9 @@
         var it = el('div','item '+clsRq);
 
         var rowTop = el('div','row');
-        rowTop.appendChild(el('strong','', rq.numero));
+        var left = el('div'); left.appendChild(el('span','code','#'+(rq.codigo||'')));
+        left.appendChild(el('strong','', rq.numero || rq.codigo || 'RQ'));
+        rowTop.appendChild(left);
         rowTop.appendChild(el('span','', rq.status||''));
 
         var kv1 = el('div','kv','Data: '+(rq.data||'-')+' • Prazo: '+(rq.prazo||'-')+' • Lead time esperado: '+ltEsperado);
@@ -285,7 +276,9 @@
         var it2 = el('div','item '+clsOc);
 
         var rowTop2 = el('div','row');
-        rowTop2.appendChild(el('strong','', oc.numero));
+        var left2 = el('div'); left2.appendChild(el('span','code','#'+(oc.codigo||'')));
+        left2.appendChild(el('strong','', oc.numero || oc.codigo || 'OC'));
+        rowTop2.appendChild(left2);
         rowTop2.appendChild(el('span','', oc.status||''));
 
         var kv3 = el('div','kv','Fornecedor: '+(oc.fornecedor||'-')+' • Comprador: '+(oc.comprador||'-'));
@@ -317,10 +310,10 @@
       initLogo();
       render();
       setInterval(function(){ tick(); }, 1000);
-      // re-render periódico para atualizar urgência/ordenação ao longo do dia
       setInterval(function(){ render(); }, 60000);
     });
   })();
   </script>
 </body>
 </html>
+
