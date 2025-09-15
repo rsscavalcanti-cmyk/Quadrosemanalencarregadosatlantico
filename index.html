@@ -4,290 +4,322 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atlântico Golf — Quadro Kanban por Encarregado</title>
-  <meta name="description" content="Kanban semanal por encarregado com inclusão em massa de cards, rolagem independente, cabeçalhos fixos e exportação/importação de histórico e dados." />
+  <meta name="description" content="Visualização Kanban semanal por encarregado + Suprimentos. Sem edição via UI. Ordenação automática por urgência e conclusão." />
   <style>
     :root{
       --bg:#f5f7fb; --text:#111827; --muted:#475569; --brand:#005b96;
       --card:#ffffff; --border:#cbd5e1; --header:#f1f5f9;
       --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c; --block:#9333ea; --exec:#0ea5e9; --recv:#15803d;
-      --chip:#e2e8f0; --soft:#f8fafc;
+      --chip:#e2e8f0;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;background:var(--bg);color:var(--text)}
 
-    header{padding:12px 14px;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:10px}
+    header{padding:14px 16px;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center}
     .brand{display:flex;align-items:center;gap:14px}
-    .logo-box{width:160px;height:70px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .logo-box{width:160px;height:70px;background:#fff;border-radius:10px;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;overflow:hidden}
     .logo-img{max-width:100%;max-height:100%;display:none}
-    .logo-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#0f172a;font-weight:800}
-    h1{margin:0;font-size:22px}
-
-    .right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .btn{background:#fff;color:#0f172a;border:0;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer}
-    .btn.sec{background:#e2e8f0}
+    .logo-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#0f172a;font-weight:800;letter-spacing:.3px}
+    h1{margin:0;font-size:24px}
     .clock{font-variant-numeric:tabular-nums}
 
-    .board{display:flex;gap:16px;padding:16px;height:calc(100% - 94px);overflow-x:auto}
-    .column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:360px;max-width:560px;flex:1;display:flex;flex-direction:column}
-    .col-header{position:sticky;top:0;z-index:2;padding:14px;background:var(--header);font-size:18px;font-weight:800;text-decoration:underline;border-bottom:1px solid var(--border);text-align:center}
-    .col-body{flex:1;display:flex;flex-direction:column;overflow-y:auto;padding:10px;gap:8px}
+    .board{display:flex;align-items:flex-start;gap:16px;padding:16px;overflow:auto;height:calc(100% - 92px)}
+    .column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:300px;max-width:460px;flex:1;display:flex;flex-direction:column}
+    .column h2{margin:0;padding:14px;background:var(--header);font-size:18px;font-weight:800;text-decoration:underline;border-bottom:1px solid var(--border);text-align:center}
 
-    .task,.item{background:#fff;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(2,6,23,.06)}
-    .task.overdue{border-left-color:var(--late);animation:blink 1.4s ease-in-out infinite,jitter .6s linear infinite}
+    .list{padding:10px}
+    .task{background:#ffffff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(2,6,23,.06);position:relative;transition:transform .18s ease, box-shadow .18s ease}
+    .task.overdue{border-left-color:var(--late);animation:blink 1.6s ease-in-out infinite, jitter .6s linear infinite;transform:scale(1.02);box-shadow:0 6px 16px rgba(185,28,28,.18)}
     .task.block{border-left-color:var(--block)}
     .task.exec{border-left-color:var(--exec)}
     .task.done{border-left-color:var(--ok)}
-    .item.recv{border-left-color:var(--recv)}
     .title{font-weight:800;margin-bottom:6px}
     .meta{font-size:13px;color:var(--muted)}
     .chip{display:inline-block;background:var(--chip);padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700;margin-left:6px}
 
-    .row{display:flex;gap:8px;flex-wrap:wrap}
-    .field{border:1px solid var(--border);border-radius:8px;padding:6px 8px}
-
-    .adder{background:var(--soft);border:1px dashed var(--border);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px}
-    .adder .row{align-items:center}
-
-    details.bulk{background:var(--soft);border:1px dashed var(--border);border-radius:10px;padding:8px}
-    details.bulk summary{cursor:pointer;font-weight:800}
-    textarea.bulk-input{width:100%;min-height:120px;border:1px solid var(--border);border-radius:8px;padding:8px;font-family:ui-monospace, SFMono-Regular, Menlo, monospace}
-    .hint{font-size:12px;color:#334155}
-
     .section{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}
     .section h3{margin:8px 0 6px;font-size:14px;color:#0f172a;text-align:center}
+    .item{background:#ffffff;border:1px solid var(--border);border-left:8px solid var(--border);border-radius:10px;padding:10px;margin:8px 0;box-shadow:0 2px 6px rgba(2,6,23,.06);position:relative;transition:transform .18s ease, box-shadow .18s ease}
+    .item.overdue{border-left-color:var(--late);transform:scale(1.02);box-shadow:0 6px 16px rgba(185,28,28,.18)}
+    .item.soon{border-left-color:var(--warn)}
+    .item.ok{border-left-color:var(--ok)}
+    .item.recv{border-left-color:var(--recv)}
+    .row{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+    .kv{font-size:12px;color:var(--muted)}
 
     @keyframes blink{0%{opacity:1}50%{opacity:.45}100%{opacity:1}}
     @keyframes jitter{0%,100%{transform:translateX(0)}25%{transform:translateX(1px)}75%{transform:translateX(-1px)}}
-
-    /* Modal Histórico */
-    .modal{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center;padding:20px}
-    .modal-card{background:#fff;border-radius:12px;border:1px solid var(--border);max-width:980px;width:100%;max-height:80vh;overflow:auto;padding:16px}
-    .modal h3{margin:0 0 10px 0}
-    .history-item{padding:8px;border-bottom:1px solid #e5e7eb;font-size:14px}
-    .modal .close{float:right}
   </style>
 </head>
 <body>
   <header>
     <div class="brand">
-      <div class="logo-box"><img id="logo" class="logo-img" alt="Logo System Engenharia"/><div id="logoPh" class="logo-ph">LOGO</div></div>
+      <div class="logo-box"><img id="logo" class="logo-img" alt="Logo System Engenharia" /><div id="logoPh" class="logo-ph">LOGO</div></div>
       <h1>Atlântico Golf — Quadro Kanban (Semanal)</h1>
     </div>
-    <div class="right">
-      <button id="exportData" class="btn" title="Exportar dados (.json)">⬇️ Dados</button>
-      <button id="exportHist" class="btn" title="Exportar histórico (.json)">⬇️ Histórico</button>
-      <label class="btn sec" title="Importar .json"><input id="importFile" type="file" accept="application/json" style="display:none">⬆️ Importar</label>
-      <button id="resetBtn" class="btn sec" title="Limpar semana (mantém histórico)">🧹 Reset Semana</button>
-      <button id="histBtn" class="btn" title="Ver histórico">📜 Histórico</button>
-      <div class="clock" id="clock">--:--:--</div>
-    </div>
+    <div class="clock" id="clock">--:--:--</div>
   </header>
 
   <div class="board" id="board"></div>
-
-  <!-- Modal Histórico -->
-  <div id="histModal" class="modal" role="dialog" aria-modal="true">
-    <div class="modal-card">
-      <button id="histClose" class="btn close">✖ Fechar</button>
-      <h3>Histórico de Movimentações</h3>
-      <div id="histList"></div>
-    </div>
-  </div>
 
   <script>
   (function(){
     'use strict';
 
-    var STATE_VERSION='v12-2025-09-14';
-    var STORAGE_KEY='atlGolfState';
-    var STORAGE_VER='atlGolfStateVersion';
-    var HIST_KEY='atlGolfHistory';
-
-    var DATA_DEFAULT={
-      logo_src:'assets/logo.jpg',
+    /* =================== DADOS (edite aqui no código) =================== */
+    var DATA = {
+      logo_src: 'assets/logo.jpg',
       encarregados:[
-        {nome:'Severo (Hidráulica)',tarefas:[{titulo:'Interligar barrilete Torre 1 — Subsolo',prazo:'16/09/2025',status:'exec'}]},
-        {nome:'Ayrton (Hidráulica)',tarefas:[{titulo:'Fixar suportes de reservatórios — Área Técnica',prazo:'15/09/2025',status:'done'}]},
-        {nome:'Thiago (Elétrica)',tarefas:[{titulo:'Lançamento cabos QGBT→QDLs — Subsolo',prazo:'16/09/2025',status:'exec'}]},
-        {nome:'Marcelo (Elétrica)',tarefas:[{titulo:'Checklist iluminação emergência — Térreo',prazo:'18/09/2025',status:'exec'}]}
+        {nome:'Severo (Hidráulica)', tarefas:[
+          {titulo:'Interligar barrilete Torre 1 — Subsolo', prazo:'16/09/2025', status:'exec'},
+          {titulo:'Teste estanqueidade prumada A — Bloco 2', prazo:'17/09/2025', status:'block'}
+        ]},
+        {nome:'Ayrton (Hidráulica)', tarefas:[
+          {titulo:'Fixar suportes de reservatórios — Área Técnica', prazo:'15/09/2025', status:'done', finalizado_em:'15/09/2025'},
+          {titulo:'Montar barrilete superior — Torre 3', prazo:'19/09/2025', status:'exec'}
+        ]},
+        {nome:'Thiago (Elétrica)', tarefas:[
+          {titulo:'Lançamento cabos QGBT→QDLs — Subsolo', prazo:'16/09/2025', status:'exec'},
+          {titulo:'Fechamento alimentadores nos disjuntores gerais', prazo:'17/09/2025', status:'block'}
+        ]},
+        {nome:'Marcelo (Elétrica)', tarefas:[
+          {titulo:'Revisão SPDA — Cobertura Bloco 2', prazo:'15/09/2025', status:'done', finalizado_em:'15/09/2025'},
+          {titulo:'Checklist iluminação emergência — Térreo', prazo:'18/09/2025', status:'exec'}
+        ]}
       ],
       suprimentos:{
-        requisicoes:[{numero:'RQ-241',data:'12/09/2025',prazo:'18/09/2025',status:'EM ANÁLISE'}],
-        ocs:[{numero:'OC-1189',emissao:'14/09/2025',fornecedor:'Prysmian',status:'EMITIDA',previsao:'18/09/2025',comprador:'Carla',recebido:''}]
+        requisicoes:[
+          {numero:'RQ-241', data:'12/09/2025', solicitante:'Thiago', area:'Subsolo', status:'EM ANÁLISE', obs:'Eletrocalhas 100mm', prazo:'18/09/2025'},
+          {numero:'RQ-256', data:'13/09/2025', solicitante:'Severo', area:'Hidráulica', status:'APROVADA', obs:'Conexões PPR Ø75', prazo:'20/09/2025'}
+          // Use status 'FINALIZADA' para fazer subir
+        ],
+        ocs:[
+          {numero:'OC-1189', emissao:'14/09/2025', fornecedor:'Prysmian', status:'EMITIDA', previsao:'18/09/2025', comprador:'Carla', recebido:''},
+          {numero:'OC-1197', emissao:'17/09/2025', fornecedor:'Megabarre', status:'AGUARDANDO NF', previsao:'25/09/2025', comprador:'Eduardo', recebido:'26/09/2025'}
+        ]
       }
     };
 
-    var DATA=loadState();
-    var HISTORY=loadHistory();
-
-    function loadState(){ try{ var ver=localStorage.getItem(STORAGE_VER); var raw=localStorage.getItem(STORAGE_KEY); if(!raw||ver!==STATE_VERSION) return clone(DATA_DEFAULT); return JSON.parse(raw);}catch(e){return clone(DATA_DEFAULT);} }
-    function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); localStorage.setItem(STORAGE_VER, STATE_VERSION);}catch(e){} }
-    function loadHistory(){ try{ var raw=localStorage.getItem(HIST_KEY); return raw?JSON.parse(raw):[];}catch(e){return [];} }
-    function saveHistory(){ try{ localStorage.setItem(HIST_KEY, JSON.stringify(HISTORY)); }catch(e){} }
-    function clone(o){ return JSON.parse(JSON.stringify(o)); }
-
-    var DAY=86400000, HOUR=36e5;
-    function parseBRDate(s){ if(!s) return null; var p=s.split('/'); if(p.length!=3) return null; var d=+p[0],m=+p[1],y=+p[2]; var dt=new Date(y,m-1,d,12,0,0); return isNaN(dt)?null:dt; }
+    /* =================== UTIL DE DATAS =================== */
+    var DAY = 86400000, HOUR = 36e5;
+    function parseBRDate(s){ if(!s) return null; var a=s.split('/'); if(a.length!==3) return null; var d=+a[0], m=+a[1], y=+a[2]; var dt=new Date(y, m-1, d, 12, 0, 0); return isNaN(dt)?null:dt; }
+    function toISO(br){ if(!br) return ''; var p=br.split('/'); if(p.length!==3) return ''; var dd=Number(p[0]), mm=Number(p[1]), yy=Number(p[2]); return yy+'-'+String(mm).padStart(2,'0')+'-'+String(dd).padStart(2,'0'); }
+    function fromISO(iso){ if(!iso) return ''; var p=iso.split('-'); if(p.length!==3) return ''; var yy=+p[0], mm=+p[1], dd=+p[2]; return String(dd).padStart(2,'0')+'/'+String(mm).padStart(2,'0')+'/'+yy; }
     function diffDays(a,b){ return Math.round((a-b)/DAY); }
-    function diffHours(a,b){ return (a-b)/HOUR; }
-    function pad2(n){ return String(n).padStart(2,'0'); }
-    function dLabel(dateStr){ var d=parseBRDate(dateStr); if(!d) return ''; var delta=Math.floor((d - new Date())/DAY); if(delta===0) return 'D-0'; return delta>0?('D-'+delta):('D+'+Math.abs(delta)); }
-    function urgency(dateStr,status){ if(status==='done')return'done'; if(status==='block')return'block'; if(status==='exec')return'exec'; var d=parseBRDate(dateStr); if(!d) return 'ok'; var dh=diffHours(d,new Date()); if(dh<=0)return'overdue'; if(dh<=48)return'soon'; return'ok'; }
-    function labelStatus(st,cls){ if(st==='exec')return'Em execução'; if(st==='block')return'Bloqueada'; if(st==='done')return'Finalizada 🏆'; if(cls==='overdue')return'Atrasada'; return'Pendente'; }
-    function toISO(br){ if(!br) return ''; var p=br.split('/'); if(p.length!==3) return ''; return p[2]+'-'+pad2(p[1])+'-'+pad2(p[0]); }
-    function fromISO(iso){ if(!iso) return ''; var p=iso.split('-'); if(p.length!==3) return ''; return pad2(p[2])+'/'+pad2(p[1])+'/'+p[0]; }
+    function fmtClock(){ var t=new Date(); var pad=n=>String(n).padStart(2,'0'); return pad(t.getHours())+':'+pad(t.getMinutes())+':'+pad(t.getSeconds()); }
 
-    var boardEl=document.getElementById('board');
+    function dLabel(dateStr){
+      var d=parseBRDate(dateStr); if(!d) return '';
+      var delta = Math.floor((d - new Date())/DAY);
+      if(delta===0) return 'D-0';
+      return (delta>0)?('D-'+delta):('D+'+Math.abs(delta));
+    }
+
+    function urgencyByDate(dateStr, status){
+      if(status==='done' || status==='FINALIZADA') return 'done';
+      if(status==='block') return 'block';
+      if(status==='exec') return 'exec';
+      if(status==='recebido') return 'recv';
+      var d=parseBRDate(dateStr); if(!d) return 'ok';
+      var hours=(d - new Date())/HOUR;
+      if(hours<=0) return 'overdue';
+      if(hours<=48) return 'soon';
+      return 'ok';
+    }
+
+    /* ===== Ordenação: finalizados sobem, atrasados na frente ===== */
+    function weightStatus(status){
+      // Menor peso = mais alto na coluna
+      if(status==='done' || status==='FINALIZADA') return -2;    // sobe
+      // pendências
+      return 0;
+    }
+    function weightUrgencyByDate(dateStr){
+      var d=parseBRDate(dateStr); if(!d) return 3;
+      var hours=(d - new Date())/HOUR;
+      if(hours<=0) return 0;        // atrasado (na frente)
+      if(hours<=48) return 1;       // chegando
+      return 2;                      // tranquilo
+    }
+
+    function compareByPrazo(a,b){
+      // pesos por status (finalizados primeiro)
+      var wa = weightStatus(a.status), wb = weightStatus(b.status);
+      if(wa!==wb) return wa - wb;
+
+      // se ambos finalizados: ordenar por finalizado_em (mais recente no topo)
+      if((a.status==='done'||a.status==='FINALIZADA') && (b.status==='done'||b.status==='FINALIZADA')){
+        var da=parseBRDate(a.finalizado_em||a.prazo||''), db=parseBRDate(b.finalizado_em||b.prazo||'');
+        if(da && db) return db - da; // mais recente primeiro
+        if(da && !db) return -1;
+        if(!da && db) return 1;
+        return 0;
+      }
+
+      // pendências: urgência primeiro (atrasado -> soon -> ok), depois data crescente
+      var ua = weightUrgencyByDate(a.prazo||a.previsao||a.data||'');
+      var ub = weightUrgencyByDate(b.prazo||b.previsao||b.data||'');
+      if(ua!==ub) return ua - ub;
+
+      var da2=parseBRDate(a.prazo||a.previsao||a.data||'');
+      var db2=parseBRDate(b.prazo||b.previsao||b.data||'');
+      if(da2 && db2) return da2 - db2;
+      if(da2 && !db2) return -1;
+      if(!da2 && db2) return 1;
+      return 0;
+    }
+
+    function compareOC(a,b){
+      // recebidas sobem e ordenam por recebido (mais recente primeiro)
+      var ar = !!a.recebido, br = !!b.recebido;
+      if(ar!==br) return br - ar; // true antes de false -> recebidas sobem
+      if(ar && br){
+        var da=parseBRDate(a.recebido), db=parseBRDate(b.recebido);
+        if(da && db) return db - da;
+        if(da && !db) return -1;
+        if(!da && db) return 1;
+        return 0;
+      }
+      // pendentes: atrasadas na frente, depois previsão crescente
+      return compareByPrazo(
+        {status:a.status, prazo:a.previsao},
+        {status:b.status, prazo:b.previsao}
+      );
+    }
+
+    /* =================== DOM HELPERS =================== */
+    function el(tag, cls, text){ var e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
+    var boardEl = document.getElementById('board');
 
     function render(){
-      boardEl.innerHTML='';
+      boardEl.innerHTML = '';
 
-      // Colunas de encarregados
+      // === Colunas por Encarregado ===
       for(var i=0;i<DATA.encarregados.length;i++){
-        var enc=DATA.encarregados[i];
-        var col=document.createElement('section'); col.className='column';
-        var head=document.createElement('div'); head.className='col-header'; head.textContent=enc.nome; col.appendChild(head);
-        var body=document.createElement('div'); body.className='col-body';
+        var enc = DATA.encarregados[i];
+        // ordena tarefas
+        var tasks = (enc.tarefas||[]).slice().sort(compareByPrazo);
 
-        // Adição rápida (um card)
-        var add=document.createElement('div'); add.className='adder';
-        var tInput=mkInput('Atividade', 30);
-        var dInput=document.createElement('input'); dInput.type='date'; dInput.className='field';
-        var sSel=document.createElement('select'); sSel.className='field';
-        addOpt(sSel,'exec','Em execução',true); addOpt(sSel,'block','Bloqueada'); addOpt(sSel,'done','Finalizada');
-        var btn=document.createElement('button'); btn.className='btn'; btn.textContent='➕ Incluir';
-        var row=document.createElement('div'); row.className='row'; row.appendChild(tInput); row.appendChild(dInput); row.appendChild(sSel); row.appendChild(btn);
-        add.appendChild(row);
+        var col = el('section','column');
+        col.appendChild(el('h2','',enc.nome));
+        var list = el('div','list');
 
-        (function(encIdx){ btn.addEventListener('click', function(){ doAddSingle(encIdx, tInput.value, fromISO(dInput.value), sSel.value); tInput.value=''; dInput.value=''; sSel.value='exec'; }); })(i);
+        for(var j=0;j<tasks.length;j++){
+          var t = tasks[j];
+          var cls = urgencyByDate(t.prazo, t.status);
+          var card = el('div','task '+cls);
 
-        // Inclusão em massa (textarea)
-        var bulk=document.createElement('details'); bulk.className='bulk';
-        var sum=document.createElement('summary'); sum.textContent='➕ Incluir várias atividades (colar lista)'; bulk.appendChild(sum);
-        var hint=document.createElement('div'); hint.className='hint'; hint.innerHTML='Formato por linha: <b>Título</b> | <b>DD/MM/AAAA</b> | <b>Status</b> (exec/block/done). Ex.:<br>Concretar laje L2 | 19/09/2025 | exec';
-        var ta=document.createElement('textarea'); ta.className='bulk-input'; ta.placeholder='Uma atividade por linha...';
-        var bulkBtn=document.createElement('button'); bulkBtn.className='btn'; bulkBtn.textContent='Adicionar em massa';
-        bulk.appendChild(hint); bulk.appendChild(ta); bulk.appendChild(document.createElement('br')); bulk.appendChild(bulkBtn);
+          var title = el('div','title',t.titulo);
+          var meta = el('div','meta');
 
-        (function(encIdx){ bulkBtn.addEventListener('click', function(){ doBulkAdd(encIdx, ta.value); ta.value=''; }); })(i);
+          var linhaPrazo = [];
+          if(t.status==='done' || t.status==='FINALIZADA'){
+            var fin = t.finalizado_em ? 'Concluído: '+t.finalizado_em : ('Prazo: '+(t.prazo||'-'));
+            linhaPrazo.push(fin);
+          }else{
+            linhaPrazo.push('Prazo: '+(t.prazo||'-')+' • '+dLabel(t.prazo||''));
+          }
+          meta.textContent = linhaPrazo.join(' ');
 
-        body.appendChild(add); body.appendChild(bulk);
+          var statusLabel = 'Pendente';
+          if(t.status==='exec') statusLabel='Em execução';
+          else if(t.status==='block') statusLabel='Bloqueada';
+          else if(t.status==='done' || t.status==='FINALIZADA') statusLabel='Finalizada 🏆';
+          else if(cls==='overdue') statusLabel='Atrasada';
+          var chip = el('span','chip',statusLabel);
 
-        // Listagem de cards
-        for(var j=0;j<enc.tarefas.length;j++){
-          var t=enc.tarefas[j];
-          var cls=urgency(t.prazo,t.status);
-          var card=document.createElement('div'); card.className='task '+cls;
-          var ttl=document.createElement('div'); ttl.className='title'; ttl.textContent=t.titulo;
-          var mt=document.createElement('div'); mt.className='meta'; mt.textContent='Prazo: '+(t.prazo||'-')+' • '+dLabel(t.prazo);
-          var chip=document.createElement('span'); chip.className='chip'; chip.textContent=labelStatus(t.status, cls); mt.appendChild(chip);
-          card.appendChild(ttl); card.appendChild(mt);
-
-          // Editor simples
-          var ed=document.createElement('div'); ed.className='row';
-          var eDate=document.createElement('input'); eDate.type='date'; eDate.className='field'; eDate.value=toISO(t.prazo);
-          var eSel=document.createElement('select'); eSel.className='field'; addOpt(eSel,'exec','Em execução',t.status==='exec'); addOpt(eSel,'block','Bloqueada',t.status==='block'); addOpt(eSel,'done','Finalizada',t.status==='done');
-          var eSave=document.createElement('button'); eSave.className='btn sec'; eSave.textContent='💾 Salvar';
-          var eDel=document.createElement('button'); eDel.className='btn sec'; eDel.textContent='🗑 Remover';
-          ed.appendChild(eDate); ed.appendChild(eSel); ed.appendChild(eSave); ed.appendChild(eDel);
-
-          (function(encIdx,taskIdx){
-            eSave.addEventListener('click', function(){ var old=clone(DATA.encarregados[encIdx].tarefas[taskIdx]); DATA.encarregados[encIdx].tarefas[taskIdx].prazo=fromISO(eDate.value); DATA.encarregados[encIdx].tarefas[taskIdx].status=eSel.value; saveState(); pushHist('Tarefa','Editar', DATA.encarregados[encIdx].nome, old.titulo, old.prazo+'/' + old.status + ' → ' + (fromISO(eDate.value)||'-')+'/'+eSel.value); render(); });
-            eDel.addEventListener('click', function(){ if(confirm('Remover tarefa?')){ var del=DATA.encarregados[encIdx].tarefas.splice(taskIdx,1)[0]; saveState(); pushHist('Tarefa','Remover', DATA.encarregados[encIdx].nome, del.titulo, del.prazo||'-'); render(); } });
-          })(i,j);
-
-          body.appendChild(card); body.appendChild(ed);
+          card.appendChild(title);
+          card.appendChild(meta);
+          meta.appendChild(chip);
+          list.appendChild(card);
         }
 
-        col.appendChild(body); boardEl.appendChild(col);
+        col.appendChild(list);
+        boardEl.appendChild(col);
       }
 
-      // Coluna Suprimentos (mantida, com rolagem própria)
-      var sup=document.createElement('section'); sup.className='column';
-      var shead=document.createElement('div'); shead.className='col-header'; shead.textContent='Suprimentos'; sup.appendChild(shead);
-      var sbody=document.createElement('div'); sbody.className='col-body';
+      // === Coluna Suprimentos ===
+      var sup = el('section','column');
+      sup.appendChild(el('h2','','Suprimentos'));
+      var sList = el('div','list');
 
-      var rqTitle=document.createElement('div'); rqTitle.className='section'; var rqH=document.createElement('h3'); rqH.textContent='Requisições em Aberto'; rqTitle.appendChild(rqH); sbody.appendChild(rqTitle);
-      for(var r=0;r<DATA.suprimentos.requisicoes.length;r++){
-        var rq=DATA.suprimentos.requisicoes[r]; var dtP=parseBRDate(rq.prazo), dtS=parseBRDate(rq.data); var lt=(dtP&&dtS)? (diffDays(dtP,dtS)+'d'):'-';
-        var it=document.createElement('div'); it.className='item '+urgency(rq.prazo, rq.status);
-        var t1=document.createElement('div'); t1.className='title'; t1.textContent=rq.numero+' — '+(rq.status||'');
-        var m1=document.createElement('div'); m1.className='meta'; m1.textContent='Data: '+(rq.data||'-')+' • Prazo: '+(rq.prazo||'-')+' • Lead time esperado: '+lt;
-        it.appendChild(t1); it.appendChild(m1);
-        sbody.appendChild(it);
+      // Requisições
+      var rqSec = el('div','section');
+      rqSec.appendChild(el('h3','', 'Requisições em Aberto'));
+      var rqs = (DATA.suprimentos.requisicoes||[]).slice().sort(function(a,b){
+        // FINALIZADA sobe, depois urgência/prazo
+        return compareByPrazo(
+          {status:a.status, prazo:a.prazo, finalizado_em:a.finalizado_em},
+          {status:b.status, prazo:b.prazo, finalizado_em:b.finalizado_em}
+        );
+      });
+      for(var r=0;r<rqs.length;r++){
+        var rq = rqs[r];
+        var dtPrazo = parseBRDate(rq.prazo); var dtData = parseBRDate(rq.data);
+        var ltEsperado = (dtPrazo && dtData) ? (diffDays(dtPrazo, dtData)+'d') : '-';
+        var clsRq = urgencyByDate(rq.prazo, rq.status);
+        var it = el('div','item '+clsRq);
+
+        var rowTop = el('div','row');
+        rowTop.appendChild(el('strong','', rq.numero));
+        rowTop.appendChild(el('span','', rq.status||''));
+
+        var kv1 = el('div','kv','Data: '+(rq.data||'-')+' • Prazo: '+(rq.prazo||'-')+' • Lead time esperado: '+ltEsperado);
+        var kv2 = el('div','kv','Solicitante: '+(rq.solicitante||'-')+' • Área: '+(rq.area||'-')+' • Obs.: '+(rq.obs||'-'));
+
+        it.appendChild(rowTop); it.appendChild(kv1); it.appendChild(kv2);
+        rqSec.appendChild(it);
       }
+      sList.appendChild(rqSec);
 
-      var ocTitle=document.createElement('div'); ocTitle.className='section'; var ocH=document.createElement('h3'); ocH.textContent='Ordens de Compra (OC)'; ocTitle.appendChild(ocH); sbody.appendChild(ocTitle);
-      for(var o=0;o<DATA.suprimentos.ocs.length;o++){
-        var oc=DATA.suprimentos.ocs[o]; var dtR=parseBRDate(oc.recebido), dtE=parseBRDate(oc.emissao); var ltR=(dtR&&dtE)? (diffDays(dtR,dtE)+'d'):'-';
-        var it2=document.createElement('div'); it2.className='item '+(oc.recebido?'recv':urgency(oc.previsao, oc.status));
-        var t2=document.createElement('div'); t2.className='title'; t2.textContent=oc.numero+' — '+(oc.status||'');
-        var m2=document.createElement('div'); m2.className='meta'; m2.textContent='Emissão: '+(oc.emissao||'-')+' • Previsão: '+(oc.previsao||'-')+' • Lead time real: '+ltR;
-        var m3=document.createElement('div'); m3.className='meta'; m3.textContent=oc.fornecedor? ('Fornecedor: '+oc.fornecedor+' • Comprador: '+(oc.comprador||'-')) : '';
-        var m4=document.createElement('div'); m4.className='meta'; m4.textContent=oc.recebido? ('Recebido em '+oc.recebido) : 'Pendente';
-        it2.appendChild(t2); it2.appendChild(m2); if(m3.textContent) it2.appendChild(m3); it2.appendChild(m4);
-        sbody.appendChild(it2);
+      // OCs
+      var ocSec = el('div','section');
+      ocSec.appendChild(el('h3','', 'Ordens de Compra (OC)'));
+      var ocs = (DATA.suprimentos.ocs||[]).slice().sort(compareOC);
+      for(var o=0;o<ocs.length;o++){
+        var oc = ocs[o];
+        var dtRec = parseBRDate(oc.recebido); var dtEmi = parseBRDate(oc.emissao);
+        var ltReal = (dtRec && dtEmi) ? (diffDays(dtRec, dtEmi)+'d') : '-';
+        var clsOc = oc.recebido ? 'recv' : urgencyByDate(oc.previsao, oc.status);
+        var it2 = el('div','item '+clsOc);
+
+        var rowTop2 = el('div','row');
+        rowTop2.appendChild(el('strong','', oc.numero));
+        rowTop2.appendChild(el('span','', oc.status||''));
+
+        var kv3 = el('div','kv','Fornecedor: '+(oc.fornecedor||'-')+' • Comprador: '+(oc.comprador||'-'));
+        var kv4 = el('div','kv','Emissão: '+(oc.emissao||'-')+' • Previsão: '+(oc.previsao||'-')+' • Lead time real: '+ltReal);
+        var st = el('div','kv', oc.recebido? ('Recebido em '+oc.recebido) : 'Pendente');
+
+        it2.appendChild(rowTop2); it2.appendChild(kv3); it2.appendChild(kv4); it2.appendChild(st);
+        ocSec.appendChild(it2);
       }
+      sList.appendChild(ocSec);
 
-      sup.appendChild(sbody); boardEl.appendChild(sup);
-
-      // Relógio
-      document.getElementById('clock').textContent = (function(){ var t=new Date(); return pad2(t.getHours())+':'+pad2(t.getMinutes())+':'+pad2(t.getSeconds()); })();
+      sup.appendChild(sList); boardEl.appendChild(sup);
     }
 
-    function mkInput(ph, size){ var i=document.createElement('input'); i.placeholder=ph; i.size=size||20; i.className='field'; return i; }
-    function addOpt(sel,val,txt,selb){ var o=document.createElement('option'); o.value=val; o.textContent=txt; if(selb) o.selected=true; sel.appendChild(o); }
-
-    function doAddSingle(encIdx, titulo, prazo, status){
-      var tit=(titulo||'').trim(); if(!tit){ alert('Informe o título'); return; }
-      var st=status||'exec'; var pr=(prazo||'').trim();
-      DATA.encarregados[encIdx].tarefas.push({titulo:tit,prazo:pr,status:st});
-      saveState(); pushHist('Tarefa','Nova', DATA.encarregados[encIdx].nome, tit, (pr||'-')+' • '+st); render();
+    /* =================== LOGO & RELÓGIO =================== */
+    function initLogo(){
+      var img = document.getElementById('logo');
+      var ph  = document.getElementById('logoPh');
+      var src = DATA.logo_src || '';
+      if(!src){ img.style.display='none'; ph.style.display='flex'; return; }
+      img.onload = function(){ img.style.display='block'; ph.style.display='none'; };
+      img.onerror = function(){ img.style.display='none'; ph.style.display='flex'; };
+      img.src = src;
     }
+    function tick(){ document.getElementById('clock').textContent = fmtClock(); }
 
-    function doBulkAdd(encIdx, text){
-      if(!text) return; var lines=text.split(/\n|\r/); var added=0;
-      for(var i=0;i<lines.length;i++){
-        var ln=lines[i].trim(); if(!ln) continue;
-        var parts=ln.split('|');
-        var tit=(parts[0]||'').trim(); if(!tit) continue;
-        var pr=(parts[1]||'').trim();
-        var st=(parts[2]||'').trim().toLowerCase();
-        if(st!=='exec'&&st!=='block'&&st!=='done') st='exec';
-        DATA.encarregados[encIdx].tarefas.push({titulo:tit,prazo:pr,status:st});
-        pushHist('Tarefa','Nova (massa)', DATA.encarregados[encIdx].nome, tit, (pr||'-')+' • '+st);
-        added++;
-      }
-      if(added===0){ alert('Nenhuma linha válida. Use: Título | DD/MM/AAAA | status'); return; }
-      saveState(); render();
-    }
-
-    // ===== Histórico =====
-    function pushHist(tipo,campo,contexto,titulo,valor){ var t=new Date(); HISTORY.unshift({ts:t.toISOString(),tipo:tipo,campo:campo,contexto:contexto,titulo:titulo,valor:valor}); if(HISTORY.length>1500) HISTORY.pop(); saveHistory(); }
-    function openHistory(){ var list=document.getElementById('histList'); var modal=document.getElementById('histModal'); list.innerHTML=''; for(var i=0;i<HISTORY.length;i++){ var h=HISTORY[i], d=new Date(h.ts); var line=document.createElement('div'); line.className='history-item'; line.textContent='['+pad2(d.getDate())+'/'+pad2(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad2(d.getHours())+':'+pad2(d.getMinutes())+'] '+h.tipo+' • '+h.campo+' • '+(h.contexto||'')+' • '+(h.titulo||'')+' → '+h.valor; list.appendChild(line);} modal.style.display='flex'; }
-    function closeHistory(){ document.getElementById('histModal').style.display='none'; }
-
-    // ===== Export/Import =====
-    function download(filename, text){ var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'application/json'})); a.download=filename; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 0); }
-    function exportData(){ var payload={version:STATE_VERSION,data:DATA}; download('atl-golf-dados-'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')+'.json', JSON.stringify(payload,null,2)); }
-    function exportHist(){ var payload={history:HISTORY}; download('atl-golf-historico-'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')+'.json', JSON.stringify(payload,null,2)); }
-    function importFile(file){ var r=new FileReader(); r.onload=function(){ try{ var obj=JSON.parse(r.result); if(obj.data){ DATA=obj.data; saveState(); } if(obj.history){ HISTORY=obj.history; saveHistory(); } render(); alert('Importado com sucesso.'); }catch(e){ alert('Arquivo inválido.'); } }; r.readAsText(file); }
-
-    // ===== Header bindings =====
-    document.getElementById('histBtn').addEventListener('click', openHistory);
-    document.getElementById('histClose').addEventListener('click', closeHistory);
-    document.getElementById('histModal').addEventListener('click', function(e){ if(e.target===this) closeHistory(); });
-    document.getElementById('resetBtn').addEventListener('click', function(){ if(confirm('Limpar dados atuais? O HISTÓRICO será mantido.')){ DATA=clone(DATA_DEFAULT); saveState(); render(); initLogo(); pushHist('Sistema','Reset Semana','—','—','Dados retornados ao padrão'); }});
-    document.getElementById('exportData').addEventListener('click', exportData);
-    document.getElementById('exportHist').addEventListener('click', exportHist);
-    document.getElementById('importFile').addEventListener('change', function(){ if(this.files&&this.files[0]) importFile(this.files[0]); this.value=''; });
-
-    // ===== Logo e Relógio =====
-    function initLogo(){ var img=document.getElementById('logo'); var ph=document.getElementById('logoPh'); var src=DATA.logo_src||''; if(!src){ img.style.display='none'; ph.style.display='flex'; return; } img.onload=function(){ img.style.display='block'; ph.style.display='none'; }; img.onerror=function(){ img.style.display='none'; ph.style.display='flex'; }; img.src=src; }
-    function tick(){ var t=new Date(); document.getElementById('clock').textContent=pad2(t.getHours())+':'+pad2(t.getMinutes())+':'+pad2(t.getSeconds()); }
-
-    document.addEventListener('DOMContentLoaded', function(){ initLogo(); render(); setInterval(tick,1000); setInterval(render,60000); });
+    /* =================== BOOT =================== */
+    document.addEventListener('DOMContentLoaded', function(){
+      initLogo();
+      render();
+      setInterval(function(){ tick(); }, 1000);
+      // re-render periódico para atualizar urgência/ordenação ao longo do dia
+      setInterval(function(){ render(); }, 60000);
+    });
   })();
   </script>
 </body>
