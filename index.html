@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atlântico Golf — Quadro Kanban por Encarregado</title>
-  <meta name="description" content="Kanban semanal com edição sem código, histórico e lead time. Cabeçalhos fixos por encarregado." />
+  <meta name="description" content="Kanban semanal por encarregado com adição de cards completa, rolagem independente por coluna e cabeçalhos fixos." />
   <style>
     :root{
       --bg:#f5f7fb; --text:#111827; --muted:#475569; --brand:#005b96;
@@ -27,12 +27,12 @@
     .btn{background:#fff;color:#0f172a;border:0;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer}
     .clock{font-variant-numeric:tabular-nums}
 
-    .board{display:flex;gap:16px;padding:16px;overflow:auto;height:calc(100% - 92px)}
-    .column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:300px;max-width:480px;flex:1;display:flex;flex-direction:column}
-    .column h2{position:sticky;top:0;z-index:2;margin:0;padding:14px;background:var(--header);font-size:18px;font-weight:800;text-decoration:underline;border-bottom:1px solid var(--border);text-align:center}
-    .list{padding:10px;overflow-y:auto}
+    .board{display:flex;gap:16px;padding:16px;height:calc(100% - 92px);overflow-x:auto;}
+    .column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:340px;max-width:520px;flex:1;display:flex;flex-direction:column}
+    .col-header{position:sticky;top:0;z-index:2;padding:14px;background:var(--header);font-size:18px;font-weight:800;text-decoration:underline;border-bottom:1px solid var(--border);text-align:center}
+    .col-body{flex:1;display:flex;flex-direction:column;overflow-y:auto;padding:10px;gap:8px}
 
-    .task,.item{background:#fff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(2,6,23,.06);position:relative}
+    .task,.item{background:#fff;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(2,6,23,.06)}
     .task.overdue{border-left-color:var(--late);animation:blink 1.6s ease-in-out infinite,jitter .6s linear infinite}
     .task.block{border-left-color:var(--block)}
     .task.exec{border-left-color:var(--exec)}
@@ -43,11 +43,8 @@
     .meta{font-size:13px;color:var(--muted)}
     .chip{display:inline-block;background:var(--chip);padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700;margin-left:6px}
 
-    .controls{display:none;margin-top:8px;gap:8px;flex-wrap:wrap}
-    .controls input,.controls select{border:1px solid var(--border);border-radius:8px;padding:6px 8px}
-
-    .adder{display:none;margin:8px 0;padding:10px;border:1px dashed var(--border);border-radius:10px;background:#fafcff}
-    .adder input,.adder select{border:1px solid var(--border);border-radius:8px;padding:6px 8px;margin-right:6px}
+    .adder{background:#f8fafc;border:1px dashed var(--border);border-radius:10px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .adder input,.adder select{border:1px solid var(--border);border-radius:8px;padding:6px 8px}
 
     .section{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}
     .section h3{margin:8px 0 6px;font-size:14px;color:#0f172a;text-align:center}
@@ -70,7 +67,6 @@
       <h1>Atlântico Golf — Quadro Kanban (Semanal)</h1>
     </div>
     <div class="right">
-      <button id="editToggle" class="btn" title="Ativar edição">✏️ Editar</button>
       <button id="resetBtn" class="btn" title="Limpar semana (mantém histórico)">🧹 Reset Semana</button>
       <button id="histBtn" class="btn" title="Ver histórico">📜 Histórico</button>
       <div class="clock" id="clock">--:--:--</div>
@@ -92,27 +88,18 @@
   (function(){
     'use strict';
 
-    /* =================== ESTADO & PERSISTÊNCIA =================== */
-    var STATE_VERSION = 'v10-2025-09-14';
-    var STORAGE_KEY = 'atlGolfState';
-    var STORAGE_VER = 'atlGolfStateVersion';
-    var HIST_KEY = 'atlGolfHistory';
+    var STATE_VERSION='v11-2025-09-14';
+    var STORAGE_KEY='atlGolfState';
+    var STORAGE_VER='atlGolfStateVersion';
+    var HIST_KEY='atlGolfHistory';
 
-    var DATA_DEFAULT = {
+    var DATA_DEFAULT={
       logo_src:'assets/logo.jpg',
       encarregados:[
-        {nome:'Severo (Hidráulica)',tarefas:[
-          {titulo:'Interligar barrilete Torre 1 — Subsolo',prazo:'16/09/2025',status:'exec'}
-        ]},
-        {nome:'Ayrton (Hidráulica)',tarefas:[
-          {titulo:'Fixar suportes de reservatórios — Área Técnica',prazo:'15/09/2025',status:'done'}
-        ]},
-        {nome:'Thiago (Elétrica)',tarefas:[
-          {titulo:'Lançamento cabos QGBT→QDLs — Subsolo',prazo:'16/09/2025',status:'exec'}
-        ]},
-        {nome:'Marcelo (Elétrica)',tarefas:[
-          {titulo:'Checklist iluminação emergência — Térreo',prazo:'18/09/2025',status:'exec'}
-        ]}
+        {nome:'Severo (Hidráulica)',tarefas:[{titulo:'Interligar barrilete Torre 1 — Subsolo',prazo:'16/09/2025',status:'exec'}]},
+        {nome:'Ayrton (Hidráulica)',tarefas:[{titulo:'Fixar suportes de reservatórios — Área Técnica',prazo:'15/09/2025',status:'done'}]},
+        {nome:'Thiago (Elétrica)',tarefas:[{titulo:'Lançamento cabos QGBT→QDLs — Subsolo',prazo:'16/09/2025',status:'exec'}]},
+        {nome:'Marcelo (Elétrica)',tarefas:[{titulo:'Checklist iluminação emergência — Térreo',prazo:'18/09/2025',status:'exec'}]}
       ],
       suprimentos:{
         requisicoes:[{numero:'RQ-241',data:'12/09/2025',prazo:'18/09/2025',status:'EM ANÁLISE'}],
@@ -120,268 +107,174 @@
       }
     };
 
-    var DATA = loadState();
-    var HISTORY = loadHistory();
+    var DATA=loadState();
+    var HISTORY=loadHistory();
 
-    function loadState(){
-      try{
-        var ver = localStorage.getItem(STORAGE_VER);
-        var raw = localStorage.getItem(STORAGE_KEY);
-        if(!raw || ver !== STATE_VERSION) return clone(DATA_DEFAULT);
-        return JSON.parse(raw);
-      }catch(e){ return clone(DATA_DEFAULT); }
-    }
-    function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); localStorage.setItem(STORAGE_VER, STATE_VERSION); }catch(e){} }
-    function loadHistory(){ try{ var raw=localStorage.getItem(HIST_KEY); return raw? JSON.parse(raw): []; }catch(e){ return []; } }
+    function loadState(){ try{ var ver=localStorage.getItem(STORAGE_VER); var raw=localStorage.getItem(STORAGE_KEY); if(!raw||ver!==STATE_VERSION) return clone(DATA_DEFAULT); return JSON.parse(raw);}catch(e){return clone(DATA_DEFAULT);} }
+    function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); localStorage.setItem(STORAGE_VER, STATE_VERSION);}catch(e){} }
+    function loadHistory(){ try{ var raw=localStorage.getItem(HIST_KEY); return raw?JSON.parse(raw):[];}catch(e){return [];} }
     function saveHistory(){ try{ localStorage.setItem(HIST_KEY, JSON.stringify(HISTORY)); }catch(e){} }
     function clone(o){ return JSON.parse(JSON.stringify(o)); }
 
-    /* =================== DATAS & URGÊNCIA =================== */
-    var DAY = 86400000, HOUR = 36e5;
+    var DAY=86400000, HOUR=36e5;
     function parseBRDate(s){ if(!s) return null; var p=s.split('/'); if(p.length!=3) return null; var d=+p[0],m=+p[1],y=+p[2]; var dt=new Date(y,m-1,d,12,0,0); return isNaN(dt)?null:dt; }
     function diffDays(a,b){ return Math.round((a-b)/DAY); }
     function diffHours(a,b){ return (a-b)/HOUR; }
+    function pad2(n){ return String(n).padStart(2,'0'); }
     function dLabel(dateStr){ var d=parseBRDate(dateStr); if(!d) return ''; var delta=Math.floor((d - new Date())/DAY); if(delta===0) return 'D-0'; return delta>0?('D-'+delta):('D+'+Math.abs(delta)); }
     function urgency(dateStr,status){ if(status==='done')return'done'; if(status==='block')return'block'; if(status==='exec')return'exec'; var d=parseBRDate(dateStr); if(!d) return 'ok'; var dh=diffHours(d,new Date()); if(dh<=0)return'overdue'; if(dh<=48)return'soon'; return'ok'; }
 
-    /* =================== UI HELPERS =================== */
-    function el(tag,cls,txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
-    function pad2(n){ return String(n).padStart(2,'0'); }
-    function nowClock(){ var t=new Date(); return pad2(t.getHours())+':'+pad2(t.getMinutes())+':'+pad2(t.getSeconds()); }
+    function labelStatus(st,cls){ if(st==='exec')return'Em execução'; if(st==='block')return'Bloqueada'; if(st==='done')return'Finalizada 🏆'; if(cls==='overdue')return'Atrasada'; return'Pendente'; }
+    function toISO(br){ if(!br) return ''; var p=br.split('/'); if(p.length!==3) return ''; return p[2]+'-'+pad2(p[1])+'-'+pad2(p[0]); }
+    function fromISO(iso){ if(!iso) return ''; var p=iso.split('-'); if(p.length!==3) return ''; return pad2(p[2])+'/'+pad2(p[1])+'/'+p[0]; }
 
-    /* =================== RENDER =================== */
-    var boardEl = document.getElementById('board');
+    function el(tag,cls,txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
+    function addOpt(sel,val,txt,selb){ var o=document.createElement('option'); o.value=val; o.textContent=txt; if(selb) o.selected=true; sel.appendChild(o); }
+
+    var boardEl=document.getElementById('board');
+
     function render(){
       boardEl.innerHTML='';
 
-      // ENC COLUMNS
+      // Colunas de encarregados com rolagem independente
       for(var i=0;i<DATA.encarregados.length;i++){
-        var enc = DATA.encarregados[i];
-        var col = el('section','column');
-        col.appendChild(el('h2','',enc.nome));
-        var list = el('div','list');
+        var enc=DATA.encarregados[i];
+        var col=el('section','column');
+        col.appendChild(el('div','col-header',enc.nome));
+        var body=el('div','col-body');
 
+        // Formulário de adição (completo)
+        var ad=el('div','adder');
+        var tInput=document.createElement('input'); tInput.placeholder='Atividade'; tInput.size=28;
+        var dateInput=document.createElement('input'); dateInput.type='date';
+        var stSel=document.createElement('select'); addOpt(stSel,'exec','Em execução',true); addOpt(stSel,'block','Bloqueada'); addOpt(stSel,'done','Finalizada');
+        var addBtn=el('button','btn','➕ Incluir');
+        ad.appendChild(tInput); ad.appendChild(dateInput); ad.appendChild(stSel); ad.appendChild(addBtn);
+        (function(encIdx){ addBtn.addEventListener('click',function(){ var tit=tInput.value.trim(); if(!tit){alert('Informe o título'); return;} var pr=fromISO(dateInput.value); var st=stSel.value; DATA.encarregados[encIdx].tarefas.push({titulo:tit,prazo:pr,status:st}); saveState(); pushHist('Tarefa','Nova', DATA.encarregados[encIdx].nome, tit, (pr||'-')+' • '+st); tInput.value=''; dateInput.value=''; stSel.value='exec'; render(); }); })(i);
+        body.appendChild(ad);
+
+        // Cards
         for(var j=0;j<enc.tarefas.length;j++){
           var t=enc.tarefas[j];
           var cls=urgency(t.prazo,t.status);
           var card=el('div','task '+cls);
-          var title=el('div','title',t.titulo);
-          var meta=el('div','meta','Prazo: '+(t.prazo||'-')+' • '+dLabel(t.prazo));
-          var chip=el('span','chip', labelStatus(t.status, cls));
-          meta.appendChild(chip);
-          card.appendChild(title); card.appendChild(meta);
+          var ttl=el('div','title', t.titulo);
+          var mt=el('div','meta','Prazo: '+(t.prazo||'-')+' • '+dLabel(t.prazo));
+          var chip=el('span','chip',labelStatus(t.status,cls));
+          mt.appendChild(chip);
+          card.appendChild(ttl); card.appendChild(mt);
 
-          // Controls
-          var ctr=el('div','controls');
-          var l1=el('label',''); l1.appendChild(document.createTextNode(' Status: ')); var s=document.createElement('select');
-          addOpt(s,'exec','Em execução',t.status==='exec'); addOpt(s,'block','Bloqueada',t.status==='block'); addOpt(s,'done','Finalizada',t.status==='done'); l1.appendChild(s);
-          var l2=el('label',''); l2.appendChild(document.createTextNode(' Prazo: ')); var d=document.createElement('input'); d.type='date'; d.value=toISO(t.prazo); l2.appendChild(d);
-          ctr.appendChild(l1); ctr.appendChild(l2);
-          card.appendChild(ctr);
+          // Edit inline
+          var ctr=el('div','adder');
+          var eDate=document.createElement('input'); eDate.type='date'; eDate.value=toISO(t.prazo);
+          var eSel=document.createElement('select'); addOpt(eSel,'exec','Em execução',t.status==='exec'); addOpt(eSel,'block','Bloqueada',t.status==='block'); addOpt(eSel,'done','Finalizada',t.status==='done');
+          var eSave=el('button','btn','💾 Salvar');
+          var eDel=el('button','btn','🗑️ Remover');
+          ctr.appendChild(eDate); ctr.appendChild(eSel); ctr.appendChild(eSave); ctr.appendChild(eDel);
+          (function(encIdx,taskIdx){
+            eSave.addEventListener('click',function(){ var old=clone(DATA.encarregados[encIdx].tarefas[taskIdx]); DATA.encarregados[encIdx].tarefas[taskIdx].prazo=fromISO(eDate.value); DATA.encarregados[encIdx].tarefas[taskIdx].status=eSel.value; saveState(); pushHist('Tarefa','Editar', DATA.encarregados[encIdx].nome, old.titulo, old.prazo+'/' + old.status + ' → ' + (fromISO(eDate.value)||'-')+'/'+eSel.value); render(); });
+            eDel.addEventListener('click',function(){ if(confirm('Remover tarefa?')){ var del=DATA.encarregados[encIdx].tarefas.splice(taskIdx,1)[0]; saveState(); pushHist('Tarefa','Remover', DATA.encarregados[encIdx].nome, del.titulo, del.prazo||'-'); render(); }});
+          })(i,j);
 
-          (function(encIdx,taskIdx,sel,date){
-            sel.addEventListener('change', function(){
-              var old=DATA.encarregados[encIdx].tarefas[taskIdx].status;
-              DATA.encarregados[encIdx].tarefas[taskIdx].status=sel.value; saveState();
-              pushHist('Tarefa', 'Status', enc.nome, DATA.encarregados[encIdx].tarefas[taskIdx].titulo, old+' → '+sel.value);
-              render();
-            });
-            date.addEventListener('change', function(){
-              var old=DATA.encarregados[encIdx].tarefas[taskIdx].prazo;
-              DATA.encarregados[encIdx].tarefas[taskIdx].prazo = fromISO(date.value); saveState();
-              pushHist('Tarefa', 'Prazo', enc.nome, DATA.encarregados[encIdx].tarefas[taskIdx].titulo, old+' → '+fromISO(date.value));
-              render();
-            });
-          })(i,j,s,d);
-
-          list.appendChild(card);
+          body.appendChild(card); body.appendChild(ctr);
         }
 
-        // ADDER (novo card)
-        var ad = el('div','adder');
-        ad.innerHTML = '';
-        var inTit = document.createElement('input'); inTit.placeholder='Nova atividade'; inTit.size=24;
-        var inPra = document.createElement('input'); inPra.type='date';
-        var inSta = document.createElement('select'); addOpt(inSta,'exec','Em execução',true); addOpt(inSta,'block','Bloqueada'); addOpt(inSta,'done','Finalizada');
-        var btnAdd = el('button','btn','➕ Incluir');
-        ad.appendChild(inTit); ad.appendChild(inPra); ad.appendChild(inSta); ad.appendChild(btnAdd);
-        (function(encIdx){
-          btnAdd.addEventListener('click', function(){
-            var tit=inTit.value.trim(); var pr=fromISO(inPra.value); var st=inSta.value;
-            if(!tit){ alert('Informe o título da atividade.'); return; }
-            DATA.encarregados[encIdx].tarefas.push({titulo:tit,prazo:pr,status:st}); saveState();
-            pushHist('Tarefa','Nova', DATA.encarregados[encIdx].nome, tit, pr+' • '+st);
-            render();
-          });
-        })(i);
-        col.appendChild(list); col.appendChild(ad);
-
-        boardEl.appendChild(col);
+        col.appendChild(body); boardEl.appendChild(col);
       }
 
-      // SUPRIMENTOS
-      var sup = el('section','column');
-      sup.appendChild(el('h2','', 'Suprimentos'));
-      var sList = el('div','list');
+      // Suprimentos (coluna com rolagem própria)
+      var sup=el('section','column');
+      sup.appendChild(el('div','col-header','Suprimentos'));
+      var sb=el('div','col-body');
 
-      // RQs — lead time esperado (prazo - data)
-      var rqSec = el('div','section'); rqSec.appendChild(el('h3','', 'Requisições em Aberto'));
+      // RQs
+      var rqTitle=el('div','section'); rqTitle.appendChild(el('h3','', 'Requisições em Aberto'));
+      sb.appendChild(rqTitle);
       for(var r=0;r<DATA.suprimentos.requisicoes.length;r++){
-        var rq = DATA.suprimentos.requisicoes[r];
-        var dtP=parseBRDate(rq.prazo), dtS=parseBRDate(rq.data);
-        var ltExp = (dtP&&dtS)? (diffDays(dtP,dtS)+'d'): '-';
-        var clsRq = urgency(rq.prazo, rq.status);
-        var it = el('div','item '+clsRq);
-        var row=el('div','meta','Data: '+(rq.data||'-')+' • Prazo: '+(rq.prazo||'-')+' • Lead time esperado: '+ltExp);
-        var head=el('div','title', rq.numero+' — '+(rq.status||''));
-        it.appendChild(head); it.appendChild(row);
-
-        // Controles
-        var ctr=el('div','controls');
-        var a1=mkDate(' Data:', rq.data, function(v){ DATA.suprimentos.requisicoes[r].data=v; saveState(); pushHist('Requisição','Data', rq.numero, '', v); render(); });
-        var a2=mkDate(' Prazo:', rq.prazo, function(v){ DATA.suprimentos.requisicoes[r].prazo=v; saveState(); pushHist('Requisição','Prazo', rq.numero, '', v); render(); });
-        var a3=mkText(' Status:', rq.status||'', function(v){ DATA.suprimentos.requisicoes[r].status=v; saveState(); pushHist('Requisição','Status', rq.numero, '', v); render(); });
-        ctr.appendChild(a1); ctr.appendChild(a2); ctr.appendChild(a3);
-        it.appendChild(ctr);
-        rqSec.appendChild(it);
+        var rq=DATA.suprimentos.requisicoes[r];
+        var dtP=parseBRDate(rq.prazo), dtS=parseBRDate(rq.data); var lt = (dtP&&dtS)? (diffDays(dtP,dtS)+'d'):'-';
+        var it=el('div','item '+urgency(rq.prazo, rq.status));
+        it.appendChild(el('div','title', rq.numero+' — '+(rq.status||'')));
+        it.appendChild(el('div','meta','Data: '+(rq.data||'-')+' • Prazo: '+(rq.prazo||'-')+' • Lead time esperado: '+lt));
+        // editor
+        var rqCtr=el('div','adder');
+        var rqD=document.createElement('input'); rqD.type='date'; rqD.value=toISO(rq.data);
+        var rqP=document.createElement('input'); rqP.type='date'; rqP.value=toISO(rq.prazo);
+        var rqS=document.createElement('input'); rqS.placeholder='Status'; rqS.value=rq.status||'';
+        var rqSave=el('button','btn','💾 Salvar'); var rqDel=el('button','btn','🗑️ Remover');
+        rqCtr.appendChild(rqD); rqCtr.appendChild(rqP); rqCtr.appendChild(rqS); rqCtr.appendChild(rqSave); rqCtr.appendChild(rqDel);
+        (function(idx){ rqSave.addEventListener('click',function(){ DATA.suprimentos.requisicoes[idx].data=fromISO(rqD.value); DATA.suprimentos.requisicoes[idx].prazo=fromISO(rqP.value); DATA.suprimentos.requisicoes[idx].status=rqS.value.trim(); saveState(); pushHist('Requisição','Editar', DATA.suprimentos.requisicoes[idx].numero, '', 'Atualizado'); render(); }); rqDel.addEventListener('click',function(){ if(confirm('Remover RQ?')){ var del=DATA.suprimentos.requisicoes.splice(idx,1)[0]; saveState(); pushHist('Requisição','Remover', del.numero, '', '—'); render(); }}); })(r);
+        sb.appendChild(it); sb.appendChild(rqCtr);
       }
       // Adder RQ
-      var adRq = el('div','adder');
-      var rqNum = document.createElement('input'); rqNum.placeholder='RQ-xxx';
-      var rqData = document.createElement('input'); rqData.type='date';
-      var rqPra = document.createElement('input'); rqPra.type='date';
-      var rqSta = document.createElement('input'); rqSta.placeholder='Status';
-      var rqAdd = el('button','btn','➕ Incluir RQ');
-      adRq.appendChild(rqNum); adRq.appendChild(rqData); adRq.appendChild(rqPra); adRq.appendChild(rqSta); adRq.appendChild(rqAdd);
-      rqAdd.addEventListener('click', function(){
-        if(!rqNum.value.trim()){ alert('Informe o número da RQ.'); return; }
-        DATA.suprimentos.requisicoes.push({numero:rqNum.value.trim(), data:fromISO(rqData.value), prazo:fromISO(rqPra.value), status:rqSta.value.trim()});
-        saveState(); pushHist('Requisição','Nova', rqNum.value.trim(), '', (fromISO(rqData.value)||'-')+' → '+(fromISO(rqPra.value)||'-')); render();
-      });
-      rqSec.appendChild(adRq);
-      sList.appendChild(rqSec);
+      var newRq=el('div','adder');
+      var rqNum=document.createElement('input'); rqNum.placeholder='RQ-xxxx';
+      var rqDate=document.createElement('input'); rqDate.type='date';
+      var rqPrazo=document.createElement('input'); rqPrazo.type='date';
+      var rqStatus=document.createElement('input'); rqStatus.placeholder='Status';
+      var rqAdd=el('button','btn','➕ Incluir RQ');
+      newRq.appendChild(rqNum); newRq.appendChild(rqDate); newRq.appendChild(rqPrazo); newRq.appendChild(rqStatus); newRq.appendChild(rqAdd);
+      rqAdd.addEventListener('click',function(){ if(!rqNum.value.trim()){alert('Informe RQ');return;} DATA.suprimentos.requisicoes.push({numero:rqNum.value.trim(), data:fromISO(rqDate.value), prazo:fromISO(rqPrazo.value), status:rqStatus.value.trim()}); saveState(); pushHist('Requisição','Nova', rqNum.value.trim(), '', '—'); render(); });
+      sb.appendChild(newRq);
 
-      // OCs — lead time real (recebido - emissao)
-      var ocSec = el('div','section'); ocSec.appendChild(el('h3','', 'Ordens de Compra (OC)'));
+      // OCs
+      var ocTitle=el('div','section'); ocTitle.appendChild(el('h3','', 'Ordens de Compra (OC)'));
+      sb.appendChild(ocTitle);
       for(var o=0;o<DATA.suprimentos.ocs.length;o++){
-        var oc = DATA.suprimentos.ocs[o];
-        var dtR=parseBRDate(oc.recebido), dtE=parseBRDate(oc.emissao);
-        var ltReal = (dtR&&dtE)? (diffDays(dtR,dtE)+'d'): '-';
-        var clsOc = oc.recebido? 'recv' : urgency(oc.previsao, oc.status);
-        var it2 = el('div','item '+clsOc);
-        var head2=el('div','title', oc.numero+' — '+(oc.status||''));
-        var kv=el('div','meta','Emissão: '+(oc.emissao||'-')+' • Previsão: '+(oc.previsao||'-')+' • Lead time real: '+ltReal);
-        var kv2=el('div','meta', oc.fornecedor? ('Fornecedor: '+oc.fornecedor+' • Comprador: '+(oc.comprador||'-')) : '');
-        var kv3=el('div','meta', oc.recebido? ('Recebido em '+oc.recebido) : 'Pendente');
-        it2.appendChild(head2); it2.appendChild(kv); it2.appendChild(kv2); it2.appendChild(kv3);
-
-        // Controles
-        var ctr2=el('div','controls');
-        ctr2.appendChild(mkDate(' Emissão:', oc.emissao, function(v){ DATA.suprimentos.ocs[o].emissao=v; saveState(); pushHist('OC','Emissão', oc.numero, '', v); render(); }));
-        ctr2.appendChild(mkDate(' Previsão:', oc.previsao, function(v){ DATA.suprimentos.ocs[o].previsao=v; saveState(); pushHist('OC','Previsão', oc.numero, '', v); render(); }));
-        ctr2.appendChild(mkDate(' Recebido:', oc.recebido, function(v){ DATA.suprimentos.ocs[o].recebido=v; saveState(); pushHist('OC','Recebido', oc.numero, '', v); render(); }));
-        ctr2.appendChild(mkText(' Status:', oc.status||'', function(v){ DATA.suprimentos.ocs[o].status=v; saveState(); pushHist('OC','Status', oc.numero, '', v); render(); }));
-        it2.appendChild(ctr2);
-        ocSec.appendChild(it2);
+        var oc=DATA.suprimentos.ocs[o];
+        var dtR=parseBRDate(oc.recebido), dtE=parseBRDate(oc.emissao); var ltR=(dtR&&dtE)? (diffDays(dtR,dtE)+'d'):'-';
+        var it2=el('div','item '+(oc.recebido?'recv':urgency(oc.previsao, oc.status)));
+        it2.appendChild(el('div','title', oc.numero+' — '+(oc.status||'')));
+        it2.appendChild(el('div','meta', 'Emissão: '+(oc.emissao||'-')+' • Previsão: '+(oc.previsao||'-')+' • Lead time real: '+ltR));
+        it2.appendChild(el('div','meta', oc.fornecedor? ('Fornecedor: '+oc.fornecedor+' • Comprador: '+(oc.comprador||'-')): ''));
+        it2.appendChild(el('div','meta', oc.recebido? ('Recebido em '+oc.recebido): 'Pendente'));
+        // editor
+        var ocCtr=el('div','adder');
+        var e1=document.createElement('input'); e1.type='date'; e1.value=toISO(oc.emissao);
+        var e2=document.createElement('input'); e2.type='date'; e2.value=toISO(oc.previsao);
+        var e3=document.createElement('input'); e3.type='date'; e3.value=toISO(oc.recebido);
+        var eS=document.createElement('input'); eS.placeholder='Status'; eS.value=oc.status||'';
+        var eF=document.createElement('input'); eF.placeholder='Fornecedor'; eF.value=oc.fornecedor||'';
+        var eC=document.createElement('input'); eC.placeholder='Comprador'; eC.value=oc.comprador||'';
+        var ocSave=el('button','btn','💾 Salvar'); var ocDel=el('button','btn','🗑️ Remover');
+        ocCtr.appendChild(e1); ocCtr.appendChild(e2); ocCtr.appendChild(e3); ocCtr.appendChild(eS); ocCtr.appendChild(eF); ocCtr.appendChild(eC); ocCtr.appendChild(ocSave); ocCtr.appendChild(ocDel);
+        (function(idx){ ocSave.addEventListener('click',function(){ var rec=fromISO(e3.value); DATA.suprimentos.ocs[idx].emissao=fromISO(e1.value); DATA.suprimentos.ocs[idx].previsao=fromISO(e2.value); DATA.suprimentos.ocs[idx].recebido=rec; DATA.suprimentos.ocs[idx].status=eS.value.trim(); DATA.suprimentos.ocs[idx].fornecedor=eF.value.trim(); DATA.suprimentos.ocs[idx].comprador=eC.value.trim(); saveState(); pushHist('OC','Editar', DATA.suprimentos.ocs[idx].numero, '', 'Atualizado'); render(); }); ocDel.addEventListener('click',function(){ if(confirm('Remover OC?')){ var del=DATA.suprimentos.ocs.splice(idx,1)[0]; saveState(); pushHist('OC','Remover', del.numero, '', '—'); render(); }}); })(o);
+        sb.appendChild(it2); sb.appendChild(ocCtr);
       }
       // Adder OC
-      var adOc = el('div','adder');
-      var ocNum=document.createElement('input'); ocNum.placeholder='OC-xxxx';
-      var ocEmi=document.createElement('input'); ocEmi.type='date';
-      var ocPrev=document.createElement('input'); ocPrev.type='date';
-      var ocRec=document.createElement('input'); ocRec.type='date';
-      var ocSta=document.createElement('input'); ocSta.placeholder='Status';
-      var ocForn=document.createElement('input'); ocForn.placeholder='Fornecedor';
-      var ocComp=document.createElement('input'); ocComp.placeholder='Comprador';
-      var ocAdd=el('button','btn','➕ Incluir OC');
-      adOc.appendChild(ocNum); adOc.appendChild(ocEmi); adOc.appendChild(ocPrev); adOc.appendChild(ocRec); adOc.appendChild(ocSta); adOc.appendChild(ocForn); adOc.appendChild(ocComp); adOc.appendChild(ocAdd);
-      ocAdd.addEventListener('click', function(){
-        if(!ocNum.value.trim()){ alert('Informe o número da OC.'); return; }
-        DATA.suprimentos.ocs.push({numero:ocNum.value.trim(), emissao:fromISO(ocEmi.value), previsao:fromISO(ocPrev.value), recebido:fromISO(ocRec.value), status:ocSta.value.trim(), fornecedor:ocForn.value.trim(), comprador:ocComp.value.trim()});
-        saveState(); pushHist('OC','Nova', ocNum.value.trim(), '', 'Emissão '+(fromISO(ocEmi.value)||'-')); render();
-      });
-      ocSec.appendChild(adOc);
-      sList.appendChild(ocSec);
+      var newOc=el('div','adder');
+      var nNum=document.createElement('input'); nNum.placeholder='OC-xxxx';
+      var nEmi=document.createElement('input'); nEmi.type='date';
+      var nPrev=document.createElement('input'); nPrev.type='date';
+      var nRec=document.createElement('input'); nRec.type='date';
+      var nSta=document.createElement('input'); nSta.placeholder='Status';
+      var nF=document.createElement('input'); nF.placeholder='Fornecedor';
+      var nC=document.createElement('input'); nC.placeholder='Comprador';
+      var nAdd=el('button','btn','➕ Incluir OC');
+      newOc.appendChild(nNum); newOc.appendChild(nEmi); newOc.appendChild(nPrev); newOc.appendChild(nRec); newOc.appendChild(nSta); newOc.appendChild(nF); newOc.appendChild(nC); newOc.appendChild(nAdd);
+      nAdd.addEventListener('click',function(){ if(!nNum.value.trim()){alert('Informe OC');return;} DATA.suprimentos.ocs.push({numero:nNum.value.trim(), emissao:fromISO(nEmi.value), previsao:fromISO(nPrev.value), recebido:fromISO(nRec.value), status:nSta.value.trim(), fornecedor:nF.value.trim(), comprador:nC.value.trim()}); saveState(); pushHist('OC','Nova', nNum.value.trim(), '', '—'); render(); });
+      sb.appendChild(newOc);
 
-      sup.appendChild(sList); boardEl.appendChild(sup);
+      sup.appendChild(sb); boardEl.appendChild(sup);
 
-      // Edit mode visibility
-      var editing = document.body.getAttribute('data-edit')==='1';
-      var ctrs = document.querySelectorAll('.controls, .adder');
-      for(var k=0;k<ctrs.length;k++){ ctrs[k].style.display = editing ? 'flex' : 'none'; }
+      // Clock
+      document.getElementById('clock').textContent = (function(){ var t=new Date(); return pad2(t.getHours())+':'+pad2(t.getMinutes())+':'+pad2(t.getSeconds()); })();
     }
 
-    function labelStatus(st, cls){
-      if(st==='exec') return 'Em execução';
-      if(st==='block') return 'Bloqueada';
-      if(st==='done') return 'Finalizada 🏆';
-      if(cls==='overdue') return 'Atrasada';
-      return 'Pendente';
-    }
+    function pushHist(tipo,campo,contexto,titulo,valor){ var t=new Date(); HISTORY.unshift({ts:t.toISOString(),tipo:tipo,campo:campo,contexto:contexto,titulo:titulo,valor:valor}); if(HISTORY.length>800) HISTORY.pop(); saveHistory(); }
 
-    function addOpt(sel,val,txt,selb){ var o=document.createElement('option'); o.value=val; o.textContent=txt; if(selb) o.selected=true; sel.appendChild(o); }
-    function toISO(br){ if(!br) return ''; var p=br.split('/'); if(p.length!==3) return ''; return p[2]+'-'+pad2(p[1])+'-'+pad2(p[0]); }
-    function fromISO(iso){ if(!iso) return ''; var p=iso.split('-'); if(p.length!==3) return ''; return pad2(p[2])+'/'+pad2(p[1])+'/'+p[0]; }
-
-    function mkDate(label, val, onChange){ var wrap=el('label',''); wrap.appendChild(document.createTextNode(label+' ')); var inp=document.createElement('input'); inp.type='date'; inp.value=toISO(val); inp.addEventListener('change', function(){ onChange(fromISO(inp.value)); }); wrap.appendChild(inp); return wrap; }
-    function mkText(label, val, onChange){ var wrap=el('label',''); wrap.appendChild(document.createTextNode(label+' ')); var inp=document.createElement('input'); inp.type='text'; inp.value=val||''; inp.addEventListener('change', function(){ onChange(inp.value); }); wrap.appendChild(inp); return wrap; }
-
-    /* =================== HISTÓRICO =================== */
-    function pushHist(tipo, campo, contexto, titulo, valor){
-      var t=new Date();
-      HISTORY.unshift({ts:t.toISOString(), tipo:tipo, campo:campo, contexto:contexto, titulo:titulo, valor:valor});
-      if(HISTORY.length>500) HISTORY.pop();
-      saveHistory();
-    }
-
-    function openHistory(){
-      var modal = document.getElementById('histModal');
-      var list = document.getElementById('histList');
-      list.innerHTML='';
-      for(var i=0;i<HISTORY.length;i++){
-        var h=HISTORY[i];
-        var d=new Date(h.ts);
-        var line = el('div','history-item', '['+ pad2(d.getDate())+'/'+pad2(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad2(d.getHours())+':'+pad2(d.getMinutes()) +'] '+ h.tipo+' • '+h.campo+' • '+(h.contexto||'')+' • '+(h.titulo||'')+' → '+h.valor);
-        list.appendChild(line);
-      }
-      modal.style.display='flex';
-    }
-
+    function openHistory(){ var list=document.getElementById('histList'); var modal=document.getElementById('histModal'); list.innerHTML=''; for(var i=0;i<HISTORY.length;i++){ var h=HISTORY[i], d=new Date(h.ts); var line=el('div','history-item','['+pad2(d.getDate())+'/'+pad2(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad2(d.getHours())+':'+pad2(d.getMinutes())+'] '+h.tipo+' • '+h.campo+' • '+(h.contexto||'')+' • '+(h.titulo||'')+' → '+h.valor); list.appendChild(line);} modal.style.display='flex'; }
     function closeHistory(){ document.getElementById('histModal').style.display='none'; }
 
-    /* =================== HEADER BTNs & LOGO/RELOGIO =================== */
-    document.getElementById('editToggle').addEventListener('click', function(){
-      var on = document.body.getAttribute('data-edit')==='1';
-      document.body.setAttribute('data-edit', on? '0':'1');
-      this.textContent = on? '✏️ Editar':'✅ Concluir';
-      render();
-    });
-    document.getElementById('resetBtn').addEventListener('click', function(){
-      if(confirm('Limpar tarefas atuais e suprimentos desta semana? O HISTÓRICO será mantido.')){
-        DATA = clone(DATA_DEFAULT); saveState(); render(); initLogo();
-        pushHist('Sistema','Reset Semana','—','—','Dados retornados ao padrão');
-      }
-    });
     document.getElementById('histBtn').addEventListener('click', openHistory);
     document.getElementById('histClose').addEventListener('click', closeHistory);
     document.getElementById('histModal').addEventListener('click', function(e){ if(e.target===this) closeHistory(); });
 
-    function initLogo(){
-      var img=document.getElementById('logo'); var ph=document.getElementById('logoPh');
-      var src=DATA.logo_src||''; if(!src){ img.style.display='none'; ph.style.display='flex'; return; }
-      img.onload=function(){ img.style.display='block'; ph.style.display='none'; };
-      img.onerror=function(){ img.style.display='none'; ph.style.display='flex'; };
-      img.src=src;
-    }
+    document.getElementById('resetBtn').addEventListener('click', function(){ if(confirm('Limpar dados atuais? Histórico será mantido.')){ DATA=clone(DATA_DEFAULT); saveState(); render(); initLogo(); pushHist('Sistema','Reset Semana','—','—','Dados retornados ao padrão'); }});
 
-    function tick(){ document.getElementById('clock').textContent = nowClock(); }
+    function initLogo(){ var img=document.getElementById('logo'); var ph=document.getElementById('logoPh'); var src=DATA.logo_src||''; if(!src){ img.style.display='none'; ph.style.display='flex'; return; } img.onload=function(){ img.style.display='block'; ph.style.display='none'; }; img.onerror=function(){ img.style.display='none'; ph.style.display='flex'; }; img.src=src; }
 
-    document.addEventListener('DOMContentLoaded', function(){
-      initLogo();
-      render();
-      setInterval(tick, 1000);
-      setInterval(render, 60000);
-    });
+    document.addEventListener('DOMContentLoaded', function(){ initLogo(); render(); setInterval(render, 1000); });
   })();
   </script>
 </body>
