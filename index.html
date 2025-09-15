@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atlântico Golf — Quadro Kanban (Distribuição 19/09)</title>
-  <meta name="description" content="Visualização Kanban por encarregado + Suprimentos, com códigos únicos por processo. Versão gerada a partir do arquivo-base do projeto. Sem edição via UI." />
+  <meta name="description" content="Visualização Kanban por encarregado + Suprimentos, com códigos únicos por processo. Versão atualizada a partir do arquivo-base do projeto. Sem edição via UI." />
   <style>
     :root{
       --bg:#f5f7fb; --text:#111827; --muted:#475569; --brand:#005b96;
@@ -74,7 +74,7 @@
   <div class="board" id="board"></div>
 
   <footer>
-    <div>Requisições e OCs mantidas como **simuladas** — revisar amanhã.</div>
+    <div>Requisições e OCs mantidas como **simuladas** — definir amanhã. Compradores: <strong>Suellen</strong>, <strong>Lucas</strong>, <strong>Brígida</strong>.</div>
     <div>Arquivo gerado a partir do modelo oficial do projeto (somente visualização).</div>
   </footer>
 
@@ -84,34 +84,34 @@
 
     /* =================== DADOS (edite aqui no código) =================== */
     // Todos os serviços a seguir estão programados para 19/09/2025.
-    // Códigos de tarefa foram atribuídos manualmente (T-0301+), preservando histórico anterior.
+    // Códigos de tarefa novos (continuidade do histórico): T-0313+
 
     var DATA = {
       logo_src: 'assets/logo.jpg',
       encarregados:[
         {nome:'Severo (Hidráulica)', tarefas:[
-          {codigo:'T-0301', titulo:'Fechamento de ralos do subsolo', prazo:'19/09/2025', status:'exec'},
-          {codigo:'T-0302', titulo:'Verificação da rede externa em frente ao Bloco 1 — impactos do muro', prazo:'19/09/2025', status:'exec'},
-          {codigo:'T-0303', titulo:'Instalação de bombas de esgoto e águas pluviais', prazo:'19/09/2025', status:'exec'},
-          {codigo:'T-0304', titulo:'Tubulações de recalque dos poços de bombas', prazo:'19/09/2025', status:'exec'}
+          {codigo:'T-0313', titulo:'Rede hidráulica de entrada de água — conclusão', prazo:'19/09/2025', status:'exec'},
+          {codigo:'T-0314', titulo:'Troca do suporte da rede Ø110 mm: perfilado → cantoneira (recalque de pluviais e esgoto)', prazo:'19/09/2025', status:'exec'}
         ]},
         {nome:'Ayrton (Hidráulica)', tarefas:[
+          // Mantém como estava na versão anterior, com mesma data
           {codigo:'T-0305', titulo:'Entrega de apartamentos para a Qualidade — Blocos 2 e 3', prazo:'19/09/2025', status:'exec'},
           {codigo:'T-0306', titulo:'Instalação da redutora de pressão — Bloco 3', prazo:'19/09/2025', status:'exec'}
         ]},
         {nome:'Thiago (Elétrica)', tarefas:[
-          {codigo:'T-0307', titulo:'Infraestrutura elétrica — subsolo e térreo', prazo:'19/09/2025', status:'exec'},
-          {codigo:'T-0308', titulo:'Infraestrutura de lógica — subsolo e térreo', prazo:'19/09/2025', status:'exec'},
-          {codigo:'T-0309', titulo:'Interruptores e tomadas — áreas comuns', prazo:'19/09/2025', status:'exec'}
+          {codigo:'T-0315', titulo:'Tratamento de todas as eletrocalhas', prazo:'19/09/2025', status:'exec'},
+          {codigo:'T-0316', titulo:'Instalação de luminárias — trecho central do subsolo (±50 unidades em zonas apagadas)', prazo:'19/09/2025', status:'exec'},
+          {codigo:'T-0317', titulo:'Instalação de 5 quadros de bombas', prazo:'19/09/2025', status:'exec'}
         ]},
         {nome:'Marcelo (Elétrica)', tarefas:[
-          {codigo:'T-0310', titulo:'Instalação de QDLs', prazo:'19/09/2025', status:'exec'},
-          {codigo:'T-0311', titulo:'Entrega de apartamentos para a Qualidade', prazo:'19/09/2025', status:'exec'},
-          {codigo:'T-0312', titulo:'Suportes de tomadas nos apartamentos', prazo:'19/09/2025', status:'exec'}
+          {codigo:'T-0318', titulo:'Entrega de apartamentos', prazo:'19/09/2025', status:'exec'},
+          {codigo:'T-0319', titulo:'Fechamento de QDLs dos apartamentos — 19º e 20º (duas torres)', prazo:'19/09/2025', status:'exec'},
+          {codigo:'T-0320', titulo:'SPDA das duas torres (executar áreas liberadas)', prazo:'19/09/2025', status:'exec'}
         ]}
       ],
       suprimentos:{
-        // Mantido como simulado até atualização (amanhã)
+        // Mantido como simulado até atualização; compradores cadastrados para referência
+        compradores:['Suellen','Lucas','Brígida'],
         requisicoes:[
           {codigo:'RQ-241', numero:'RQ-241', data:'12/09/2025', solicitante:'Thiago', area:'Subsolo', status:'EM ANÁLISE', obs:'Eletrocalhas 100mm', prazo:'18/09/2025'},
           {codigo:'RQ-256', numero:'RQ-256', data:'13/09/2025', solicitante:'Severo', area:'Hidráulica', status:'APROVADA', obs:'Conexões PPR Ø75', prazo:'20/09/2025'}
@@ -305,5 +305,6 @@
   </script>
 </body>
 </html>
+
 
 
