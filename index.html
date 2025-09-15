@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Atlântico Golf — Quadro Kanban por Encarregado</title>
-  <meta name="description" content="Visualização Kanban por encarregado + Suprimentos, com códigos numéricos únicos por processo (tarefas, requisições e OCs). Sem edição via UI." />
+  <title>Atlântico Golf — Quadro Kanban (Distribuição 19/09)</title>
+  <meta name="description" content="Visualização Kanban por encarregado + Suprimentos, com códigos únicos por processo. Versão gerada a partir do arquivo-base do projeto. Sem edição via UI." />
   <style>
     :root{
       --bg:#f5f7fb; --text:#111827; --muted:#475569; --brand:#005b96;
@@ -16,15 +16,16 @@
     html,body{height:100%}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;background:var(--bg);color:var(--text)}
 
-    header{padding:14px 16px;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center}
+    header{padding:14px 16px;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
     .brand{display:flex;align-items:center;gap:14px}
     .logo-box{width:160px;height:70px;background:#fff;border-radius:10px;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;overflow:hidden}
     .logo-img{max-width:100%;max-height:100%;display:none}
     .logo-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#0f172a;font-weight:800;letter-spacing:.3px}
-    h1{margin:0;font-size:24px}
+    h1{margin:0;font-size:22px}
     .clock{font-variant-numeric:tabular-nums}
+    .small{font-size:12px;opacity:.9}
 
-    .board{display:flex;align-items:flex-start;gap:16px;padding:16px;overflow:auto;height:calc(100% - 92px)}
+    .board{display:flex;align-items:flex-start;gap:16px;padding:16px;overflow:auto;height:calc(100% - 112px)}
     .column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:300px;max-width:460px;flex:1;display:flex;flex-direction:column}
     .column h2{margin:0;padding:14px;background:var(--header);font-size:18px;font-weight:800;text-decoration:underline;border-bottom:1px solid var(--border);text-align:center}
 
@@ -49,6 +50,8 @@
     .row{display:flex;justify-content:space-between;gap:8px;font-size:14px}
     .kv{font-size:12px;color:var(--muted)}
 
+    footer{padding:8px 16px;border-top:1px solid var(--border);background:#fff;color:#334155;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
     @keyframes blink{0%{opacity:1}50%{opacity:.45}100%{opacity:1}}
     @keyframes jitter{0%,100%{transform:translateX(0)}25%{transform:translateX(1px)}75%{transform:translateX(-1px)}}
   </style>
@@ -57,53 +60,65 @@
   <header>
     <div class="brand">
       <div class="logo-box"><img id="logo" class="logo-img" alt="Logo System Engenharia" /><div id="logoPh" class="logo-ph">LOGO</div></div>
-      <h1>Atlântico Golf — Quadro Kanban (Semanal)</h1>
+      <div>
+        <h1>Atlântico Golf — Quadro Kanban (Distribuição 19/09)</h1>
+        <div class="small">Planejamento de campo consolidado para 19/09 — tarefas priorizadas por urgência e conclusão.</div>
+      </div>
     </div>
-    <div class="clock" id="clock">--:--:--</div>
+    <div style="text-align:right">
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="small" id="stamp">Última atualização: 14/09/2025</div>
+    </div>
   </header>
 
   <div class="board" id="board"></div>
+
+  <footer>
+    <div>Requisições e OCs mantidas como **simuladas** — revisar amanhã.</div>
+    <div>Arquivo gerado a partir do modelo oficial do projeto (somente visualização).</div>
+  </footer>
 
   <script>
   (function(){
     'use strict';
 
     /* =================== DADOS (edite aqui no código) =================== */
-    // Regras de código:
-    // - Tarefas: código "T-0001", "T-0002", ... gerado na ordem de criação (global).
-    //   Você pode definir manualmente: { codigo:'T-0015', ... }
-    // - Requisições: se tiver "codigo" usa ele; senão, usa o campo "numero" como código.
-    // - OCs: idem, se não houver "codigo", usa "numero".
+    // Todos os serviços a seguir estão programados para 19/09/2025.
+    // Códigos de tarefa foram atribuídos manualmente (T-0301+), preservando histórico anterior.
 
     var DATA = {
       logo_src: 'assets/logo.jpg',
       encarregados:[
         {nome:'Severo (Hidráulica)', tarefas:[
-          {codigo:'', titulo:'Interligar barrilete Torre 1 — Subsolo', prazo:'16/09/2025', status:'exec'},
-          {codigo:'', titulo:'Teste estanqueidade prumada A — Bloco 2', prazo:'17/09/2025', status:'block'}
+          {codigo:'T-0301', titulo:'Fechamento de ralos do subsolo', prazo:'19/09/2025', status:'exec'},
+          {codigo:'T-0302', titulo:'Verificação da rede externa em frente ao Bloco 1 — impactos do muro', prazo:'19/09/2025', status:'exec'},
+          {codigo:'T-0303', titulo:'Instalação de bombas de esgoto e águas pluviais', prazo:'19/09/2025', status:'exec'},
+          {codigo:'T-0304', titulo:'Tubulações de recalque dos poços de bombas', prazo:'19/09/2025', status:'exec'}
         ]},
         {nome:'Ayrton (Hidráulica)', tarefas:[
-          {codigo:'', titulo:'Fixar suportes de reservatórios — Área Técnica', prazo:'15/09/2025', status:'done', finalizado_em:'15/09/2025'},
-          {codigo:'', titulo:'Montar barrilete superior — Torre 3', prazo:'19/09/2025', status:'exec'}
+          {codigo:'T-0305', titulo:'Entrega de apartamentos para a Qualidade — Blocos 2 e 3', prazo:'19/09/2025', status:'exec'},
+          {codigo:'T-0306', titulo:'Instalação da redutora de pressão — Bloco 3', prazo:'19/09/2025', status:'exec'}
         ]},
         {nome:'Thiago (Elétrica)', tarefas:[
-          {codigo:'', titulo:'Lançamento cabos QGBT→QDLs — Subsolo', prazo:'16/09/2025', status:'exec'},
-          {codigo:'', titulo:'Fechamento alimentadores nos disjuntores gerais', prazo:'17/09/2025', status:'block'}
+          {codigo:'T-0307', titulo:'Infraestrutura elétrica — subsolo e térreo', prazo:'19/09/2025', status:'exec'},
+          {codigo:'T-0308', titulo:'Infraestrutura de lógica — subsolo e térreo', prazo:'19/09/2025', status:'exec'},
+          {codigo:'T-0309', titulo:'Interruptores e tomadas — áreas comuns', prazo:'19/09/2025', status:'exec'}
         ]},
         {nome:'Marcelo (Elétrica)', tarefas:[
-          {codigo:'', titulo:'Revisão SPDA — Cobertura Bloco 2', prazo:'15/09/2025', status:'done', finalizado_em:'15/09/2025'},
-          {codigo:'', titulo:'Checklist iluminação emergência — Térreo', prazo:'18/09/2025', status:'exec'}
+          {codigo:'T-0310', titulo:'Instalação de QDLs', prazo:'19/09/2025', status:'exec'},
+          {codigo:'T-0311', titulo:'Entrega de apartamentos para a Qualidade', prazo:'19/09/2025', status:'exec'},
+          {codigo:'T-0312', titulo:'Suportes de tomadas nos apartamentos', prazo:'19/09/2025', status:'exec'}
         ]}
       ],
       suprimentos:{
+        // Mantido como simulado até atualização (amanhã)
         requisicoes:[
-          {codigo:'', numero:'RQ-241', data:'12/09/2025', solicitante:'Thiago', area:'Subsolo', status:'EM ANÁLISE', obs:'Eletrocalhas 100mm', prazo:'18/09/2025'},
-          {codigo:'', numero:'RQ-256', data:'13/09/2025', solicitante:'Severo', area:'Hidráulica', status:'APROVADA', obs:'Conexões PPR Ø75', prazo:'20/09/2025'}
-          // Para finalizar e fazer "subir": status: 'FINALIZADA' e (opcional) finalizado_em:'dd/mm/aaaa'
+          {codigo:'RQ-241', numero:'RQ-241', data:'12/09/2025', solicitante:'Thiago', area:'Subsolo', status:'EM ANÁLISE', obs:'Eletrocalhas 100mm', prazo:'18/09/2025'},
+          {codigo:'RQ-256', numero:'RQ-256', data:'13/09/2025', solicitante:'Severo', area:'Hidráulica', status:'APROVADA', obs:'Conexões PPR Ø75', prazo:'20/09/2025'}
         ],
         ocs:[
-          {codigo:'', numero:'OC-1189', emissao:'14/09/2025', fornecedor:'Prysmian', status:'EMITIDA', previsao:'18/09/2025', comprador:'Carla', recebido:''},
-          {codigo:'', numero:'OC-1197', emissao:'17/09/2025', fornecedor:'Megabarre', status:'AGUARDANDO NF', previsao:'25/09/2025', comprador:'Eduardo', recebido:'26/09/2025'}
+          {codigo:'OC-1189', numero:'OC-1189', emissao:'14/09/2025', fornecedor:'Prysmian', status:'EMITIDA', previsao:'18/09/2025', comprador:'Carla', recebido:''},
+          {codigo:'OC-1197', numero:'OC-1197', emissao:'17/09/2025', fornecedor:'Megabarre', status:'AGUARDANDO NF', previsao:'25/09/2025', comprador:'Eduardo', recebido:'26/09/2025'}
         ]
       }
     };
@@ -124,30 +139,6 @@
       if(hours<=0) return 'overdue';
       if(hours<=48) return 'soon';
       return 'ok';
-    }
-
-    /* =================== CÓDIGOS (IDs) =================== */
-    // Sequência numérica global para tarefas (T-0001, T-0002, ...)
-    var SEQ = 1; // se quiser iniciar em outro número, altere aqui
-    function nextTaskCode(){ var n=String(SEQ).padStart(4,'0'); SEQ++; return 'T-'+n; }
-    function ensureCodes(){
-      // Tarefas: percorre em ordem de declaração e atribui código se estiver vazio
-      for(var i=0;i<DATA.encarregados.length;i++){
-        var ts = DATA.encarregados[i].tarefas||[];
-        for(var j=0;j<ts.length;j++){
-          if(!ts[j].codigo){ ts[j].codigo = nextTaskCode(); }
-        }
-      }
-      // Requisições: se não houver codigo, usa numero
-      var rqs = DATA.suprimentos.requisicoes||[];
-      for(var r=0;r<rqs.length;r++){
-        if(!rqs[r].codigo){ rqs[r].codigo = rqs[r].numero ? String(rqs[r].numero) : ('RQ-'+String(r+1).padStart(4,'0')); }
-      }
-      // OCs: se não houver codigo, usa numero
-      var ocs = DATA.suprimentos.ocs||[];
-      for(var o=0;o<ocs.length;o++){
-        if(!ocs[o].codigo){ ocs[o].codigo = ocs[o].numero ? String(ocs[o].numero) : ('OC-'+String(o+1).padStart(4,'0')); }
-      }
     }
 
     /* ===== Ordenação ===== */
@@ -180,9 +171,6 @@
 
     function render(){
       boardEl.innerHTML = '';
-
-      // garante códigos
-      ensureCodes();
 
       // === Colunas por Encarregado ===
       for(var i=0;i<DATA.encarregados.length;i++){
@@ -234,7 +222,7 @@
       sup.appendChild(el('h2','','Suprimentos'));
       var sList = el('div','list');
 
-      // Requisições
+      // Requisições (simulado)
       var rqSec = el('div','section');
       rqSec.appendChild(el('h3','', 'Requisições em Aberto'));
       var rqs = (DATA.suprimentos.requisicoes||[]).slice().sort(function(a,b){
@@ -264,7 +252,7 @@
       }
       sList.appendChild(rqSec);
 
-      // OCs
+      // OCs (simulado)
       var ocSec = el('div','section');
       ocSec.appendChild(el('h3','', 'Ordens de Compra (OC)'));
       var ocs = (DATA.suprimentos.ocs||[]).slice().sort(compareOC);
@@ -309,6 +297,7 @@
     document.addEventListener('DOMContentLoaded', function(){
       initLogo();
       render();
+      document.getElementById('stamp').textContent = 'Última atualização: '+new Date().toLocaleDateString('pt-BR')+' '+new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
       setInterval(function(){ tick(); }, 1000);
       setInterval(function(){ render(); }, 60000);
     });
@@ -316,4 +305,5 @@
   </script>
 </body>
 </html>
+
 
