@@ -4,32 +4,38 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atlântico Golf — Quadro Kanban (Distribuição 19/09)</title>
-  <meta name="description" content="Visualização Kanban por encarregado + Suprimentos, com códigos únicos por processo. Versão atualizada a partir do arquivo-base do projeto. Sem edição via UI." />
+  <meta name="description" content="Kanban por encarregado + Suprimentos. Títulos fixos (header e cabeçalhos de coluna) e rolagem independente por coluna. Códigos únicos por processo. Somente visualização." />
   <style>
     :root{
       --bg:#f5f7fb; --text:#111827; --muted:#475569; --brand:#005b96;
       --card:#ffffff; --border:#cbd5e1; --header:#f1f5f9;
       --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c; --block:#9333ea; --exec:#0ea5e9; --recv:#15803d;
       --chip:#e2e8f0; --mono:#0f172a;
+      --header-h: 96px; /* ajustado dinamicamente no JS */
+      --footer-h: 48px; /* ajustado dinamicamente no JS */
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;background:var(--bg);color:var(--text)}
 
-    header{padding:14px 16px;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    /* ===== Header fixo (congelado) ===== */
+    header{position:sticky;top:0;z-index:100;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;box-shadow:0 2px 10px rgba(0,0,0,.18)}
     .brand{display:flex;align-items:center;gap:14px}
-    .logo-box{width:160px;height:70px;background:#fff;border-radius:10px;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .logo-box{width:160px;height:64px;background:#fff;border-radius:10px;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;overflow:hidden}
     .logo-img{max-width:100%;max-height:100%;display:none}
     .logo-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#0f172a;font-weight:800;letter-spacing:.3px}
     h1{margin:0;font-size:22px}
     .clock{font-variant-numeric:tabular-nums}
-    .small{font-size:12px;opacity:.9}
+    .small{font-size:12px;opacity:.95}
 
-    .board{display:flex;align-items:flex-start;gap:16px;padding:16px;overflow:auto;height:calc(100% - 112px)}
-    .column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:300px;max-width:460px;flex:1;display:flex;flex-direction:column}
-    .column h2{margin:0;padding:14px;background:var(--header);font-size:18px;font-weight:800;text-decoration:underline;border-bottom:1px solid var(--border);text-align:center}
+    /* ===== Painel e colunas ===== */
+    .board{height:calc(100vh - var(--header-h) - var(--footer-h));display:flex;gap:16px;padding:16px;overflow-x:auto;overflow-y:hidden;scrollbar-gutter:stable both-edges}
+    .column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:320px;max-width:480px;flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden}
+    /* Cabeçalho da coluna fixo dentro da própria coluna */
+    .column h2{position:sticky;top:0;z-index:10;margin:0;padding:12px;background:var(--header);font-size:18px;font-weight:800;text-decoration:underline;border-bottom:1px solid var(--border);text-align:center;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+    /* Área rolável por coluna */
+    .list{flex:1;overflow:auto;padding:10px;overscroll-behavior:contain}
 
-    .list{padding:10px}
     .task{background:#ffffff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(2,6,23,.06);position:relative;transition:transform .18s ease, box-shadow .18s ease}
     .task.overdue{border-left-color:var(--late);animation:blink 1.6s ease-in-out infinite, jitter .6s linear infinite;transform:scale(1.02);box-shadow:0 6px 16px rgba(185,28,28,.18)}
     .task.block{border-left-color:var(--block)}
@@ -41,7 +47,7 @@
     .code{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;background:#eef2ff;color:var(--mono);border:1px solid #c7d2fe;padding:2px 6px;border-radius:6px;margin-right:6px}
 
     .section{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}
-    .section h3{margin:8px 0 6px;font-size:14px;color:#0f172a;text-align:center}
+    .section h3{position:sticky;top:0;z-index:6;margin:0 0 6px;background:var(--header);padding:8px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:14px}
     .item{background:#ffffff;border:1px solid var(--border);border-left:8px solid var(--border);border-radius:10px;padding:10px;margin:8px 0;box-shadow:0 2px 6px rgba(2,6,23,.06);position:relative;transition:transform .18s ease, box-shadow .18s ease}
     .item.overdue{border-left-color:var(--late);transform:scale(1.02);box-shadow:0 6px 16px rgba(185,28,28,.18)}
     .item.soon{border-left-color:var(--warn)}
@@ -50,14 +56,14 @@
     .row{display:flex;justify-content:space-between;gap:8px;font-size:14px}
     .kv{font-size:12px;color:var(--muted)}
 
-    footer{padding:8px 16px;border-top:1px solid var(--border);background:#fff;color:#334155;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    footer{padding:10px 16px;border-top:1px solid var(--border);background:#fff;color:#334155;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
     @keyframes blink{0%{opacity:1}50%{opacity:.45}100%{opacity:1}}
     @keyframes jitter{0%,100%{transform:translateX(0)}25%{transform:translateX(1px)}75%{transform:translateX(-1px)}}
   </style>
 </head>
 <body>
-  <header>
+  <header id="hdr">
     <div class="brand">
       <div class="logo-box"><img id="logo" class="logo-img" alt="Logo System Engenharia" /><div id="logoPh" class="logo-ph">LOGO</div></div>
       <div>
@@ -67,13 +73,13 @@
     </div>
     <div style="text-align:right">
       <div class="clock" id="clock">--:--:--</div>
-      <div class="small" id="stamp">Última atualização: 14/09/2025</div>
+      <div class="small" id="stamp">Última atualização: --/--/----</div>
     </div>
   </header>
 
   <div class="board" id="board"></div>
 
-  <footer>
+  <footer id="ftr">
     <div>Requisições e OCs atualizadas. Compradores registrados: <strong>Suellen</strong>, <strong>Lucas</strong>, <strong>Brígida</strong>.</div>
     <div>Arquivo gerado a partir do modelo oficial do projeto (somente visualização).</div>
   </footer>
@@ -82,10 +88,7 @@
   (function(){
     'use strict';
 
-    /* =================== DADOS (edite aqui no código) =================== */
-    // Todos os serviços a seguir estão programados para 19/09/2025.
-    // Códigos de tarefa novos (continuidade do histórico): T-0313+
-
+    /* =================== DADOS =================== */
     var DATA = {
       logo_src: 'assets/logo.jpg',
       encarregados:[
@@ -122,7 +125,6 @@
           {codigo:'RQ-11294', numero:'RQ-11294', responsavel:'Lucas', contrato:'Atlântico', material:'Luminárias (modelo a definir)', aplicacao:'Escadas e áreas técnicas', data:'27/08/2025', prazo:'15/09/2025', status:'Em cotação', obs:'Modelo mais econômico p/ validação (tartaruga LED)', obs_comprador:''},
           {codigo:'RQ-11309', numero:'RQ-11309', responsavel:'Suellen', contrato:'Atlântico', material:'Parafuso bicromatizado e comum', aplicacao:'SPDA e uso geral', data:'', prazo:'12/09/2025', status:'', obs:'Ver observações do item', obs_comprador:''}
         ],
-        // Itens abaixo possuem indicação de OC nas observações originais → movidos para a seção OCs
         ocs:[
           {codigo:'OC-574', numero:'OC-574', emissao:'', fornecedor:'Cobrecom', status:'OC enviada ao fornecedor', previsao:'25/08/2025', comprador:'Brígida', recebido:'', origem_rq:'RQ-11202', material:'Cabos de cobre', aplicacao:'Alimentadores para bombas de poços'},
           {codigo:'OC-580', numero:'OC-580', emissao:'', fornecedor:'MC Tubos', status:'EMITIDA', previsao:'25/08/2025', comprador:'Suellen', recebido:'', origem_rq:'RQ-11219', material:'Eletrodutos', aplicacao:'Infra elétrica e especiais de força'},
@@ -296,7 +298,7 @@
       sup.appendChild(sList); boardEl.appendChild(sup);
     }
 
-    /* =================== LOGO & RELÓGIO =================== */
+    /* =================== LOGO, RELÓGIO E LAYOUT DINÂMICO =================== */
     function initLogo(){
       var img = document.getElementById('logo');
       var ph  = document.getElementById('logoPh');
@@ -308,13 +310,23 @@
     }
     function tick(){ document.getElementById('clock').textContent = fmtClock(); }
 
+    // Ajusta dinamicamente as variáveis de altura do header/footer para a board ocupar o restante da viewport
+    function recalcularAlturas(){
+      var h = document.getElementById('hdr').offsetHeight || 96;
+      var f = document.getElementById('ftr').offsetHeight || 48;
+      document.documentElement.style.setProperty('--header-h', h + 'px');
+      document.documentElement.style.setProperty('--footer-h', f + 'px');
+    }
+
     /* =================== BOOT =================== */
     document.addEventListener('DOMContentLoaded', function(){
       initLogo();
       render();
+      recalcularAlturas();
       document.getElementById('stamp').textContent = 'Última atualização: '+new Date().toLocaleDateString('pt-BR')+' '+new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
       setInterval(function(){ tick(); }, 1000);
-      setInterval(function(){ render(); }, 60000);
+      // Recalcula em resize/orientação para manter o congelamento perfeito
+      window.addEventListener('resize', recalcularAlturas);
     });
   })();
   </script>
