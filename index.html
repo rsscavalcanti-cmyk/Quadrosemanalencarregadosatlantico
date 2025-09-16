@@ -74,7 +74,7 @@
   <div class="board" id="board"></div>
 
   <footer>
-    <div>Requisições e OCs mantidas como **simuladas** — definir amanhã. Compradores: <strong>Suellen</strong>, <strong>Lucas</strong>, <strong>Brígida</strong>.</div>
+    <div>Requisições e OCs atualizadas. Compradores registrados: <strong>Suellen</strong>, <strong>Lucas</strong>, <strong>Brígida</strong>.</div>
     <div>Arquivo gerado a partir do modelo oficial do projeto (somente visualização).</div>
   </footer>
 
@@ -94,13 +94,12 @@
           {codigo:'T-0314', titulo:'Troca do suporte da rede Ø110 mm: perfilado → cantoneira (recalque de pluviais e esgoto)', prazo:'19/09/2025', status:'exec'}
         ]},
         {nome:'Ayrton (Hidráulica)', tarefas:[
-          // Mantém como estava na versão anterior, com mesma data
           {codigo:'T-0305', titulo:'Entrega de apartamentos para a Qualidade — Blocos 2 e 3', prazo:'19/09/2025', status:'exec'},
           {codigo:'T-0306', titulo:'Instalação da redutora de pressão — Bloco 3', prazo:'19/09/2025', status:'exec'}
         ]},
         {nome:'Thiago (Elétrica)', tarefas:[
           {codigo:'T-0315', titulo:'Tratamento de todas as eletrocalhas', prazo:'19/09/2025', status:'exec'},
-          {codigo:'T-0316', titulo:'Instalação de luminárias — trecho central do subsolo (±50 unidades em zonas apagadas) e áreas técnicas (casas de bombas)', prazo:'19/09/2025', status:'exec'},
+          {codigo:'T-0316', titulo:'Instalação de luminárias — trecho central do subsolo (±50 unidades em zonas apagadas)', prazo:'19/09/2025', status:'exec'},
           {codigo:'T-0317', titulo:'Instalação de 5 quadros de bombas', prazo:'19/09/2025', status:'exec'}
         ]},
         {nome:'Marcelo (Elétrica)', tarefas:[
@@ -110,15 +109,27 @@
         ]}
       ],
       suprimentos:{
-        // Mantido como simulado até atualização; compradores cadastrados para referência
         compradores:['Suellen','Lucas','Brígida'],
         requisicoes:[
-          {codigo:'RQ-241', numero:'RQ-241', data:'12/09/2025', solicitante:'Thiago', area:'Subsolo', status:'EM ANÁLISE', obs:'Eletrocalhas 100mm', prazo:'18/09/2025'},
-          {codigo:'RQ-256', numero:'RQ-256', data:'13/09/2025', solicitante:'Severo', area:'Hidráulica', status:'APROVADA', obs:'Conexões PPR Ø75', prazo:'20/09/2025'}
+          {codigo:'RQ-11181', numero:'RQ-11181', responsavel:'Suellen', contrato:'Atlântico', material:'PVC', aplicacao:'Ralos embasamento / fechamento de bombas de pressurização e recalque', data:'07/08/2025', prazo:'18/08/2025', status:'Em cotação', obs:'Cotação', obs_comprador:'Negociando com fornecedor'},
+          {codigo:'RQ-11186', numero:'RQ-11186', responsavel:'Suellen', contrato:'Atlântico', material:'600 conectores genéricos', aplicacao:'Fechamento de QDLs APTs', data:'07/08/2025', prazo:'15/08/2025', status:'', obs:'Parcial — 460 vieram do escritório', obs_comprador:''},
+          {codigo:'RQ-11184', numero:'RQ-11184', responsavel:'Murilo', contrato:'Atlântico', material:'Estopa, lápis, brocas', aplicacao:'Uso e consumo geral de obra', data:'07/08/2025', prazo:'15/08/2025', status:'', obs:'Parcial — Fertak', obs_comprador:''},
+          {codigo:'RQ-11203', numero:'RQ-11203', responsavel:'Lucas', contrato:'Atlântico', material:'Zarcão cinza', aplicacao:'Tratamento de fixações', data:'', prazo:'13/08/2025', status:'', obs:'Faturamento System', obs_comprador:''},
+          {codigo:'RQ-11221', numero:'RQ-11221', responsavel:'Suellen', contrato:'Atlântico', material:'PVC', aplicacao:'Pontos de pia e tanque dos APTs', data:'', prazo:'25/08/2025', status:'', obs:'Aguardar definição diretoria / Ver estoques', obs_comprador:'Negociando com fornecedor'},
+          {codigo:'RQ-11238', numero:'RQ-11238', responsavel:'Lucas', contrato:'Atlântico', material:'PVC e ralo abacaxi', aplicacao:'Distribuição hidráulica térreo', data:'', prazo:'22/08/2025', status:'Em cotação', obs:'', obs_comprador:'Negociando com fornecedor'},
+          {codigo:'RQ-11287', numero:'RQ-11287', responsavel:'Suellen', contrato:'Atlântico', material:'Saco de ráfia', aplicacao:'Arrumação', data:'27/08/2025', prazo:'01/09/2025', status:'Em cotação', obs:'', obs_comprador:''},
+          {codigo:'RQ-11291', numero:'RQ-11291', responsavel:'Lucas', contrato:'Atlântico', material:'Interruptores e tomadas', aplicacao:'Áreas comuns, térreo, subsolo, escadas, coberturas e extravios', data:'27/08/2025', prazo:'08/09/2025', status:'Em cotação', obs:'', obs_comprador:''},
+          {codigo:'RQ-11294', numero:'RQ-11294', responsavel:'Lucas', contrato:'Atlântico', material:'Luminárias (modelo a definir)', aplicacao:'Escadas e áreas técnicas', data:'27/08/2025', prazo:'15/09/2025', status:'Em cotação', obs:'Modelo mais econômico p/ validação (tartaruga LED)', obs_comprador:''},
+          {codigo:'RQ-11309', numero:'RQ-11309', responsavel:'Suellen', contrato:'Atlântico', material:'Parafuso bicromatizado e comum', aplicacao:'SPDA e uso geral', data:'', prazo:'12/09/2025', status:'', obs:'Ver observações do item', obs_comprador:''}
         ],
+        // Itens abaixo possuem indicação de OC nas observações originais → movidos para a seção OCs
         ocs:[
-          {codigo:'OC-1189', numero:'OC-1189', emissao:'14/09/2025', fornecedor:'Prysmian', status:'EMITIDA', previsao:'18/09/2025', comprador:'Carla', recebido:''},
-          {codigo:'OC-1197', numero:'OC-1197', emissao:'17/09/2025', fornecedor:'Megabarre', status:'AGUARDANDO NF', previsao:'25/09/2025', comprador:'Eduardo', recebido:'26/09/2025'}
+          {codigo:'OC-574', numero:'OC-574', emissao:'', fornecedor:'Cobrecom', status:'OC enviada ao fornecedor', previsao:'25/08/2025', comprador:'Brígida', recebido:'', origem_rq:'RQ-11202', material:'Cabos de cobre', aplicacao:'Alimentadores para bombas de poços'},
+          {codigo:'OC-580', numero:'OC-580', emissao:'', fornecedor:'MC Tubos', status:'EMITIDA', previsao:'25/08/2025', comprador:'Suellen', recebido:'', origem_rq:'RQ-11219', material:'Eletrodutos', aplicacao:'Infra elétrica e especiais de força'},
+          {codigo:'OC-582', numero:'OC-582', emissao:'', fornecedor:'Perfil Líder', status:'EMITIDA', previsao:'25/08/2025', comprador:'Brígida', recebido:'', origem_rq:'RQ-11218 / RQ-11235', material:'Eletrocalhas / Perfilados', aplicacao:'Sistemas especiais / Fixações e iluminação subsolo'},
+          {codigo:'OC-585', numero:'OC-585', emissao:'', fornecedor:'Lukma', status:'EMITIDA', previsao:'22/08/2025', comprador:'Lucas', recebido:'', origem_rq:'RQ-11237', material:'Fita isolante', aplicacao:'Elétrica força e distribuição'},
+          {codigo:'OC-588', numero:'OC-588', emissao:'27/08/2025', fornecedor:'Mosal', status:'EMITIDA', previsao:'02/09/2025', comprador:'Lucas', recebido:'', origem_rq:'RQ-11282', material:'Tê de fachada, pintura e aros', aplicacao:'Complemento'},
+          {codigo:'OC-589', numero:'OC-589', emissao:'', fornecedor:'WCT 2010', status:'OC enviada ao cliente', previsao:'22/08/2025', comprador:'Brígida', recebido:'', origem_rq:'RQ-11236', material:'Abraçadeiras e conduletes', aplicacao:'Iluminação subsolo / alimentação quadros / iluminação externa', obs_comprador:'ENTREGA ATÉ 05/09/2025'}
         ]
       }
     };
@@ -222,7 +233,7 @@
       sup.appendChild(el('h2','','Suprimentos'));
       var sList = el('div','list');
 
-      // Requisições (simulado)
+      // Requisições
       var rqSec = el('div','section');
       rqSec.appendChild(el('h3','', 'Requisições em Aberto'));
       var rqs = (DATA.suprimentos.requisicoes||[]).slice().sort(function(a,b){
@@ -239,20 +250,22 @@
         var it = el('div','item '+clsRq);
 
         var rowTop = el('div','row');
-        var left = el('div'); left.appendChild(el('span','code','#'+(rq.codigo||'')));
+        var left = el('div'); left.appendChild(el('span','code','#'+(rq.codigo||rq.numero||'')));
         left.appendChild(el('strong','', rq.numero || rq.codigo || 'RQ'));
         rowTop.appendChild(left);
         rowTop.appendChild(el('span','', rq.status||''));
 
         var kv1 = el('div','kv','Data: '+(rq.data||'-')+' • Prazo: '+(rq.prazo||'-')+' • Lead time esperado: '+ltEsperado);
-        var kv2 = el('div','kv','Solicitante: '+(rq.solicitante||'-')+' • Área: '+(rq.area||'-')+' • Obs.: '+(rq.obs||'-'));
+        var kv2 = el('div','kv','Responsável: '+(rq.responsavel||'-')+' • Contrato: '+(rq.contrato||'-')+' • Material: '+(rq.material||'-'));
+        var kv3 = el('div','kv','Aplicação: '+(rq.aplicacao||'-')+' • Obs.: '+(rq.obs||'-'));
+        if(rq.obs_comprador){ var kv4 = el('div','kv','Obs. comprador: '+rq.obs_comprador); it.appendChild(kv4); }
 
-        it.appendChild(rowTop); it.appendChild(kv1); it.appendChild(kv2);
+        it.appendChild(rowTop); it.appendChild(kv1); it.appendChild(kv2); it.appendChild(kv3);
         rqSec.appendChild(it);
       }
       sList.appendChild(rqSec);
 
-      // OCs (simulado)
+      // OCs
       var ocSec = el('div','section');
       ocSec.appendChild(el('h3','', 'Ordens de Compra (OC)'));
       var ocs = (DATA.suprimentos.ocs||[]).slice().sort(compareOC);
@@ -264,16 +277,18 @@
         var it2 = el('div','item '+clsOc);
 
         var rowTop2 = el('div','row');
-        var left2 = el('div'); left2.appendChild(el('span','code','#'+(oc.codigo||'')));
+        var left2 = el('div'); left2.appendChild(el('span','code','#'+(oc.codigo||oc.numero||'')));
         left2.appendChild(el('strong','', oc.numero || oc.codigo || 'OC'));
         rowTop2.appendChild(left2);
         rowTop2.appendChild(el('span','', oc.status||''));
 
-        var kv3 = el('div','kv','Fornecedor: '+(oc.fornecedor||'-')+' • Comprador: '+(oc.comprador||'-'));
-        var kv4 = el('div','kv','Emissão: '+(oc.emissao||'-')+' • Previsão: '+(oc.previsao||'-')+' • Lead time real: '+ltReal);
+        var kv3 = el('div','kv','Fornecedor: '+(oc.fornecedor||'-')+' • Comprador: '+(oc.comprador||'-')+' • Origem: '+(oc.origem_rq||'-'));
+        var kv4 = el('div','kv','Material: '+(oc.material||'-')+' • Aplicação: '+(oc.aplicacao||'-'));
+        var kv5 = el('div','kv','Emissão: '+(oc.emissao||'-')+' • Previsão: '+(oc.previsao||'-')+' • Lead time real: '+ltReal);
+        if(oc.obs_comprador){ var kv6 = el('div','kv','Obs. comprador: '+oc.obs_comprador); it2.appendChild(kv6); }
         var st = el('div','kv', oc.recebido? ('Recebido em '+oc.recebido) : 'Pendente');
 
-        it2.appendChild(rowTop2); it2.appendChild(kv3); it2.appendChild(kv4); it2.appendChild(st);
+        it2.appendChild(rowTop2); it2.appendChild(kv3); it2.appendChild(kv4); it2.appendChild(kv5); it2.appendChild(st);
         ocSec.appendChild(it2);
       }
       sList.appendChild(ocSec);
@@ -305,6 +320,4 @@
   </script>
 </body>
 </html>
-
-
 
