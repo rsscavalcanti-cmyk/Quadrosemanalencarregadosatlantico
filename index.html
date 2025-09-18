@@ -265,4 +265,51 @@
         var oc=ocs[o];
         var dtRec=parseBRDate(oc.recebido); var dtEmi=parseBRDate(oc.emissao);
         var ltReal=(dtRec&&dtEmi)?(diffDays(dtRec,dtEmi)+'d'):'-';
-        var clsOc=oc.recebido?'recv':urgencyByDate(oc.previsao,oc.status
+        var clsOc=oc.recebido?'recv':urgencyByDate(oc.previsao,oc.status);
+        var it2=el('div','item '+clsOc);
+
+        var rowTop2=el('div','row'); var left2=el('div');
+        left2.appendChild(el('span','code','#'+(oc.codigo||oc.numero||''))); left2.appendChild(el('strong','',oc.numero||oc.codigo||'OC'));
+        rowTop2.appendChild(left2); rowTop2.appendChild(el('span','',oc.status||''));
+
+        var kv3=el('div','kv','Fornecedor: '+(oc.fornecedor||'-')+' • Comprador: '+(oc.comprador||'-')+' • Origem: '+(oc.origem_rq||'-'));
+        var kv4=el('div','kv','Material: '+(oc.material||'-')+' • Aplicação: '+(oc.aplicacao||'-'));
+        var kv5=el('div','kv','Emissão: '+(oc.emissao||'-')+' • Previsão: '+(oc.previsao||'-')+' • Lead time real: '+ltReal);
+        var st=el('div','kv', oc.recebido?('Recebido em '+oc.recebido):'Pendente');
+
+        it2.appendChild(rowTop2); it2.appendChild(kv3); it2.appendChild(kv4); it2.appendChild(kv5); it2.appendChild(st); ocSec.appendChild(it2);
+      }
+      sList.appendChild(ocSec);
+      sup.appendChild(sList); boardEl.appendChild(sup);
+    }
+
+    function initLogo(){ var img=document.getElementById('logo'); var ph=document.getElementById('logoPh'); var src=DATA.logo_src||''; if(!src){img.style.display='none'; ph.style.display='flex'; return;} img.onload=function(){img.style.display='block'; ph.style.display='none';}; img.onerror=function(){img.style.display='none'; ph.style.display='flex';}; img.src=src; }
+
+    function tick(){ document.getElementById('clock').textContent = fmtClock(); }
+
+    function updateHeaderHeights(){
+      var h = document.getElementById('hdr').offsetHeight || 112;
+      document.documentElement.style.setProperty('--header-h', h + 'px');
+    }
+
+    function setStamp(){
+      var d = new Date();
+      var pad=n=>String(n).padStart(2,'0');
+      var stamp = 'Quadro atualizado pela engenharia em ' + pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+      document.getElementById('stamp').textContent = stamp;
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+      initLogo();
+      render();
+      setStamp();
+      updateHeaderHeights();
+      tick();
+      setInterval(tick, 1000);
+      window.addEventListener('resize', updateHeaderHeights);
+    });
+  })();
+  </script>
+</body>
+</html>
+
