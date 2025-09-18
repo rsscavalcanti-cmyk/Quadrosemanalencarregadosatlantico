@@ -3,29 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Atlântico Golf — Quadro Kanban (Distribuição 19/09)</title>
-  <meta name="description" content="Kanban por encarregado + Suprimentos. Títulos fixos (header e cabeçalhos de coluna) e rolagem independente por coluna. Códigos únicos por processo. % executado e atraso por tarefa. Somente visualização." />
+  <title>Atlântico Golf — Quadro Kanban</title>
+  <meta name="description" content="Kanban por encarregado + Suprimentos. Títulos fixos e rolagem independente por coluna. Códigos únicos por processo. % executado e atraso por tarefa." />
   <style>
     :root{
-      --bg:#f5f7fb; --text:#111827; --muted:#475569; --brand:#005b96;
+      --bg:#f5f7fb; --text:#111827; --muted:#475569; --brand:#0e3a6d; /* azul institucional aproximado */
+      --brand2:#0b2a4a; /* tom mais escuro para degradê */
       --card:#ffffff; --border:#cbd5e1; --header:#f1f5f9;
       --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c; --block:#9333ea; --exec:#0ea5e9; --recv:#15803d;
       --chip:#e2e8f0; --mono:#0f172a;
-      --header-h: 96px; --footer-h: 48px;
+      --header-h: 112px; --footer-h: 0px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;background:var(--bg);color:var(--text)}
 
-    /* ===== Header fixo (congelado) ===== */
-    header{position:sticky;top:0;z-index:100;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;box-shadow:0 2px 10px rgba(0,0,0,.18)}
-    .brand{display:flex;align-items:center;gap:14px}
-    .logo-box{width:160px;height:64px;background:#fff;border-radius:10px;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;overflow:hidden}
+    /* ===== Header fixo com paleta do site ===== */
+    header{
+      position:sticky;top:0;z-index:100;
+      color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+      padding:14px 18px;box-shadow:0 2px 10px rgba(0,0,0,.18);
+      background:linear-gradient(90deg,var(--brand2) 0%, var(--brand) 100%);
+    }
+    .brand{display:flex;align-items:center;gap:16px}
+    .logo-box{width:164px;height:64px;background:#fff;border-radius:10px;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;overflow:hidden}
     .logo-img{max-width:100%;max-height:100%;display:none}
     .logo-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#0f172a;font-weight:800;letter-spacing:.3px}
-    h1{margin:0;font-size:22px}
-    .clock{font-variant-numeric:tabular-nums}
-    .small{font-size:12px;opacity:.95}
+    h1{margin:0;font-size:24px;letter-spacing:.2px}
+    .subtitle{margin-top:2px;font-size:13px;opacity:.9}
+
+    .meta{ text-align:right; display:flex; flex-direction:column; gap:4px }
+    .stamp{font-size:13px;font-weight:700}
+    .clock{font-variant-numeric:tabular-nums;font-size:12px;opacity:.95}
 
     /* ===== Painel e colunas ===== */
     .board{height:calc(100vh - var(--header-h) - var(--footer-h));display:flex;gap:16px;padding:16px;overflow-x:auto;overflow-y:hidden}
@@ -40,11 +49,11 @@
     .task.exec{border-left-color:var(--exec)}
     .task.done{border-left-color:var(--ok)}
     .title{font-weight:800;margin-bottom:6px}
-    .meta{font-size:13px;color:var(--muted)}
+    .meta-text{font-size:13px;color:var(--muted)}
     .chip{display:inline-block;background:var(--chip);padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700;margin-left:6px}
     .code{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;background:#eef2ff;color:var(--mono);border:1px solid #c7d2fe;padding:2px 6px;border-radius:6px;margin-right:6px}
 
-    /* ===== Barra de progresso ===== */
+    /* ===== Progresso ===== */
     .progress{margin-top:8px;background:#e5e7eb;border:1px solid #d1d5db;border-radius:999px;height:10px;overflow:hidden}
     .progress-inner{height:100%;width:0%;background:linear-gradient(90deg, #60a5fa, #22c55e);transition:width .3s ease}
     .progress-label{margin-top:4px;font-size:12px;color:#334155;display:flex;justify-content:space-between}
@@ -60,7 +69,7 @@
     .row{display:flex;justify-content:space-between;gap:8px;font-size:14px}
     .kv{font-size:12px;color:var(--muted)}
 
-    footer{padding:10px 16px;border-top:1px solid var(--border);background:#fff;color:#334155;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    footer{padding:0;border-top:none;background:#fff;color:#334155}
   </style>
 </head>
 <body>
@@ -68,73 +77,69 @@
     <div class="brand">
       <div class="logo-box"><img id="logo" class="logo-img" alt="Logo System Engenharia" /><div id="logoPh" class="logo-ph">LOGO</div></div>
       <div>
-        <h1>Atlântico Golf — Quadro Kanban (Distribuição 19/09)</h1>
-        <div class="small">Planejamento de campo consolidado para 19/09 — tarefas priorizadas por urgência e conclusão.</div>
+        <h1>Atlântico Golf — Quadro Kanban</h1>
+        <div class="subtitle" id="subtitle">Visão consolidada de campo e suprimentos.</div>
       </div>
     </div>
-    <div style="text-align:right">
+    <div class="meta">
+      <div class="stamp" id="stamp">Quadro atualizado pela engenharia em --/--/---- --:--</div>
       <div class="clock" id="clock">--:--:--</div>
-      <div class="small" id="stamp">Última atualização: --/--/----</div>
     </div>
   </header>
 
   <div class="board" id="board"></div>
 
-  <footer id="ftr">
-    <div>Requisições e OCs atualizadas. Compradores registrados: <strong>Suellen</strong>, <strong>Lucas</strong>, <strong>Brígida</strong>.</div>
-    <div>Arquivo gerado a partir do modelo oficial do projeto (somente visualização).</div>
-  </footer>
+  <footer id="ftr"></footer>
 
   <script>
   (function(){
     'use strict';
 
     /* =================== DADOS =================== */
-    // Para cada tarefa você pode informar o campo opcional `pct` (0 a 100) para indicar % executado.
-    // Se omitido, assume 0%. Dias de atraso são calculados automaticamente a partir do prazo.
+    // Informe opcionalmente `pct` (0..100) para % executado de cada tarefa.
     var DATA = {
       logo_src: 'assets/logo.jpg',
       encarregados:[
         {nome:'Severo (Hidráulica)', tarefas:[
-          {codigo:'T-0313', titulo:'Rede hidráulica de entrada de água — conclusão', prazo:'19/09/2025', status:'exec', pct: 60},
-          {codigo:'T-0314', titulo:'Troca do suporte da rede Ø110 mm: perfilado → cantoneira (recalque de pluviais e esgoto)', prazo:'19/09/2025', status:'exec', pct: 45},
-          {codigo:'T-0322', titulo:'Retrabalho de 7 caixas de rede externa, com reposicionamento de tubulações e acabamento das caixas', prazo:'26/09/2025', status:'', pct: 0},
-          {codigo:'T-0323', titulo:'Montagem de conjuntos de bombas em 3 poços', prazo:'26/09/2025', status:'', pct: 0}
+          {codigo:'T-0313', titulo:'Rede hidráulica de entrada de água — conclusão', prazo:'19/09/2025', status:'exec', pct:60},
+          {codigo:'T-0314', titulo:'Troca do suporte da rede Ø110 mm: perfilado → cantoneira (recalque de pluviais e esgoto)', prazo:'19/09/2025', status:'exec', pct:45},
+          {codigo:'T-0322', titulo:'Retrabalho de 7 caixas de rede externa, reposicionamento de tubulações e acabamento', prazo:'26/09/2025', status:'', pct:0},
+          {codigo:'T-0323', titulo:'Montagem de conjuntos de bombas em 3 poços', prazo:'26/09/2025', status:'', pct:0}
         ]},
         {nome:'Ayrton (Hidráulica)', tarefas:[
-          {codigo:'T-0305', titulo:'Entrega de apartamentos para a Qualidade — Blocos 2 e 3', prazo:'19/09/2025', status:'exec', pct: 80},
-          {codigo:'T-0306', titulo:'Instalação da redutora de pressão — Bloco 3', prazo:'19/09/2025', status:'exec', pct: 50},
-          {codigo:'T-0324', titulo:'Entrega de apartamentos — 4º ao 6º pavimentos dos Blocos 2 e 3', prazo:'26/09/2025', status:'', pct: 0},
-          {codigo:'T-0325', titulo:'Execução da redutora de pressão — 12º pavimento do Bloco 3', prazo:'26/09/2025', status:'', pct: 0}
+          {codigo:'T-0305', titulo:'Entrega de apartamentos para a Qualidade — Blocos 2 e 3', prazo:'19/09/2025', status:'exec', pct:80},
+          {codigo:'T-0306', titulo:'Instalação da redutora de pressão — Bloco 3', prazo:'19/09/2025', status:'exec', pct:50},
+          {codigo:'T-0324', titulo:'Entrega de apartamentos — 4º ao 6º pavimentos dos Blocos 2 e 3', prazo:'26/09/2025', status:'', pct:0},
+          {codigo:'T-0325', titulo:'Execução da redutora de pressão — 12º pavimento do Bloco 3', prazo:'26/09/2025', status:'', pct:0}
         ]},
         {nome:'Thiago (Elétrica)', tarefas:[
-          {codigo:'T-0315', titulo:'Tratamento de todas as eletrocalhas', prazo:'19/09/2025', status:'exec', pct: 55},
-          {codigo:'T-0316', titulo:'Instalação de luminárias — trecho central do subsolo (±50 unidades em zonas apagadas)', prazo:'19/09/2025', status:'exec', pct: 35},
-          {codigo:'T-0317', titulo:'Instalação de 5 quadros de bombas', prazo:'19/09/2025', status:'exec', pct: 20},
-          {codigo:'T-0321', titulo:"Instalação de CSMD's — EM PLANEJAMENTO", prazo:'26/09/2025', status:'', pct: 0}
+          {codigo:'T-0315', titulo:'Tratamento de todas as eletrocalhas', prazo:'19/09/2025', status:'exec', pct:55},
+          {codigo:'T-0316', titulo:'Instalação de luminárias — trecho central do subsolo (±50 unidades em zonas apagadas)', prazo:'19/09/2025', status:'exec', pct:35},
+          {codigo:'T-0317', titulo:'Instalação de 5 quadros de bombas', prazo:'19/09/2025', status:'exec', pct:20},
+          {codigo:'T-0321', titulo:"Instalação de CSMD's — em planejamento", prazo:'26/09/2025', status:'', pct:0}
         ]},
         {nome:'Marcelo (Elétrica)', tarefas:[
-          {codigo:'T-0318', titulo:'Entrega de apartamentos', prazo:'19/09/2025', status:'exec', pct: 70},
-          {codigo:'T-0319', titulo:'Fechamento de QDLs dos apartamentos — 19º e 20º (duas torres)', prazo:'19/09/2025', status:'exec', pct: 40},
-          {codigo:'T-0320', titulo:'SPDA das duas torres (executar áreas liberadas)', prazo:'19/09/2025', status:'exec', pct: 30},
-          {codigo:'T-0326', titulo:'Instalação das tampas dos barramentos blindados verticais — 3 torres', prazo:'26/09/2025', status:'', pct: 0},
-          {codigo:'T-0327', titulo:'Ensaios/funcionais dos barramentos blindados', prazo:'26/09/2025', status:'', pct: 0},
-          {codigo:'T-0328', titulo:'Instalação dos cofres pendentes', prazo:'26/09/2025', status:'', pct: 0}
+          {codigo:'T-0318', titulo:'Entrega de apartamentos', prazo:'19/09/2025', status:'exec', pct:70},
+          {codigo:'T-0319', titulo:'Fechamento de QDLs dos apartamentos — 19º e 20º (duas torres)', prazo:'19/09/2025', status:'exec', pct:40},
+          {codigo:'T-0320', titulo:'SPDA das duas torres (executar áreas liberadas)', prazo:'19/09/2025', status:'exec', pct:30},
+          {codigo:'T-0326', titulo:'Instalação das tampas dos barramentos blindados verticais — 3 torres', prazo:'26/09/2025', status:'', pct:0},
+          {codigo:'T-0327', titulo:'Ensaios/funcionais dos barramentos blindados', prazo:'26/09/2025', status:'', pct:0},
+          {codigo:'T-0328', titulo:'Instalação dos cofres pendentes', prazo:'26/09/2025', status:'', pct:0}
         ]}
       ],
       suprimentos:{
         compradores:['Suellen','Lucas','Brígida'],
         requisicoes:[
           {codigo:'RQ-11181', numero:'RQ-11181', responsavel:'Suellen', contrato:'Atlântico', material:'PVC', aplicacao:'Ralos embasamento / fechamento de bombas de pressurização e recalque', data:'07/08/2025', prazo:'18/08/2025', status:'Em cotação', obs:'Cotação', obs_comprador:'Negociando com fornecedor'},
-          {codigo:'RQ-11186', numero:'RQ-11186', responsavel:'Suellen', contrato:'Atlântico', material:'600 conectores genéricos', aplicacao:'Fechamento de QDLs APTs', data:'07/08/2025', prazo:'15/08/2025', status:'', obs:'Parcial — 460 vieram do escritório', obs_comprador:''},
-          {codigo:'RQ-11184', numero:'RQ-11184', responsavel:'Murilo', contrato:'Atlântico', material:'Estopa, lápis, brocas', aplicacao:'Uso e consumo geral de obra', data:'07/08/2025', prazo:'15/08/2025', status:'', obs:'Parcial — Fertak', obs_comprador:''},
-          {codigo:'RQ-11203', numero:'RQ-11203', responsavel:'Lucas', contrato:'Atlântico', material:'Zarcão cinza', aplicacao:'Tratamento de fixações', data:'', prazo:'13/08/2025', status:'', obs:'Faturamento System', obs_comprador:''},
+          {codigo:'RQ-11186', numero:'RQ-11186', responsavel:'Suellen', contrato:'Atlântico', material:'600 conectores genéricos', aplicacao:'Fechamento de QDLs APTs', data:'07/08/2025', prazo:'15/08/2025', status:'', obs:'Parcial — 460 vieram do escritório'},
+          {codigo:'RQ-11184', numero:'RQ-11184', responsavel:'Murilo', contrato:'Atlântico', material:'Estopa, lápis, brocas', aplicacao:'Uso e consumo geral de obra', data:'07/08/2025', prazo:'15/08/2025', status:'', obs:'Parcial — Fertak'},
+          {codigo:'RQ-11203', numero:'RQ-11203', responsavel:'Lucas', contrato:'Atlântico', material:'Zarcão cinza', aplicacao:'Tratamento de fixações', data:'', prazo:'13/08/2025', status:'', obs:'Faturamento System'},
           {codigo:'RQ-11221', numero:'RQ-11221', responsavel:'Suellen', contrato:'Atlântico', material:'PVC', aplicacao:'Pontos de pia e tanque dos APTs', data:'', prazo:'25/08/2025', status:'', obs:'Aguardar definição diretoria / Ver estoques', obs_comprador:'Negociando com fornecedor'},
           {codigo:'RQ-11238', numero:'RQ-11238', responsavel:'Lucas', contrato:'Atlântico', material:'PVC e ralo abacaxi', aplicacao:'Distribuição hidráulica térreo', data:'', prazo:'22/08/2025', status:'Em cotação', obs:'', obs_comprador:'Negociando com fornecedor'},
-          {codigo:'RQ-11287', numero:'RQ-11287', responsavel:'Suellen', contrato:'Atlântico', material:'Saco de ráfia', aplicacao:'Arrumação', data:'27/08/2025', prazo:'01/09/2025', status:'Em cotação', obs:'', obs_comprador:''},
-          {codigo:'RQ-11291', numero:'RQ-11291', responsavel:'Lucas', contrato:'Atlântico', material:'Interruptores e tomadas', aplicacao:'Áreas comuns, térreo, subsolo, escadas, coberturas e extravios', data:'27/08/2025', prazo:'08/09/2025', status:'Em cotação', obs:'', obs_comprador:''},
-          {codigo:'RQ-11294', numero:'RQ-11294', responsavel:'Lucas', contrato:'Atlântico', material:'Luminárias (modelo a definir)', aplicacao:'Escadas e áreas técnicas', data:'27/08/2025', prazo:'15/09/2025', status:'Em cotação', obs:'Modelo mais econômico p/ validação (tartaruga LED)', obs_comprador:''},
-          {codigo:'RQ-11309', numero:'RQ-11309', responsavel:'Suellen', contrato:'Atlântico', material:'Parafuso bicromatizado e comum', aplicacao:'SPDA e uso geral', data:'', prazo:'12/09/2025', status:'', obs:'Ver observações do item', obs_comprador:''}
+          {codigo:'RQ-11287', numero:'RQ-11287', responsavel:'Suellen', contrato:'Atlântico', material:'Saco de ráfia', aplicacao:'Arrumação', data:'27/08/2025', prazo:'01/09/2025', status:'Em cotação'},
+          {codigo:'RQ-11291', numero:'RQ-11291', responsavel:'Lucas', contrato:'Atlântico', material:'Interruptores e tomadas', aplicacao:'Áreas comuns, térreo, subsolo, escadas, coberturas e extravios', data:'27/08/2025', prazo:'08/09/2025', status:'Em cotação'},
+          {codigo:'RQ-11294', numero:'RQ-11294', responsavel:'Lucas', contrato:'Atlântico', material:'Luminárias (modelo a definir)', aplicacao:'Escadas e áreas técnicas', data:'27/08/2025', prazo:'15/09/2025', status:'Em cotação', obs:'Modelo mais econômico p/ validação (tartaruga LED)'},
+          {codigo:'RQ-11309', numero:'RQ-11309', responsavel:'Suellen', contrato:'Atlântico', material:'Parafuso bicromatizado e comum', aplicacao:'SPDA e uso geral', data:'', prazo:'12/09/2025', status:'', obs:'Ver observações do item'}
         ],
         ocs:[
           {codigo:'OC-574', numero:'OC-574', emissao:'', fornecedor:'Cobrecom', status:'OC enviada ao fornecedor', previsao:'25/08/2025', comprador:'Brígida', recebido:'', origem_rq:'RQ-11202', material:'Cabos de cobre', aplicacao:'Alimentadores para bombas de poços'},
@@ -157,8 +162,19 @@
     function urgencyByDate(dateStr,status){ if(status==='done'||status==='FINALIZADA')return'done'; if(status==='block')return'block'; if(status==='exec')return'exec'; if(status==='recebido')return'recv'; var d=parseBRDate(dateStr); if(!d)return'ok'; var h=(d-new Date())/HOUR; if(h<=0)return'overdue'; if(h<=48)return'soon'; return'ok' }
     function weightStatus(s){ if(s==='done'||s==='FINALIZADA')return-2; return 0 }
     function weightUrgencyByDate(ds){ var d=parseBRDate(ds); if(!d) return 3; var h=(d-new Date())/HOUR; if(h<=0)return 0; if(h<=48)return 1; return 2 }
-    function compareByPrazo(a,b){ var wa=weightStatus(a.status),wb=weightStatus(b.status); if(wa!==wb)return wa-wb; if((a.status==='done'||a.status==='FINALIZADA')&&(b.status==='done'||b.status==='FINALIZADA')){ var da=parseBRDate(a.finalizado_em||a.prazo||''), db=parseBRDate(b.finalizado_em||b.prazo||''); if(da&&db)return db-da; if(da&&!db)return-1; if(!da&&db)return 1; return 0 } var ua=weightUrgencyByDate(a.prazo||a.previsao||a.data||''), ub=weightUrgencyByDate(b.prazo||b.previsao||b.data||''); if(ua!==ub)return ua-ub; var da2=parseBRDate(a.prazo||a.previsao||a.data||''), db2=parseBRDate(b.prazo||b.previsao||b.data||''); if(da2&&db2)return da2-db2; if(da2&&!db2)return-1; if(!da2&&db2)return 1; return 0 }
-    function compareOC(a,b){ var ar=!!a.recebido, br=!!b.recebido; if(ar!==br)return br-ar; if(ar&&br){ var da=parseBRDate(a.recebido), db=parseBRDate(b.recebido); if(da&&db)return db-da; if(da&&!db)return-1; if(!da&&db)return 1; return 0 } return compareByPrazo({status:a.status,prazo:a.previsao},{status:b.status,prazo:b.previsao}) }
+    function compareByPrazo(a,b){ var wa=weightStatus(a.status),wb=weightStatus(b.status); if(wa!==wb)return wa-wb;
+      if((a.status==='done'||a.status==='FINALIZADA')&&(b.status==='done'||b.status==='FINALIZADA')){
+        var da=parseBRDate(a.finalizado_em||a.prazo||''), db=parseBRDate(b.finalizado_em||b.prazo||'');
+        if(da&&db)return db-da; if(da&&!db)return-1; if(!da&&db)return 1; return 0 }
+      var ua=weightUrgencyByDate(a.prazo||a.previsao||a.data||''), ub=weightUrgencyByDate(b.prazo||b.previsao||b.data||'');
+      if(ua!==ub)return ua-ub;
+      var da2=parseBRDate(a.prazo||a.previsao||a.data||''), db2=parseBRDate(b.prazo||b.previsao||b.data||'');
+      if(da2&&db2)return da2-db2; if(da2&&!db2)return-1; if(!da2&&db2)return 1; return 0 }
+    function compareOC(a,b){ var ar=!!a.recebido, br=!!b.recebido;
+      if(ar!==br)return br-ar;
+      if(ar&&br){ var da=parseBRDate(a.recebido), db=parseBRDate(b.recebido);
+        if(da&&db)return db-da; if(da&&!db)return-1; if(!da&&db)return 1; return 0 }
+      return compareByPrazo({status:a.status,prazo:a.previsao},{status:b.status,prazo:b.previsao}) }
 
     /* =================== DOM =================== */
     function el(tag,cls,text){ var e=document.createElement(tag); if(cls)e.className=cls; if(text!=null)e.textContent=text; return e }
@@ -166,6 +182,7 @@
 
     function render(){
       boardEl.innerHTML='';
+
       // === Colunas por Encarregado ===
       for(var i=0;i<DATA.encarregados.length;i++){
         var enc=DATA.encarregados[i];
@@ -173,6 +190,7 @@
         var col=el('section','column');
         col.appendChild(el('h2','',enc.nome));
         var list=el('div','list');
+
         for(var j=0;j<tasks.length;j++){
           var t=tasks[j];
           var cls=urgencyByDate(t.prazo,t.status);
@@ -182,7 +200,7 @@
           var title=el('span','title'); title.textContent=t.titulo;
           var header=el('div'); header.appendChild(code); header.appendChild(title);
 
-          var meta=el('div','meta');
+          var meta=el('div','meta-text');
           var partes=[];
           if(t.status==='done'||t.status==='FINALIZADA'){
             partes.push(t.finalizado_em?('Concluído: '+t.finalizado_em):('Prazo: '+(t.prazo||'-')));
@@ -191,7 +209,6 @@
             var atras=daysLate(t.prazo||''); if(atras>0) partes.push('Atraso: '+atras+'d');
           }
           meta.textContent=partes.join('  |  ');
-
           var statusLabel='Pendente';
           if(t.status==='exec')statusLabel='Em execução';
           else if(t.status==='block')statusLabel='Bloqueada';
@@ -199,38 +216,45 @@
           else if(cls==='overdue')statusLabel='Atrasada';
           var chip=el('span','chip',statusLabel);
 
-          // Barra de progresso
-          var pct = Math.max(0, Math.min(100, Number(t.pct||0)));
-          var pWrap = el('div','progress');
-          var pBar  = el('div','progress-inner'); pBar.style.width = pct + '%';
-          pWrap.appendChild(pBar);
-          var pLabel = el('div','progress-label');
-          pLabel.appendChild(el('span','', 'Avanço: '+pct+'%'));
-          pLabel.appendChild(el('span','', (cls==='overdue' ? '⚠️ Atenção ao prazo' : '')));
+          // Progresso
+          var pct=Math.max(0,Math.min(100,Number(t.pct||0)));
+          var pWrap=el('div','progress'); var pBar=el('div','progress-inner'); pBar.style.width=pct+'%'; pWrap.appendChild(pBar);
+          var pLabel=el('div','progress-label'); pLabel.appendChild(el('span','', 'Avanço: '+pct+'%'));
+          pLabel.appendChild(el('span','', (cls==='overdue'?'⚠️ atenção ao prazo':'')));
 
           card.appendChild(header);
-          card.appendChild(meta);
-          meta.appendChild(chip);
-          card.appendChild(pWrap);
-          card.appendChild(pLabel);
+          card.appendChild(meta); meta.appendChild(chip);
+          card.appendChild(pWrap); card.appendChild(pLabel);
           list.appendChild(card);
         }
+
         col.appendChild(list); boardEl.appendChild(col);
       }
 
       // === Coluna Suprimentos ===
       var sup=el('section','column'); sup.appendChild(el('h2','','Suprimentos')); var sList=el('div','list');
+
       // Requisições
       var rqSec=el('div','section'); rqSec.appendChild(el('h3','', 'Requisições em Aberto'));
-      var rqs=(DATA.suprimentos.requisicoes||[]).slice().sort(function(a,b){return compareByPrazo({status:a.status,prazo:a.prazo,finalizado_em:a.finalizado_em},{status:b.status,prazo:b.prazo,finalizado_em:b.finalizado_em});});
+      var rqs=(DATA.suprimentos.requisicoes||[]).slice().sort(function(a,b){
+        return compareByPrazo({status:a.status,prazo:a.prazo,finalizado_em:a.finalizado_em},{status:b.status,prazo:b.prazo,finalizado_em:b.finalizado_em});
+      });
       for(var r=0;r<rqs.length;r++){
-        var rq=rqs[r]; var dtPrazo=parseBRDate(rq.prazo); var dtData=parseBRDate(rq.data); var lt=(dtPrazo&&dtData)?(diffDays(dtPrazo,dtData)+'d'):'-'; var clsRq=urgencyByDate(rq.prazo,rq.status); var it=el('div','item '+clsRq);
-        var rowTop=el('div','row'); var left=el('div'); left.appendChild(el('span','code','#'+(rq.codigo||rq.numero||''))); left.appendChild(el('strong','',rq.numero||rq.codigo||'RQ')); rowTop.appendChild(left); rowTop.appendChild(el('span','',rq.status||''));
+        var rq=rqs[r]; var dtPrazo=parseBRDate(rq.prazo); var dtData=parseBRDate(rq.data);
+        var lt=(dtPrazo&&dtData)?(diffDays(dtPrazo,dtData)+'d'):'-';
+        var clsRq=urgencyByDate(rq.prazo,rq.status);
+        var it=el('div','item '+clsRq);
+
+        var rowTop=el('div','row');
+        var left=el('div'); left.appendChild(el('span','code','#'+(rq.codigo||rq.numero||''))); left.appendChild(el('strong','',rq.numero||rq.codigo||'RQ'));
+        rowTop.appendChild(left); rowTop.appendChild(el('span','',rq.status||''));
+
         var kv1=el('div','kv','Data: '+(rq.data||'-')+' • Prazo: '+(rq.prazo||'-')+' • Lead time esperado: '+lt);
         var kv2=el('div','kv','Responsável: '+(rq.responsavel||'-')+' • Contrato: '+(rq.contrato||'-')+' • Material: '+(rq.material||'-'));
         var kv3=el('div','kv','Aplicação: '+(rq.aplicacao||'-')+' • Obs.: '+(rq.obs||'-'));
-        if(rq.obs_comprador){ var kv4=el('div','kv','Obs. comprador: '+rq.obs_comprador); it.appendChild(kv4); }
-        it.appendChild(rowTop); it.appendChild(kv1); it.appendChild(kv2); it.appendChild(kv3); rqSec.appendChild(it);
+        it.appendChild(rowTop); it.appendChild(kv1); it.appendChild(kv2); it.appendChild(kv3);
+        if(rq.obs_comprador){ it.appendChild(el('div','kv','Obs. comprador: '+rq.obs_comprador)); }
+        rqSec.appendChild(it);
       }
       sList.appendChild(rqSec);
 
@@ -238,35 +262,7 @@
       var ocSec=el('div','section'); ocSec.appendChild(el('h3','', 'Ordens de Compra (OC)'));
       var ocs=(DATA.suprimentos.ocs||[]).slice().sort(compareOC);
       for(var o=0;o<ocs.length;o++){
-        var oc=ocs[o]; var dtRec=parseBRDate(oc.recebido); var dtEmi=parseBRDate(oc.emissao); var ltReal=(dtRec&&dtEmi)?(diffDays(dtRec,dtEmi)+'d'):'-'; var clsOc=oc.recebido?'recv':urgencyByDate(oc.previsao,oc.status); var it2=el('div','item '+clsOc);
-        var rowTop2=el('div','row'); var left2=el('div'); left2.appendChild(el('span','code','#'+(oc.codigo||oc.numero||''))); left2.appendChild(el('strong','',oc.numero||oc.codigo||'OC')); rowTop2.appendChild(left2); rowTop2.appendChild(el('span','',oc.status||''));
-        var kv3=el('div','kv','Fornecedor: '+(oc.fornecedor||'-')+' • Comprador: '+(oc.comprador||'-')+' • Origem: '+(oc.origem_rq||'-'));
-        var kv4=el('div','kv','Material: '+(oc.material||'-')+' • Aplicação: '+(oc.aplicacao||'-'));
-        var kv5=el('div','kv','Emissão: '+(oc.emissao||'-')+' • Previsão: '+(oc.previsao||'-')+' • Lead time real: '+ltReal);
-        if(oc.obs_comprador){ var kv6=el('div','kv','Obs. comprador: '+oc.obs_comprador); it2.appendChild(kv6); }
-        var st=el('div','kv', oc.recebido?('Recebido em '+oc.recebido):'Pendente');
-        it2.appendChild(rowTop2); it2.appendChild(kv3); it2.appendChild(kv4); it2.appendChild(kv5); it2.appendChild(st); ocSec.appendChild(it2);
-      }
-      sList.appendChild(ocSec);
-      sup.appendChild(sList); boardEl.appendChild(sup);
-    }
-
-    /* ====== Logo, relógio e carimbo de atualização ====== */
-    function initLogo(){ var img=document.getElementById('logo'); var ph=document.getElementById('logoPh'); var src=DATA.logo_src||''; if(!src){img.style.display='none'; ph.style.display='flex'; return;} img.onload=function(){img.style.display='block'; ph.style.display='none';}; img.onerror=function(){img.style.display='none'; ph.style.display='flex';}; img.src=src; }
-    function tick(){ document.getElementById('clock').textContent = fmtClock(); }
-    function recalcularAlturas(){ var h=document.getElementById('hdr').offsetHeight||96; var f=document.getElementById('ftr').offsetHeight||48; document.documentElement.style.setProperty('--header-h', h + 'px'); document.documentElement.style.setProperty('--footer-h', f + 'px'); }
-
-    /* =================== BOOT =================== */
-    document.addEventListener('DOMContentLoaded', function(){
-      initLogo();
-      render();
-      recalcularAlturas();
-      var now=new Date();
-      document.getElementById('stamp').textContent = 'Última atualização: '+ now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-      setInterval(function(){ tick(); }, 1000);
-      window.addEventListener('resize', recalcularAlturas);
-    });
-  })();
-  </script>
-</body>
-</html>
+        var oc=ocs[o];
+        var dtRec=parseBRDate(oc.recebido); var dtEmi=parseBRDate(oc.emissao);
+        var ltReal=(dtRec&&dtEmi)?(diffDays(dtRec,dtEmi)+'d'):'-';
+        var clsOc=oc.recebido?'recv':urgencyByDate(oc.previsao,oc.status
