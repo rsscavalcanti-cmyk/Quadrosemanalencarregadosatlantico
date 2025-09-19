@@ -103,26 +103,26 @@
       logo_src: 'assets/logo.jpg',
       encarregados:[
         {nome:'Severo (Hidráulica)', tarefas:[
-          {codigo:'T-0313', titulo:'Rede hidráulica de entrada de água — conclusão', prazo_esperado:'19/09/2025', status:'exec', pct:65},
-          {codigo:'T-0314', titulo:'Troca do suporte da rede Ø110 mm: perfilado → cantoneira (recalque de pluviais e esgoto)', prazo_esperado:'19/09/2025', status:'exec', pct:80},
+          {codigo:'T-0313', titulo:'Rede hidráulica de entrada de água — conclusão', prazo_esperado:'19/09/2025', status:'exec', pct:85, obs:'Madeiras e paletes no caminho obstruído (almoxarifado da Asas).'},
+          {codigo:'T-0314', titulo:'Troca do suporte da rede Ø110 mm: perfilado → cantoneira (recalque de pluviais e esgoto)', prazo_esperado:'19/09/2025', status:'exec', pct:90, obs:'Madeiras e paletes no caminho obstruído (almoxarifado da Asas).'},
           {codigo:'T-0322', titulo:'Retrabalho de 7 caixas de rede externa, reposicionamento de tubulações e acabamento - aditivo', prazo_esperado:'26/09/2025', status:'exec', pct:10},
           {codigo:'T-0323', titulo:'Montagem de conjuntos de bombas em 3 poços', prazo_esperado:'26/09/2025', status:'', pct:0}
         ]},
-        {nome:'Ayrton (Hidráulica)', tarefas:[
-          {codigo:'T-0305', titulo:'Entrega de apartamentos para a Qualidade — Blocos 2 e 3 - 1º ao 4º pavimentos', prazo_esperado:'19/09/2025', status:'exec', pct:80},
-          {codigo:'T-0306', titulo:'Instalação da redutora de pressão — Bloco 3', prazo_esperado:'19/09/2025', status:'exec', pct:50},
+        {nome:'Airton (Hidráulica)', tarefas:[
+          {codigo:'T-0305', titulo:'Entrega de apartamentos para a Qualidade — Blocos 2 e 3 - 1º ao 4º pavimentos', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'19/09/2025'},
+          {codigo:'T-0306', titulo:'Instalação da redutora de pressão — 8º pavimento — Bloco 3', prazo_esperado:'19/09/2025', status:'exec', pct:50},
           {codigo:'T-0324', titulo:'Entrega de apartamentos — 4º ao 6º pavimentos dos Blocos 2 e 3', prazo_esperado:'26/09/2025', status:'', pct:0},
           {codigo:'T-0325', titulo:'Execução da redutora de pressão — 12º pavimento do Bloco 3', prazo_esperado:'26/09/2025', status:'', pct:0}
         ]},
         {nome:'Thiago (Elétrica)', tarefas:[
-          {codigo:'T-0315', titulo:'Tratamento de todas as eletrocalhas', prazo_esperado:'19/09/2025', status:'exec', pct:90},
-          {codigo:'T-0316', titulo:'Instalação de luminárias — trecho central do subsolo (±50 unidades em zonas apagadas)', prazo_esperado:'19/09/2025', status:'exec', pct:70},
+          {codigo:'T-0315', titulo:'Tratamento de todas as eletrocalhas', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'19/09/2025'},
+          {codigo:'T-0316', titulo:'Instalação de luminárias — trecho central do subsolo (±50 unidades em zonas apagadas)', prazo_esperado:'19/09/2025', status:'exec', pct:90},
           {codigo:'T-0317', titulo:'Instalação de 5 quadros de bombas', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'18/09/2025'},
           {codigo:'T-0321', titulo:"Instalação de CSMD's dos blocos 1, 2 e 3", prazo_esperado:'26/09/2025', status:'exec', pct:25}
         ]},
         {nome:'Marcelo (Elétrica)', tarefas:[
-          {codigo:'T-0318', titulo:'Entrega de apartamentos', prazo_esperado:'19/09/2025', status:'exec', pct:70},
-          {codigo:'T-0319', titulo:'Fechamento de QDLs dos apartamentos — 19º e 20º (duas torres)', prazo_esperado:'19/09/2025', status:'exec', pct:40},
+          {codigo:'T-0318', titulo:'Entrega de apartamentos', prazo_esperado:'19/09/2025', status:'exec', pct:80},
+          {codigo:'T-0319', titulo:'Fechamento de QDLs dos apartamentos — 19º e 20º (duas torres)', prazo_esperado:'19/09/2025', status:'block', pct:40, obs:"Aguardando materiais (componentes para QDL's)"},
           {codigo:'T-0320', titulo:'SPDA das duas torres (executar áreas liberadas)', prazo_esperado:'19/09/2025', status:'exec', pct:30},
           {codigo:'T-0326', titulo:'Instalação das tampas dos barramentos blindados verticais — 3 torres', prazo_esperado:'26/09/2025', status:'', pct:0},
           {codigo:'T-0327', titulo:'Ensaios/funcionais dos barramentos blindados', prazo_esperado:'26/09/2025', status:'', pct:0},
@@ -238,6 +238,9 @@
             partes.push('Diferença: '+sinal+Math.abs(dlt)+'d'+legenda);
           }
 
+          // Linha 4 (novo): Observações, se houver
+          if(t.obs){ partes.push('Obs.: '+t.obs); }
+
           meta.innerHTML = partes.map(function(p){return '<div>'+p+'</div>';}).join('');
 
           var statusLabel='Pendente';
@@ -332,7 +335,9 @@
     }
 
     function setFooterNote(){
-      document.getElementById('ftr').textContent = 'Código atualizado pela engenharia em 18/09/2025 às 10:20min';
+      var d = new Date();
+      var pad=n=>String(n).padStart(2,'0');
+      document.getElementById('ftr').textContent = 'Código atualizado pela engenharia em '+pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' às '+pad(d.getHours())+':'+pad(d.getMinutes());
     }
 
     document.addEventListener('DOMContentLoaded', function(){
@@ -349,4 +354,5 @@
   </script>
 </body>
 </html>
+
 
