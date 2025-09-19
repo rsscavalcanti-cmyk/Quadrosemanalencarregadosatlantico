@@ -129,28 +129,36 @@
           {codigo:'T-0328', titulo:'Instalação dos cofres pendentes', prazo_esperado:'26/09/2025', status:'', pct:0}
         ]}
       ],
-      /* Suprimentos permanece com as chaves atuais para não quebrar o histórico */
+      /* =================== SUPRIMENTOS — APENAS NOVAS INFORMAÇÕES =================== */
       suprimentos:{
-        compradores:['Suellen','Lucas','Brígida'],
+        compradores:['Brígida Souza','Suellen Mello','Lucas Fernandes'],
+        pendencias_teams:{'Brígida Souza':0,'Suellen Mello':0,'Lucas Fernandes':0},
         requisicoes:[
-          {codigo:'RQ-11181', numero:'RQ-11181', responsavel:'Suellen', contrato:'Atlântico', material:'PVC', aplicacao:'Ralos embasamento / fechamento de bombas de pressurização e recalque', data:'07/08/2025', prazo:'18/08/2025', status:'Em cotação', obs:'Cotação', obs_comprador:'Negociando com fornecedor'},
-          {codigo:'RQ-11186', numero:'RQ-11186', responsavel:'Suellen', contrato:'Atlântico', material:'600 conectores genéricos', aplicacao:'Fechamento de QDLs APTs', data:'07/08/2025', prazo:'15/08/2025', status:'', obs:'Parcial — 460 vieram do escritório'},
-          {codigo:'RQ-11184', numero:'RQ-11184', responsavel:'Murilo', contrato:'Atlântico', material:'Estopa, lápis, brocas', aplicacao:'Uso e consumo geral de obra', data:'07/08/2025', prazo:'15/08/2025', status:'', obs:'Parcial — Fertak'},
-          {codigo:'RQ-11203', numero:'RQ-11203', responsavel:'Lucas', contrato:'Atlântico', material:'Zarcão cinza', aplicacao:'Tratamento de fixações', data:'', prazo:'13/08/2025', status:'', obs:'Faturamento System'},
-          {codigo:'RQ-11221', numero:'RQ-11221', responsavel:'Suellen', contrato:'Atlântico', material:'PVC', aplicacao:'Pontos de pia e tanque dos APTs', data:'', prazo:'25/08/2025', status:'', obs:'Aguardar definição diretoria / Ver estoques', obs_comprador:'Negociando com fornecedor'},
-          {codigo:'RQ-11238', numero:'RQ-11238', responsavel:'Lucas', contrato:'Atlântico', material:'PVC e ralo abacaxi', aplicacao:'Distribuição hidráulica térreo', data:'', prazo:'22/08/2025', status:'Em cotação', obs:'', obs_comprador:'Negociando com fornecedor'},
-          {codigo:'RQ-11287', numero:'RQ-11287', responsavel:'Suellen', contrato:'Atlântico', material:'Saco de ráfia', aplicacao:'Arrumação', data:'27/08/2025', prazo:'01/09/2025', status:'Em cotação'},
-          {codigo:'RQ-11291', numero:'RQ-11291', responsavel:'Lucas', contrato:'Atlântico', material:'Interruptores e tomadas', aplicacao:'Áreas comuns, térreo, subsolo, escadas, coberturas e extravios', data:'27/08/2025', prazo:'08/09/2025', status:'Em cotação'},
-          {codigo:'RQ-11294', numero:'RQ-11294', responsavel:'Lucas', contrato:'Atlântico', material:'Luminárias (modelo a definir)', aplicacao:'Escadas e áreas técnicas', data:'27/08/2025', prazo:'15/09/2025', status:'Em cotação', obs:'Modelo mais econômico p/ validação (tartaruga LED)'},
-          {codigo:'RQ-11309', numero:'RQ-11309', responsavel:'Suellen', contrato:'Atlântico', material:'Parafuso bicromatizado e comum', aplicacao:'SPDA e uso geral', data:'', prazo:'12/09/2025', status:'', obs:'Ver observações do item'}
+          {codigo:'RQ-11305', numero:'RQ-11305', responsavel:'Brígida Souza', contrato:'Atlântico', material:'Condulete', aplicacao:'-', data:'', prazo:'', status:'Em cotação', obs:'Requisição atribuída para cotação'},
+
+          {codigo:'RQ-11086', numero:'RQ-11086', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Repastilhamento', aplicacao:'-', data:'', prazo:'', status:'', obs:'Fornecedor: TRIUNFO (LOC). Aguardando retorno da obra sobre disponibilidade de brocas para retirada'},
+          {codigo:'RQ-11295', numero:'RQ-11295', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Material de fixação', aplicacao:'-', data:'', prazo:'', status:'', obs:'OC 587 — 16/09 parcial'},
+          {codigo:'RQ-11309', numero:'RQ-11309', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Parafuso', aplicacao:'-', data:'', prazo:'', status:'', obs:'Fornecedor: PARAFUSOPAR. OC: system. Não chegou'},
+          {codigo:'RQ-11181', numero:'RQ-11181', responsavel:'Suellen Mello', contrato:'Atlântico', material:'PVC', aplicacao:'Ralos embasamento / fechamento de bombas', data:'', prazo:'', status:'', obs:'OC 597 — 18/09 parcial'},
+
+          {codigo:'RQ-10623', numero:'RQ-10623', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Quadros de entrada de energia', aplicacao:'Entrada de energia', data:'', prazo:'', status:'', obs:'OC 009 — 09/09 parcial; restante 25/09'},
+          {codigo:'RQ-11282', numero:'RQ-11282', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Tê de fachada', aplicacao:'Fachada', data:'', prazo:'', status:'', obs:'OC 591 — não chegou'},
+          {codigo:'RQ-11237', numero:'RQ-11237', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Fitas isolantes', aplicacao:'Elétrica força e distribuição', data:'', prazo:'', status:'', obs:'OC 585 — chegou 16/09'},
+          {codigo:'RQ-11238', numero:'RQ-11238', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Ralo + PVC', aplicacao:'Distribuição hidráulica térreo', data:'', prazo:'', status:'', obs:'OC 595 — entrega parcial 19/09'},
+          {codigo:'RQ-11333', numero:'RQ-11333', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Tê de fachada', aplicacao:'Fachada', data:'', prazo:'', status:'', obs:'OC 593 — Chegou'},
+          {codigo:'RQ-11314', numero:'RQ-11314', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Fitas isolantes', aplicacao:'Elétrica força e distribuição', data:'', prazo:'', status:'', obs:'OC 590 — 17/09/2025'},
+          {codigo:'RQ-11291', numero:'RQ-11291', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'PIAL PLUS+', aplicacao:'Áreas comuns / subsolo / escadas / coberturas / extravios', data:'', prazo:'', status:'Em cotação', obs:'Requisição atribuída para cotação'},
+          {codigo:'RQ-11294', numero:'RQ-11294', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Arandelas', aplicacao:'Escadas e áreas técnicas', data:'', prazo:'', status:'Em cotação', obs:'Requisição atribuída para cotação'}
         ],
         ocs:[
-          {codigo:'OC-574', numero:'OC-574', emissao:'', fornecedor:'Cobrecom', status:'OC enviada ao fornecedor', previsao:'25/08/2025', comprador:'Brígida', recebido:'', origem_rq:'RQ-11202', material:'Cabos de cobre', aplicacao:'Alimentadores para bombas de poços'},
-          {codigo:'OC-580', numero:'OC-580', emissao:'', fornecedor:'MC Tubos', status:'EMITIDA', previsao:'25/08/2025', comprador:'Suellen', recebido:'', origem_rq:'RQ-11219', material:'Eletrodutos', aplicacao:'Infra elétrica e especiais de força'},
-          {codigo:'OC-582', numero:'OC-582', emissao:'', fornecedor:'Perfil Líder', status:'EMITIDA', previsao:'25/08/2025', comprador:'Brígida', recebido:'', origem_rq:'RQ-11218 / RQ-11235', material:'Eletrocalhas / Perfilados', aplicacao:'Sistemas especiais / Fixações e iluminação subsolo'},
-          {codigo:'OC-585', numero:'OC-585', emissao:'', fornecedor:'Lukma', status:'EMITIDA', previsao:'22/08/2025', comprador:'Lucas', recebido:'', origem_rq:'RQ-11237', material:'Fita isolante', aplicacao:'Elétrica força e distribuição'},
-          {codigo:'OC-588', numero:'OC-588', emissao:'27/08/2025', fornecedor:'Mosal', status:'EMITIDA', previsao:'02/09/2025', comprador:'Lucas', recebido:'', origem_rq:'RQ-11282', material:'Tê de fachada, pintura e aros', aplicacao:'Complemento'},
-          {codigo:'OC-589', numero:'OC-589', emissao:'', fornecedor:'WCT 2010', status:'OC enviada ao cliente', previsao:'22/08/2025', comprador:'Brígida', recebido:'', origem_rq:'RQ-11236', material:'Abraçadeiras e conduletes', aplicacao:'Iluminação subsolo / alimentação quadros / iluminação externa', obs_comprador:'ENTREGA ATÉ 05/09/2025'}
+          {codigo:'OC-587', numero:'OC-587', emissao:'', fornecedor:'WALSYWA Comércio de Produtos Metalúrgicos Ltda', status:'EMITIDA', previsao:'', comprador:'Suellen', recebido:'16/09/2025', origem_rq:'RQ-11295', material:'Material de fixação', aplicacao:'-', obs_comprador:'Parcial'},
+          {codigo:'OC-597', numero:'OC-597', emissao:'', fornecedor:'KG Instalações e Com. Elétrico', status:'EMITIDA', previsao:'', comprador:'Suellen', recebido:'18/09/2025', origem_rq:'RQ-11181', material:'PVC', aplicacao:'Ralos/fechamentos', obs_comprador:'Parcial'},
+          {codigo:'OC-009', numero:'OC-009', emissao:'', fornecedor:'ELETROASA — Eletrometalúrgica ASA Eireli', status:'EMITIDA', previsao:'25/09/2025', comprador:'Lucas', recebido:'09/09/2025', origem_rq:'RQ-10623', material:'Quadros de entrada de energia', aplicacao:'Entrada de energia', obs_comprador:'Entrega parcial 09/09; restante 25/09'},
+          {codigo:'OC-591', numero:'OC-591', emissao:'', fornecedor:'Westaflex Tubos Flexíveis Ltda', status:'EMITIDA', previsao:'', comprador:'Lucas', recebido:'', origem_rq:'RQ-11282', material:'Tê de fachada', aplicacao:'Fachada', obs_comprador:'Não chegou'},
+          {codigo:'OC-585', numero:'OC-585', emissao:'', fornecedor:'Lukma', status:'EMITIDA', previsao:'', comprador:'Lucas', recebido:'16/09/2025', origem_rq:'RQ-11237', material:'Fita isolante', aplicacao:'Elétrica força e distribuição'},
+          {codigo:'OC-595', numero:'OC-595', emissao:'', fornecedor:'KG Instalações e Comércio Elétrico Ltda', status:'EMITIDA', previsao:'', comprador:'Lucas', recebido:'19/09/2025', origem_rq:'RQ-11238', material:'Ralo + PVC', aplicacao:'Distribuição hidráulica térreo', obs_comprador:'Entrega parcial'},
+          {codigo:'OC-593', numero:'OC-593', emissao:'', fornecedor:'Mosal Artefatos de Alumínio Ltda - ME', status:'recebido', previsao:'', comprador:'Lucas', recebido:'', origem_rq:'RQ-11333', material:'Tê de fachada', aplicacao:'Fachada', obs_comprador:'Chegou'},
+          {codigo:'OC-590', numero:'OC-590', emissao:'', fornecedor:'Lukma', status:'EMITIDA', previsao:'17/09/2025', comprador:'Lucas', recebido:'', origem_rq:'RQ-11314', material:'Fitas isolantes', aplicacao:'Elétrica força e distribuição'}
         ]
       }
     };
@@ -166,17 +174,14 @@
     function getDoneDate(t){ return parseBRDate(t.data_conclusao||t.finalizado_em||''); }
 
     function dLabel(dateStr){ var d=parseBRDate(dateStr); if(!d) return ''; var delta=Math.floor((d-new Date())/DAY); if(delta===0) return 'D-0'; return (delta>0)?('D-'+delta):('D+'+Math.abs(delta)) }
-    function daysLate(dateStr){ var d=parseBRDate(dateStr); if(!d) return 0; var now=new Date(); if(now<=d) return 0; return diffDays(now,d); }
     function urgencyByDate(dateStr,status){ if(status==='done'||status==='FINALIZADA')return'done'; if(status==='block')return'block'; if(status==='exec')return'exec'; if(status==='recebido')return'recv'; var d=parseBRDate(dateStr); if(!d)return'ok'; var h=(d-new Date())/HOUR; if(h<=0)return'overdue'; if(h<=48)return'soon'; return'ok' }
     function weightStatus(s){ if(s==='done'||s==='FINALIZADA')return-2; return 0 }
     function weightUrgencyByDate(ds){ var d=parseBRDate(ds); if(!d) return 3; var h=(d-new Date())/HOUR; if(h<=0)return 0; if(h<=48)return 1; return 2 }
     function compareByPrazo(a,b){
       var wa=weightStatus(a.status),wb=weightStatus(b.status); if(wa!==wb)return wa-wb;
-      // Finalizadas: ordenar pela data de conclusão mais recente
       if((a.status==='done'||a.status==='FINALIZADA')&&(b.status==='done'||b.status==='FINALIZADA')){
         var da=getDoneDate(a), db=getDoneDate(b);
         if(da&&db)return db-da; if(da&&!db)return-1; if(!da&&db)return 1; return 0 }
-      // Pendentes: ordenar por urgência e prazo esperado
       var ua=weightUrgencyByDate(a.prazo_esperado||a.prazo||a.previsao||a.data||''), ub=weightUrgencyByDate(b.prazo_esperado||b.prazo||b.previsao||b.data||'');
       if(ua!==ub)return ua-ub;
       var da2=getDueDate(a), db2=getDueDate(b);
@@ -190,7 +195,7 @@
     function deltaConclusaoDias(t){
       var due=getDueDate(t), done=getDoneDate(t);
       if(!due || !done) return null;
-      return diffDays(done, due); // positivo = terminou depois (atraso), negativo = antecipado
+      return Math.round((done - due)/86400000); // + = atraso, - = adiantado
     }
 
     /* =================== DOM =================== */
@@ -220,25 +225,19 @@
 
           var meta=el('div','meta-text');
           var partes=[];
-          // Linha 1: Prazo esperado + D-label (para pendentes)
           var label1='Prazo esperado: '+(dueStr||'-');
           if(!(t.status==='done'||t.status==='FINALIZADA')) label1 += ' • '+dLabel(dueStr||'');
           partes.push(label1);
 
-          // Linha 2: Data de conclusão (se existir)
           if(t.data_conclusao||t.finalizado_em){
             partes.push('Data de conclusão: '+(t.data_conclusao||t.finalizado_em));
           }
-
-          // Linha 3: Diferença (se houver ambas as datas)
           var dlt=deltaConclusaoDias(t);
           if(dlt!==null){
             var sinal = dlt>0?'+': (dlt<0?'-':'±');
             var legenda = dlt>0? ' (atraso)': (dlt<0? ' (adiantado)':' (no prazo)');
             partes.push('Diferença: '+sinal+Math.abs(dlt)+'d'+legenda);
           }
-
-          // Linha 4 (novo): Observações, se houver
           if(t.obs){ partes.push('Obs.: '+t.obs); }
 
           meta.innerHTML = partes.map(function(p){return '<div>'+p+'</div>';}).join('');
@@ -251,7 +250,6 @@
           var chip=el('span','chip',statusLabel);
           meta.appendChild(chip);
 
-          // Progresso
           var pct=Math.max(0,Math.min(100,Number(t.pct||0)));
           var pWrap=el('div','progress'); var pBar=el('div','progress-inner'); pBar.style.width=pct+'%'; pWrap.appendChild(pBar);
           var pLabel=el('div','progress-label'); pLabel.appendChild(el('span','', 'Avanço: '+pct+'%'));
@@ -276,7 +274,7 @@
       });
       for(var r=0;r<rqs.length;r++){
         var rq=rqs[r]; var dtPrazo=parseBRDate(rq.prazo); var dtData=parseBRDate(rq.data);
-        var lt=(dtPrazo&&dtData)?(diffDays(dtPrazo,dtData)+'d'):'-';
+        var lt=(dtPrazo&&dtData)?(Math.round((dtPrazo-dtData)/86400000)+'d'):'-';
         var clsRq=urgencyByDate(rq.prazo,rq.status);
         var it=el('div','item '+clsRq);
 
@@ -299,7 +297,7 @@
       for(var o=0;o<ocs.length;o++){
         var oc=ocs[o];
         var dtRec=parseBRDate(oc.recebido); var dtEmi=parseBRDate(oc.emissao);
-        var ltReal=(dtRec&&dtEmi)?(diffDays(dtRec,dtEmi)+'d'):'-';
+        var ltReal=(dtRec&&dtEmi)?(Math.round((dtRec-dtEmi)/86400000)+'d'):'-';
         var clsOc=oc.recebido?'recv':urgencyByDate(oc.previsao,oc.status);
         var it2=el('div','item '+clsOc);
 
@@ -311,8 +309,9 @@
         var kv4=el('div','kv','Material: '+(oc.material||'-')+' • Aplicação: '+(oc.aplicacao||'-'));
         var kv5=el('div','kv','Emissão: '+(oc.emissao||'-')+' • Previsão: '+(oc.previsao||'-')+' • Lead time real: '+ltReal);
         var st=el('div','kv', oc.recebido?('Recebido em '+oc.recebido):'Pendente');
-
-        it2.appendChild(rowTop2); it2.appendChild(kv3); it2.appendChild(kv4); it2.appendChild(kv5); it2.appendChild(st); ocSec.appendChild(it2);
+        it2.appendChild(rowTop2); it2.appendChild(kv3); it2.appendChild(kv4); it2.appendChild(kv5); it2.appendChild(st);
+        if(oc.obs_comprador){ it2.appendChild(el('div','kv','Obs. comprador: '+oc.obs_comprador)); }
+        ocSec.appendChild(it2);
       }
       sList.appendChild(ocSec);
       sup.appendChild(sList); boardEl.appendChild(sup);
@@ -321,24 +320,9 @@
     function initLogo(){ var img=document.getElementById('logo'); var ph=document.getElementById('logoPh'); var src=DATA.logo_src||''; if(!src){img.style.display='none'; ph.style.display='flex'; return;} img.onload=function(){img.style.display='block'; ph.style.display='none';}; img.onerror=function(){img.style.display='none'; ph.style.display='flex';}; img.src=src; }
 
     function tick(){ document.getElementById('clock').textContent = fmtClock(); }
-
-    function updateHeaderHeights(){
-      var h = document.getElementById('hdr').offsetHeight || 112;
-      document.documentElement.style.setProperty('--header-h', h + 'px');
-    }
-
-    function setStamp(){
-      var d = new Date();
-      var pad=n=>String(n).padStart(2,'0');
-      var stamp = 'Quadro atualizado pela engenharia em ' + pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes());
-      document.getElementById('stamp').textContent = stamp;
-    }
-
-    function setFooterNote(){
-      var d = new Date();
-      var pad=n=>String(n).padStart(2,'0');
-      document.getElementById('ftr').textContent = 'Código atualizado pela engenharia em '+pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' às '+pad(d.getHours())+':'+pad(d.getMinutes());
-    }
+    function updateHeaderHeights(){ var h = document.getElementById('hdr').offsetHeight || 112; document.documentElement.style.setProperty('--header-h', h + 'px'); }
+    function setStamp(){ var d = new Date(); var pad=n=>String(n).padStart(2,'0'); var stamp = 'Quadro atualizado pela engenharia em ' + pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes()); document.getElementById('stamp').textContent = stamp; }
+    function setFooterNote(){ var d = new Date(); var pad=n=>String(n).padStart(2,'0'); document.getElementById('ftr').textContent = 'Código atualizado pela engenharia em '+pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' às '+pad(d.getHours())+':'+pad(d.getMinutes()); }
 
     document.addEventListener('DOMContentLoaded', function(){
       initLogo();
@@ -354,5 +338,3 @@
   </script>
 </body>
 </html>
-
-
