@@ -16,32 +16,20 @@
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;background:var(--bg);color:var(--text)}
-
-    /* ===== Header fixo ===== */
-    header{
-      position:sticky;top:0;z-index:100;
-      color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
-      padding:14px 18px;box-shadow:0 2px 10px rgba(0,0,0,.18);
-      background:linear-gradient(90deg,var(--brand2) 0%, var(--brand) 100%);
-    }
+    header{position:sticky;top:0;z-index:100;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px;box-shadow:0 2px 10px rgba(0,0,0,.18);background:linear-gradient(90deg,var(--brand2) 0%, var(--brand) 100%)}
     .brand{display:flex;align-items:center;gap:16px}
     .logo-box{width:164px;height:64px;background:#fff;border-radius:10px;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;overflow:hidden}
     .logo-img{max-width:100%;max-height:100%;display:none}
     .logo-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#0f172a;font-weight:800;letter-spacing:.3px}
     h1{margin:0;font-size:24px;letter-spacing:.2px}
     .subtitle{margin-top:2px;font-size:13px;opacity:.9}
-
     .meta{ text-align:right; display:flex; flex-direction:column; gap:4px }
     .stamp{font-size:13px;font-weight:700}
     .clock{font-variant-numeric:tabular-nums;font-size:12px;opacity:.95}
-
-    /* ===== Painel e colunas ===== */
     .board{height:calc(100vh - var(--header-h) - var(--footer-h));display:flex;gap:16px;padding:16px;overflow-x:auto;overflow-y:hidden}
     .column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:320px;max-width:480px;flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden}
     .column h2{position:sticky;top:0;z-index:10;margin:0;padding:12px;background:var(--header);font-size:18px;font-weight:800;text-decoration:underline;border-bottom:1px solid var(--border);text-align:center;box-shadow:0 1px 0 rgba(0,0,0,.06)}
     .list{flex:1;overflow:auto;padding:10px;overscroll-behavior:contain}
-
-    /* ===== Cards ===== */
     .task{background:#ffffff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(2,6,23,.06);position:relative}
     .task.overdue{border-left-color:var(--late)}
     .task.block{border-left-color:var(--block)}
@@ -51,14 +39,9 @@
     .meta-text{font-size:13px;color:var(--muted)}
     .chip{display:inline-block;background:var(--chip);padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700;margin-left:6px}
     .code{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;background:#eef2ff;color:#0f172a;border:1px solid #c7d2fe;padding:2px 6px;border-radius:6px;margin-right:6px}
-    .delta{font-weight:700}
-
-    /* ===== Progresso ===== */
     .progress{margin-top:8px;background:#e5e7eb;border:1px solid #d1d5db;border-radius:999px;height:10px;overflow:hidden}
     .progress-inner{height:100%;width:0%;background:linear-gradient(90deg, #60a5fa, #22c55e);transition:width .3s ease}
     .progress-label{margin-top:4px;font-size:12px;color:#334155;display:flex;justify-content:space-between}
-
-    /* ===== Suprimentos ===== */
     .section{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}
     .section h3{position:sticky;top:0;z-index:6;margin:0 0 6px;background:var(--header);padding:8px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:14px}
     .item{background:#ffffff;border:1px solid var(--border);border-left:8px solid var(--border);border-radius:10px;padding:10px;margin:8px 0;box-shadow:0 2px 6px rgba(2,6,23,.06);position:relative}
@@ -68,11 +51,7 @@
     .item.recv{border-left-color:var(--recv)}
     .row{display:flex;justify-content:space-between;gap:8px;font-size:14px}
     .kv{font-size:12px;color:var(--muted)}
-
-    footer{
-      padding:10px 16px;border-top:1px solid var(--border);background:#fff;color:#334155;
-      font-size:12px; display:flex; justify-content:center; align-items:center; min-height:40px;
-    }
+    footer{padding:10px 16px;border-top:1px solid var(--border);background:#fff;color:#334155;font-size:12px; display:flex; justify-content:center; align-items:center; min-height:40px;}
   </style>
 </head>
 <body>
@@ -107,8 +86,6 @@
           {codigo:'T-0314', titulo:'Troca do suporte da rede Ø110 mm: perfilado → cantoneira (recalque de pluviais e esgoto)', prazo_esperado:'19/09/2025', status:'exec', pct:90, obs:'Madeiras e paletes no caminho obstruído (almoxarifado da Asas).'},
           {codigo:'T-0322', titulo:'Retrabalho de 7 caixas de rede externa, reposicionamento de tubulações e acabamento — aditivo', prazo_esperado:'26/09/2025', status:'exec', pct:20, obs:'Pendente: 6 peças de tubo Ø200 solicitadas por transferência.'},
           {codigo:'T-0323', titulo:'Montagem de conjuntos de bombas em 3 poços', prazo_esperado:'26/09/2025', status:'', pct:0, obs:'Falta de material: joelho 90° × 60 soldável. Início previsto com desvio de rede no subsolo do Bloco 3 (obstrução da porta).'},
-
-          // === NOVAS TAREFAS (janela 29/09 a 03/10) ===
           {codigo:'T-0329', titulo:'Rede de poços — tubo Ø110 mm (poços)', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'},
           {codigo:'T-0330', titulo:'Águas pluviais — poços 07, 08 e 11', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'},
           {codigo:'T-0331', titulo:'Águas servidas — poços 07 e 18', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'}
@@ -123,9 +100,15 @@
           {codigo:'T-0315', titulo:'Tratamento de todas as eletrocalhas', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'19/09/2025'},
           {codigo:'T-0317', titulo:'Instalação de 5 quadros de bombas', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'18/09/2025'},
           {codigo:'T-0316', titulo:'Instalação de luminárias — trecho central do subsolo (±50 unidades em zonas apagadas)', prazo_esperado:'19/09/2025', status:'exec', pct:100},
-          {codigo:'T-0321', titulo:"Instalação de CSMD's dos blocos 1, 2 e 3", prazo_esperado:'26/09/2025', status:'exec', pct:30, obs:'Frentes: (1) Infra no subsolo para automático de boia das torres — 22/09 a 26/09; (2) Montagem de eletrocalha 200×150 para comandos no trecho central do subsolo — 22/09 a 26/09; (3) Montagem de perfilado 38×38 para iluminação do espelho d’água 2 — 22/09 a 26/09.'},
 
-          // === NOVA TAREFA (janela 29/09 a 03/10) ===
+          <!-- MANTIDO APENAS O TÍTULO E PRAZO ORIGINAL; OBS DAS FRENTES FOI DESMEMBRADA -->
+          {codigo:'T-0321', titulo:"Instalação de CSMD's dos blocos 1, 2 e 3", prazo_esperado:'26/09/2025', status:'exec', pct:30},
+
+          <!-- NOVOS CARDS DESMEMBRADOS, SEQUÊNCIA APÓS O MAIOR CÓDIGO EXISTENTE (T-0337) -->
+          {codigo:'T-0338', titulo:'Infra no subsolo para automático de boia das torres', prazo_esperado:'26/09/2025', status:'', pct:0, obs:'Janela: 22/09 a 26/09.'},
+          {codigo:'T-0339', titulo:'Montagem de eletrocalha 200×150 para comandos — trecho central do subsolo', prazo_esperado:'26/09/2025', status:'', pct:0, obs:'Janela: 22/09 a 26/09.'},
+          {codigo:'T-0340', titulo:'Montagem de perfilado 38×38 para iluminação do espelho d’água 2', prazo_esperado:'26/09/2025', status:'', pct:0, obs:'Janela: 22/09 a 26/09.'},
+
           {codigo:'T-0337', titulo:'Instalação de 100 luminárias — trecho entre a casa de bombas e o espelho d’água', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'}
         ]},
         {nome:'Marcelo (Elétrica)', tarefas:[
@@ -135,8 +118,6 @@
           {codigo:'T-0326', titulo:'Instalação das tampas dos barramentos blindados verticais — 3 torres', prazo_esperado:'26/09/2025', status:'', pct:50},
           {codigo:'T-0327', titulo:'Ensaios/funcionais dos barramentos blindados', prazo_esperado:'26/09/2025', status:'', pct:33},
           {codigo:'T-0328', titulo:'Instalação dos cofres pendentes', prazo_esperado:'26/09/2025', status:'', pct:33},
-
-          // === NOVAS TAREFAS (janela 29/09 a 03/10) ===
           {codigo:'T-0332', titulo:'Lançamento de cabos — Bomba de recalque Bloco 1', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'},
           {codigo:'T-0333', titulo:'Lançamento de cabos — Bomba de recalque Bloco 2', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'},
           {codigo:'T-0334', titulo:'Lançamento de cabos — Bomba de recalque Bloco 3', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'},
@@ -150,12 +131,10 @@
         pendencias_teams:{'Brígida Souza':0,'Suellen Mello':0,'Lucas Fernandes':0},
         requisicoes:[
           {codigo:'RQ-11305', numero:'RQ-11305', responsavel:'Brígida Souza', contrato:'Atlântico', material:'Condulete', aplicacao:'-', data:'', prazo:'', status:'Em cotação', obs:'Requisição atribuída para cotação'},
-
           {codigo:'RQ-11086', numero:'RQ-11086', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Repastilhamento', aplicacao:'-', data:'', prazo:'', status:'', obs:'Fornecedor: TRIUNFO (LOC). Aguardando retorno da obra sobre disponibilidade de brocas para retirada'},
           {codigo:'RQ-11295', numero:'RQ-11295', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Material de fixação', aplicacao:'-', data:'', prazo:'', status:'', obs:'OC 587 — 16/09 parcial'},
           {codigo:'RQ-11309', numero:'RQ-11309', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Parafuso', aplicacao:'-', data:'', prazo:'', status:'', obs:'Fornecedor: PARAFUSOPAR. OC: system. Não chegou'},
           {codigo:'RQ-11181', numero:'RQ-11181', responsavel:'Suellen Mello', contrato:'Atlântico', material:'PVC', aplicacao:'Ralos embasamento / fechamento de bombas', data:'', prazo:'', status:'', obs:'OC 597 — 18/09 parcial'},
-
           {codigo:'RQ-10623', numero:'RQ-10623', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Quadros de entrada de energia', aplicacao:'Entrada de energia', data:'', prazo:'', status:'', obs:'OC 009 — 09/09 parcial; restante 25/09'},
           {codigo:'RQ-11282', numero:'RQ-11282', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Tê de fachada', aplicacao:'Fachada', data:'', prazo:'', status:'', obs:'OC 591 — não chegou'},
           {codigo:'RQ-11237', numero:'RQ-11237', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Fitas isolantes', aplicacao:'Elétrica força e distribuição', data:'', prazo:'', status:'', obs:'OC 585 — chegou 16/09'},
@@ -183,37 +162,26 @@
     function parseBRDate(s){ if(!s) return null; var a=s.split('/'); if(a.length!==3) return null; var d=+a[0],m=+a[1],y=+a[2]; var dt=new Date(y,m-1,d,12,0,0); return isNaN(dt)?null:dt }
     function diffDays(a,b){ return Math.round((a-b)/DAY) }
     function fmtClock(){ var t=new Date(); var pad=n=>String(n).padStart(2,'0'); return pad(t.getHours())+':'+pad(t.getMinutes())+':'+pad(t.getSeconds()) }
-
-    // Helpers genéricos p/ pegar datas em tarefas e suprimentos
     function getDueDate(t){ return parseBRDate(t.prazo_esperado||t.prazo||t.previsao||t.data||''); }
     function getDoneDate(t){ return parseBRDate(t.data_conclusao||t.finalizado_em||''); }
-
     function dLabel(dateStr){ var d=parseBRDate(dateStr); if(!d) return ''; var delta=Math.floor((d-new Date())/DAY); if(delta===0) return 'D-0'; return (delta>0)?('D-'+delta):('D+'+Math.abs(delta)) }
     function isPastDue(dateStr){ var d=parseBRDate(dateStr); if(!d) return false; return (new Date() - d) > 0; }
     function urgencyByDate(dateStr,status){
-      // 1) Se estiver concluída, mantém verde; caso contrário, prazo estourado prevalece e fica vermelho
       if(status==='done'||status==='FINALIZADA') return 'done';
       if(isPastDue(dateStr)) return 'overdue';
-      // 2) Demais estados visuais
       if(status==='recebido') return 'recv';
       if(status==='block') return 'block';
       if(status==='exec') return 'exec';
-      // 3) Sem status explícito, usa aproximação por proximidade de prazo
       var d=parseBRDate(dateStr); if(!d) return 'ok';
       var h=(d-new Date())/HOUR; if(h<=48) return 'soon';
-      return 'ok'; }
-
-    // ==== NOVO: ordenar concluídas sempre no fim por data de conclusão (asc) ====
+      return 'ok';
+    }
     function effectiveDone(t){ return (t.status==='done'||t.status==='FINALIZADA'|| Number(t.pct||0) >= 100); }
     function doneSortDate(t){ return getDoneDate(t) || new Date(0); }
-
     function weightUrgencyByDate(ds){ var d=parseBRDate(ds); if(!d) return 3; var h=(d-new Date())/HOUR; if(h<=0) return 0; if(h<=48) return 1; return 2 }
-
     function compareByPrazo(a,b){
       var aDone = effectiveDone(a), bDone = effectiveDone(b);
-      if(aDone !== bDone){ return aDone ? 1 : -1; } // não concluídas primeiro; concluídas sempre no fim
-
-      // Se ambos concluídos, ordenar pela data de conclusão (mais antiga primeiro)
+      if(aDone !== bDone){ return aDone ? 1 : -1; }
       if(aDone && bDone){
         var da = doneSortDate(a), db = doneSortDate(b);
         if(da && db) return da - db;
@@ -221,26 +189,23 @@
         if(!da && db) return 1;
         return 0;
       }
-
-      // Para não concluídas, ordenar por urgência / proximidade do prazo
       var ua=weightUrgencyByDate(a.prazo_esperado||a.prazo||a.previsao||a.data||''), ub=weightUrgencyByDate(b.prazo_esperado||b.prazo||b.previsao||b.data||'');
       if(ua!==ub) return ua-ub;
       var da2=getDueDate(a), db2=getDueDate(b);
       if(da2&&db2) return da2-db2; if(da2&&!db2) return -1; if(!da2&&db2) return 1; return 0;
     }
-
-    function compareOC(a,b){ var ar=!!a.recebido, br=!!b.recebido;
+    function compareOC(a,b){
+      var ar=!!a.recebido, br=!!b.recebido;
       if(ar!==br) return br-ar;
       if(ar&&br){ var da=parseBRDate(a.recebido), db=parseBRDate(b.recebido);
         if(da&&db) return db-da; if(da&&!db) return -1; if(!da&&db) return 1; return 0 }
-      // mantém a mesma lógica de urgência para OCs
       var pa = {status:a.status,prazo:a.previsao}, pb = {status:b.status,prazo:b.previsao};
-      return compareByPrazo(pa,pb) }
-
+      return compareByPrazo(pa,pb)
+    }
     function deltaConclusaoDias(t){
       var due=getDueDate(t), done=getDoneDate(t);
       if(!due || !done) return null;
-      return Math.round((done - due)/86400000); // + = atraso, - = adiantado
+      return Math.round((done - due)/86400000);
     }
 
     /* =================== DOM =================== */
@@ -249,8 +214,6 @@
 
     function render(){
       boardEl.innerHTML='';
-
-      // === Colunas por Encarregado ===
       for(var i=0;i<DATA.encarregados.length;i++){
         var enc=DATA.encarregados[i];
         var tasks=(enc.tarefas||[]).slice().sort(compareByPrazo);
@@ -260,13 +223,10 @@
 
         for(var j=0;j<tasks.length;j++){
           var t=tasks[j];
-
-          // Auto-finalização visual quando pct >= 100
           var pctVal = Math.max(0, Math.min(100, Number(t.pct||0)));
           if(pctVal >= 100 && !(t.status==='done'||t.status==='FINALIZADA')){
             t.status = 'done';
           }
-
           var dueStr=t.prazo_esperado||t.prazo||'';
           var cls=urgencyByDate(dueStr,t.status);
           var card=el('div','task '+cls);
@@ -318,10 +278,8 @@
       // === Coluna Suprimentos ===
       var sup=el('section','column'); sup.appendChild(el('h2','','Suprimentos')); var sList=el('div','list');
 
-      // Requisições
       var rqSec=el('div','section'); rqSec.appendChild(el('h3','', 'Requisições em Aberto'));
       var rqs=(DATA.suprimentos.requisicoes||[]).slice().sort(function(a,b){
-        // usa mesma heurística para proximidade de prazo
         var pa={status:a.status,prazo:a.prazo,finalizado_em:a.finalizado_em}, pb={status:b.status,prazo:b.prazo,finalizado_em:b.finalizado_em};
         return compareByPrazo(pa,pb);
       });
@@ -344,7 +302,6 @@
       }
       sList.appendChild(rqSec);
 
-      // OCs
       var ocSec=el('div','section'); ocSec.appendChild(el('h3','', 'Ordens de Compra (OC)'));
       var ocs=(DATA.suprimentos.ocs||[]).slice().sort(compareOC);
       for(var o=0;o<ocs.length;o++){
@@ -371,8 +328,8 @@
     }
 
     function initLogo(){ var img=document.getElementById('logo'); var ph=document.getElementById('logoPh'); var src=DATA.logo_src||''; if(!src){img.style.display='none'; ph.style.display='flex'; return;} img.onload=function(){img.style.display='block'; ph.style.display='none';}; img.onerror=function(){img.style.display='none'; ph.style.display='flex';}; img.src=src; }
-
-    function tick(){ document.getElementById('clock').textContent = fmtClock(); }
+    function fmt2(n){return String(n).padStart(2,'0')}
+    function tick(){ var t=new Date(); document.getElementById('clock').textContent = fmt2(t.getHours())+':'+fmt2(t.getMinutes())+':'+fmt2(t.getSeconds()); }
     function updateHeaderHeights(){ var h = document.getElementById('hdr').offsetHeight || 112; document.documentElement.style.setProperty('--header-h', h + 'px'); }
     function setStamp(){ var d = new Date(); var pad=n=>String(n).padStart(2,'0'); var stamp = 'Quadro atualizado pela engenharia em ' + pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes()); document.getElementById('stamp').textContent = stamp; }
     function setFooterNote(){ var d = new Date(); var pad=n=>String(n).padStart(2,'0'); document.getElementById('ftr').textContent = 'Código atualizado pela engenharia em '+pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' às '+pad(d.getHours())+':'+pad(d.getMinutes()); }
