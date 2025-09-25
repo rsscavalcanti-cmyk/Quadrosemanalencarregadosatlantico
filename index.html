@@ -478,12 +478,12 @@
       for(const c of cards){
         const st=(c.dataset.st||'').toLowerCase();
         const urg=(c.dataset.urg||'').toLowerCase();
-        // checa avanço real pelo width da barra
         const pctEl = c.querySelector('.progress-inner');
         const pct = pctEl ? parseFloat((pctEl.style.width||'0%')) : 0;
-        if(st==='exec' || pct>0) counters.exec++; // se tem avanço, conta em execução
+        // ✅ Correção: "Em execução" só conta se status for exec e NÃO done
+        if(st==='exec' && pct < 100) counters.exec++;
         if(st==='block') counters.block++;
-        if(st==='done') counters.done++;
+        if(st==='done' || pct >= 100) counters.done++; // garante done consistente mesmo se status vier errado
         if(urg==='overdue') counters.overdue++;
         if(isPending(c)) counters.pending++;
       }
