@@ -4,19 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Atlântico Golf — Kanban (WhatsApp Share + Suprimentos)</title>
-  <meta name="description" content="Kanban mobile. Botão WhatsApp em cada card (nota obrigatória) e coluna de Suprimentos de volta." />
+  <meta name="description" content="Kanban mobile. Botão WhatsApp em cada card (nota obrigatória) e coluna de Suprimentos de volta. Com filtros de status por serviço." />
   <meta name="theme-color" content="#0b2a4a" />
   <style>
     :root{ --bg:#f6f8fc; --text:#0f172a; --muted:#475569; --brand:#0e3a6d; --brand2:#0b2a4a;
       --card:#ffffff; --border:#d6e0ea; --head:#f1f5f9; --ring:#38bdf8;
       --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c; --block:#9333ea; --exec:#0ea5e9; --recv:#15803d;
       --chip:#e2e8f0; --mono:#111827; --wa:#25D366; --wa-dark:#1EA955;
-      --header-h:108px; --footer-h:52px; }
+      --header-h:92px; --footer-h:84px; }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text)}
 
-    header{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;background:linear-gradient(90deg,var(--brand2),var(--brand));color:#fff;box-shadow:0 4px 18px rgba(2,6,23,.18)}
+    header{position:sticky;top:0;z-index:100;display:flex;flex-direction:column;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--brand2),var(--brand));color:#fff;box-shadow:0 4px 18px rgba(2,6,23,.18)}
+    .head-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
     .brand{display:flex;align-items:center;gap:12px;min-width:240px}
     .logo{height:42px;width:auto;display:block;object-fit:contain}
     h1{margin:0;font-size:20px}
@@ -25,6 +26,7 @@
     .stamp{font-size:12px;font-weight:700}
     .clock{font-variant-numeric:tabular-nums;font-size:12px;opacity:.95}
 
+    /* Board */
     .board{height:calc(100vh - var(--header-h) - var(--footer-h));display:flex;gap:12px;padding:12px 12px 16px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
     .column{background:var(--card);border:1px solid var(--border);border-radius:14px;min-width:300px;max-width:480px;flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden;scroll-snap-align:start;contain:layout paint;}
     .column h2{position:sticky;top:0;z-index:10;margin:0;padding:10px 12px;background:var(--head);font-size:16px;font-weight:800;border-bottom:1px solid var(--border);text-align:center}
@@ -51,8 +53,20 @@
     .row{display:flex;justify-content:space-between;gap:8px;font-size:14px}
     .kv{font-size:12px;color:var(--muted)}
 
-    footer{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--border);color:#334155;font-size:12px;display:flex;justify-content:center;align-items:center;min-height:var(--footer-h);padding:6px 10px;text-align:center}
-    .foot-note{max-width:1100px;line-height:1.35}
+    /* Rodapé com filtros discretos */
+    footer{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--border);color:#334155;font-size:12px}
+    .foot-wrap{max-width:1100px;margin:0 auto;padding:6px 10px}
+    .foot-note{line-height:1.35;margin-bottom:6px}
+    .filters{display:flex;gap:6px;overflow:auto;padding:6px 0}
+    .filters::-webkit-scrollbar{height:6px}
+    .filters::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:6px}
+    .fbtn{
+      appearance:none;border:1px dashed #cbd5e1;background:#f8fafc;color:#334155;
+      padding:6px 10px;border-radius:999px;font-size:11px;font-weight:700;opacity:.9;cursor:pointer;white-space:nowrap
+    }
+    .fbtn[aria-pressed="true"]{background:#eef2ff;border-style:solid;border-color:#93c5fd}
+    .fkey{font-size:10px;opacity:.85;border:1px solid currentColor;border-radius:6px;padding:0 6px;margin-right:4px}
+    .fcnt{font-variant-numeric:tabular-nums;background:#e2e8f0;padding:2px 6px;border-radius:8px;margin-left:6px}
 
     .share-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;border:none;border-radius:999px;background:var(--wa);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:.92;box-shadow:0 2px 6px rgba(2,6,23,.15)}
     .share-btn:hover{opacity:1}
@@ -72,35 +86,54 @@
     .btn.send{background:var(--wa);color:#fff;display:inline-flex;align-items:center;gap:8px}
     .btn.send .wa-ico{filter:brightness(0) invert(1)}
 
+    .hidden{display:none !important}
+
     @media (prefers-color-scheme:dark){
       :root{--bg:#0b1220;--text:#e5e7eb;--muted:#94a3b8;--card:#0f172a;--border:#1f2937}
       .btn.cancel{background:#1f2937;color:#e5e7eb}
       .share-btn{background:var(--wa-dark)}
+      .fbtn{border-color:#334155;background:#0f172a;color:#e5e7eb}
+      .fcnt{background:#1f2937}
+      .fbtn[aria-pressed="true"]{background:#0b1220;border-color:#2563eb}
     }
   </style>
 </head>
 <body>
   <header id="hdr" role="banner" aria-label="Cabeçalho do Kanban">
-    <div class="brand">
-      <!-- LOGO corrigido: caminho relativo ao repo -->
-      <img class="logo" src="assets/logo.jpg" alt="System Engenharia" />
-      <div>
-        <h1>Atlântico Golf — Quadro Kanban</h1>
-        <div class="subtitle">Compartilhar o card no WhatsApp.</div>
+    <div class="head-top">
+      <div class="brand">
+        <!-- LOGO -->
+        <img class="logo" src="assets/logo.jpg" alt="System Engenharia" />
+        <div>
+          <h1>Atlântico Golf — Quadro Kanban</h1>
+          <div class="subtitle">Compartilhar o card no WhatsApp.</div>
+        </div>
+      </div>
+      <div class="meta" aria-live="polite">
+        <div class="stamp" id="stamp">--/--/---- --:--</div>
+        <div class="clock" id="clock" aria-label="Relógio">--:--:--</div>
       </div>
     </div>
-    <div class="meta" aria-live="polite">
-      <div class="stamp" id="stamp">--/--/---- --:--</div>
-      <div class="clock" id="clock" aria-label="Relógio">--:--:--</div>
-    </div>
+    <!-- filtros foram movidos para o rodapé -->
   </header>
 
   <main class="board" id="board" role="list" aria-label="Colunas do Kanban"></main>
 
   <footer id="ftr">
-    <div class="foot-note" id="footNote">
-      <strong>Atualização:</strong> o botão <em>Compartilhar no WhatsApp</em> foi incorporado para agilizar a comunicação das tarefas.
-      Para manter a organização, <strong>centralize as mensagens no grupo “Atlântico Interno”</strong>. Obrigado!
+    <div class="foot-wrap">
+      <div class="foot-note" id="footNote">
+        <strong>Atualização:</strong> filtros por status dos serviços foram movidos para baixo e estão mais discretos. Combine como quiser e toque em <em>Limpar</em> para voltar ao padrão.
+      </div>
+      <!-- Filtros de status (agora no rodapé, sutis) -->
+      <nav class="filters" role="toolbar" aria-label="Filtros de status">
+        <button type="button" class="fbtn" data-val="all" aria-pressed="true"><span class="fkey">Todos</span><span class="fcnt" data-cnt="all">0</span></button>
+        <button type="button" class="fbtn" data-val="exec" aria-pressed="false">Em execução <span class="fcnt" data-cnt="exec">0</span></button>
+        <button type="button" class="fbtn" data-val="block" aria-pressed="false">Bloqueadas <span class="fcnt" data-cnt="block">0</span></button>
+        <button type="button" class="fbtn" data-val="overdue" aria-pressed="false">Atrasadas <span class="fcnt" data-cnt="overdue">0</span></button>
+        <button type="button" class="fbtn" data-val="pending" aria-pressed="false">Pendentes <span class="fcnt" data-cnt="pending">0</span></button>
+        <button type="button" class="fbtn" data-val="done" aria-pressed="false">Finalizadas <span class="fcnt" data-cnt="done">0</span></button>
+        <button type="button" class="fbtn" data-val="clear" aria-pressed="false">Limpar</button>
+      </nav>
     </div>
   </footer>
 
@@ -124,7 +157,7 @@
   (()=>{
     'use strict';
 
-    /* ===== DADOS (ajustados conforme sua lista) ===== */
+    /* ===== DADOS ===== */
     const DATA = {
       encarregados:[
         {nome:'Severo (Hidráulica)', tarefas:[
@@ -190,7 +223,7 @@
           {codigo:'OC-009', numero:'OC-009', emissao:'', fornecedor:'ELETROASA — Eletrometalúrgica ASA Eireli', status:'EMITIDA', previsao:'25/09/2025', comprador:'Lucas', recebido:'09/09/2025', origem_rq:'RQ-10623', material:'Quadros de entrada de energia', aplicacao:'Entrada de energia', obs_comprador:'Entrega parcial 09/09; restante 25/09'},
           {codigo:'OC-591', numero:'OC-591', emissao:'', fornecedor:'Westaflex Tubos Flexíveis Ltda', status:'EMITIDA', previsao:'', comprador:'Lucas', recebido:'', origem_rq:'RQ-11282', material:'Tê de fachada', aplicacao:'Fachada', obs_comprador:'Não chegou'},
           {codigo:'OC-585', numero:'OC-585', emissao:'', fornecedor:'Lukma', status:'EMITIDA', previsao:'', comprador:'Lucas', recebido:'16/09/2025', origem_rq:'RQ-11237', material:'Fita isolante', aplicacao:'Elétrica força e distribuição'},
-          {codigo:'OC-595', numero:'OC-595', emissao:'', fornecedor:'KG Instalações e Comércio Elétrico Ltda', status:'EMITIDA', previsao:'', comprador:'Lucas', recebido:'19/09/2025', origem_rq:'RQ-11238', material:'Ralo + PVC', aplicacao:'Distribuição hidráulica térreo', obs_comprador:'Entrega parcial'},
+          {codigo:'OC-595', numero:'OC-595', emissao:'', fornecedor:'KG Instalações e Comércio Elétrico Ltda', status:'EMITIDA', previsao:'', comprador:'Lucas', recebido:'19/09/2025', origem_rq:'RQ-11238', material:'Ralo + PVC', aplicacao:'Distribuição hidráulico térreo', obs_comprador:'Entrega parcial'},
           {codigo:'OC-593', numero:'OC-593', emissao:'', fornecedor:'Mosal Artefatos de Alumínio Ltda - ME', status:'recebido', previsao:'', comprador:'Lucas', recebido:'', origem_rq:'RQ-11333', material:'Tê de fachada', aplicacao:'Fachada', obs_comprador:'Chegou'},
           {codigo:'OC-590', numero:'OC-590', emissao:'', fornecedor:'Lukma', status:'EMITIDA', previsao:'17/09/2025', comprador:'Lucas', recebido:'', origem_rq:'RQ-11314', material:'Fitas isolantes', aplicacao:'Elétrica força e distribuição'}
         ]
@@ -200,6 +233,7 @@
     /* ===== Utils ===== */
     const DAY=86400000, HOUR=36e5;
     const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
     const el = (tag, cls, text) => { const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e };
     const pad = n => String(n).padStart(2,'0');
     const parseBRDate = s => { if(!s) return null; const a=s.split('/'); if(a.length!==3) return null; const [d,m,y]=a.map(Number); const dt=new Date(y,(m||1)-1,d||1,12,0,0); return isNaN(dt)?null:dt };
@@ -260,8 +294,8 @@
     function openWhatsAppWithText(text){
       const enc = encodeURIComponent(text);
       const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-      const deeplink = `whatsapp://send?text=${enc}`; // mobile apps
-      const web = `https://wa.me/?text=${enc}`;       // web/desktop
+      const deeplink = `whatsapp://send?text=${enc}`;
+      const web = `https://wa.me/?text=${enc}`;
       if(isMobile){
         const w = window.open(deeplink, '_blank');
         setTimeout(()=>{ if(!w || w.closed) window.open(web, '_blank'); }, 600);
@@ -275,7 +309,7 @@
     const noteEl = $('#shareNote');
     const sendBtn = $('#shareSend');
     const cancelBtn = $('#shareCancel');
-    let shareCtx = null; // {t, enc}
+    let shareCtx = null;
     function openModal(ctx){ shareCtx = ctx; noteEl.value=''; modal.classList.add('open'); noteEl.focus(); }
     function closeModal(){ modal.classList.remove('open'); shareCtx=null; }
     cancelBtn.addEventListener('click', closeModal);
@@ -293,12 +327,18 @@
     /* ===== Render ===== */
     const boardEl = $('#board');
 
-    // NOVO: finalizados sempre no fim + auto concluir quando pct >= 100
-    function isDone(t){ return t.status==='done' || t.status==='FINALIZADA' || Number(t.pct||0) >= 100; }
+    // Regra: pct>0 => Em execução (se não bloqueada ou finalizada)
+    function normalizeStatus(t){
+      const pct = Number(t.pct||0);
+      if(pct>=100){ t.status='done'; return; }
+      if((t.status||'').toLowerCase()==='block') return; // bloqueada mantém
+      if(pct>0){ t.status='exec'; } // nunca pendente se há avanço
+    }
 
+    function isDone(t){ return t.status==='done' || t.status==='FINALIZADA' || Number(t.pct||0) >= 100; }
     function sortTasksWithDoneLast(a,b){
       const ad = isDone(a), bd = isDone(b);
-      if(ad !== bd) return ad ? 1 : -1; // done vai pro fim
+      if(ad !== bd) return ad ? 1 : -1;
       return compareByPrazo(a,b);
     }
 
@@ -309,10 +349,13 @@
         const list = el('div','list');
         const tasks = (enc.tarefas||[]).slice().sort(sortTasksWithDoneLast);
         for(const t of tasks){
+          normalizeStatus(t);
           const pct = Math.max(0, Math.min(100, Number(t.pct||0)));
-          if(pct>=100 && !(t.status==='done'||t.status==='FINALIZADA')) t.status='done'; // auto-concluir 100%
           const dueStr = t.prazo_esperado||t.prazo||'';
-          const card = el('article', 'task '+urgencyByDate(dueStr,t.status));
+          const urg = urgencyByDate(dueStr,t.status);
+          const card = el('article', 'task '+urg);
+          card.dataset.st = (t.status||'').toLowerCase(); // exec | block | done | ''
+          card.dataset.urg = urg;                          // overdue | exec | block | ok | soon | done
 
           const header = el('div','');
           header.appendChild(el('span','code','#'+(t.codigo||'')));
@@ -390,14 +433,103 @@
       boardEl.innerHTML='';
       renderEncColumns();
       renderSuppliesColumn();
+      updateFilterCounts();
+      applyFilters();
     }
 
     function pad2(n){return String(n).padStart(2,'0')}
     function fmtClock(){ const t=new Date(); return `${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}` }
     function setStamp(){ const d=new Date(); const stamp=`${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`; document.getElementById('stamp').textContent=stamp; }
 
+    /* ===== Filtros de status ===== */
+    const active = new Set(['all']); // estado inicial
+
+    function isPending(card){
+      const st = (card.dataset.st||'').toLowerCase();
+      const urg = (card.dataset.urg||'').toLowerCase();
+      const pctEl = card.querySelector('.progress-inner');
+      let pct = 0;
+      if(pctEl){
+        const w = pctEl.style.width || '0%';
+        pct = parseFloat(w);
+      }
+      if(pct > 0) return false;         // nunca pendente se há avanço
+      if(st==='done') return false;
+      if(urg==='overdue' || st==='block' || st==='exec') return false;
+      return (urg==='ok' || urg==='soon' || !urg);
+    }
+
+    function cardMatches(card){
+      if(active.has('all') || active.size===0) return true;
+      const st = (card.dataset.st||'').toLowerCase();
+      const urg = (card.dataset.urg||'').toLowerCase();
+      let match = false;
+      if(active.has('exec') && st==='exec') match = true;
+      if(active.has('block') && st==='block') match = true;
+      if(active.has('done') && st==='done') match = true;
+      if(active.has('overdue') && urg==='overdue') match = true;
+      if(active.has('pending') && isPending(card)) match = true;
+      return match;
+    }
+
+    function applyFilters(){
+      const cards = $$('.task');
+      for(const c of cards){
+        c.classList.toggle('hidden', !cardMatches(c));
+      }
+    }
+
+    function updateFilterCounts(){
+      const cards = $$('.task');
+      const counters = {all: cards.length, exec:0, block:0, overdue:0, pending:0, done:0};
+      for(const c of cards){
+        const st=(c.dataset.st||'').toLowerCase();
+        const urg=(c.dataset.urg||'').toLowerCase();
+        // checa avanço real pelo width da barra
+        const pctEl = c.querySelector('.progress-inner');
+        const pct = pctEl ? parseFloat((pctEl.style.width||'0%')) : 0;
+        if(st==='exec' || pct>0) counters.exec++; // se tem avanço, conta em execução
+        if(st==='block') counters.block++;
+        if(st==='done') counters.done++;
+        if(urg==='overdue') counters.overdue++;
+        if(isPending(c)) counters.pending++;
+      }
+      for(const k of Object.keys(counters)){
+        const el = document.querySelector(`[data-cnt="${k}"]`);
+        if(el) el.textContent = counters[k];
+      }
+    }
+
+    function toggleBtn(btn){
+      const val = btn.dataset.val;
+      const pressed = btn.getAttribute('aria-pressed') === 'true';
+      if(val==='clear'){
+        for(const b of $$('.filters .fbtn')){ b.setAttribute('aria-pressed','false'); }
+        active.clear(); active.add('all');
+        document.querySelector('.fbtn[data-val="all"]').setAttribute('aria-pressed','true');
+      } else if(val==='all'){
+        for(const b of $$('.filters .fbtn')){ if(b.dataset.val!=='clear') b.setAttribute('aria-pressed','false'); }
+        active.clear(); active.add('all');
+        btn.setAttribute('aria-pressed','true');
+      } else {
+        document.querySelector('.fbtn[data-val="all"]').setAttribute('aria-pressed','false');
+        active.delete('all');
+        btn.setAttribute('aria-pressed', String(!pressed));
+        if(pressed){ active.delete(val); } else { active.add(val); }
+        if(active.size===0){ active.add('all'); document.querySelector('.fbtn[data-val="all"]').setAttribute('aria-pressed','true'); }
+      }
+      applyFilters();
+    }
+
+    function bindFilters(){
+      for(const b of $$('.filters .fbtn')){
+        b.addEventListener('click', ()=> toggleBtn(b));
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', ()=>{
       render();
+      bindFilters();
       setStamp();
       document.getElementById('clock').textContent = fmtClock();
       setInterval(()=>document.getElementById('clock').textContent = fmtClock(), 1000);
@@ -406,4 +538,3 @@
   </script>
 </body>
 </html>
-
