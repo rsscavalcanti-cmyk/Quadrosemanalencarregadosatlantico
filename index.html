@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Atlântico Golf — Kanban (WhatsApp Share simples)</title>
-  <meta name="description" content="Kanban mobile. Botão WhatsApp em cada card: abre campo de nota e envia mensagem formatada (tarefa + comentário + data/hora) para o WhatsApp." />
+  <title>Atlântico Golf — Kanban (WhatsApp Share + Suprimentos)</title>
+  <meta name="description" content="Kanban mobile. Botão WhatsApp em cada card (nota obrigatória) e coluna de Suprimentos de volta." />
   <meta name="theme-color" content="#0b2a4a" />
   <style>
     :root{ --bg:#f6f8fc; --text:#0f172a; --muted:#475569; --brand:#0e3a6d; --brand2:#0b2a4a;
@@ -18,6 +18,7 @@
 
     header{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;background:linear-gradient(90deg,var(--brand2),var(--brand));color:#fff;box-shadow:0 4px 18px rgba(2,6,23,.18)}
     .brand{display:flex;align-items:center;gap:12px;min-width:240px}
+    .logo{height:42px;width:auto;display:block;object-fit:contain}
     h1{margin:0;font-size:20px}
     .subtitle{margin-top:2px;font-size:12px;opacity:.9}
     .meta{display:flex;flex-direction:column;gap:4px;text-align:right}
@@ -29,11 +30,14 @@
     .column h2{position:sticky;top:0;z-index:10;margin:0;padding:10px 12px;background:var(--head);font-size:16px;font-weight:800;border-bottom:1px solid var(--border);text-align:center}
     .list{flex:1;overflow:auto;padding:10px}
 
-    .task{background:#fff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:12px;padding:12px 12px 10px;box-shadow:0 3px 10px rgba(2,6,23,.06);position:relative}
-    .task.overdue{border-left-color:var(--late)}
-    .task.block{border-left-color:var(--block)}
-    .task.exec{border-left-color:var(--exec)}
-    .task.done{border-left-color:var(--ok)}
+    .task,.item{background:#fff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:12px;padding:12px 12px 10px;box-shadow:0 3px 10px rgba(2,6,23,.06);position:relative}
+    .task.overdue,.item.overdue{border-left-color:var(--late)}
+    .task.block,.item.block{border-left-color:var(--block)}
+    .task.exec,.item.exec{border-left-color:var(--exec)}
+    .task.done,.item.done{border-left-color:var(--ok)}
+    .item.soon{border-left-color:var(--warn)}
+    .item.ok{border-left-color:var(--ok)}
+    .item.recv{border-left-color:var(--recv)}
 
     .title{font-weight:800;margin-bottom:6px;line-height:1.25}
     .meta-text{font-size:13px;color:var(--muted);display:grid;gap:2px}
@@ -43,6 +47,9 @@
     .progress{margin-top:8px;background:#e5e7eb;border:1px solid #d1d5db;border-radius:999px;height:10px;overflow:hidden}
     .progress-inner{height:100%;width:0%;background:linear-gradient(90deg,#60a5fa,#22c55e);transition:width .35s ease}
     .progress-label{margin-top:4px;font-size:12px;color:#334155;display:flex;justify-content:space-between}
+
+    .row{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+    .kv{font-size:12px;color:var(--muted)}
 
     footer{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--border);color:#334155;font-size:12px;display:flex;justify-content:center;align-items:center;min-height:var(--footer-h);padding:6px 10px;text-align:center}
     .foot-note{max-width:1100px;line-height:1.35}
@@ -75,9 +82,12 @@
 <body>
   <header id="hdr" role="banner" aria-label="Cabeçalho do Kanban">
     <div class="brand">
+      <!-- VOLTAR COM O LOGO: substitua o src abaixo pelo endereço exato da sua imagem -->
+      <img class="logo" src="INSIRA_AQUI_O_ENDERECO_DO_LOGO" alt="Logo" />
       <div>
         <h1>Atlântico Golf — Quadro Kanban</h1>
-        <div class="subtitle">Share do card no WhatsApp com comentário e timestamp.</div>
+        <!-- SUBTÍTULO ENXUTO: removido o trecho irrelevante -->
+        <div class="subtitle">Compartilhar o card no WhatsApp.</div>
       </div>
     </div>
     <div class="meta" aria-live="polite">
@@ -199,6 +209,7 @@
     const urgencyByDate = (dateStr,status)=>{
       if(status==='done'||status==='FINALIZADA') return 'done';
       if(isPastDue(dateStr)) return 'overdue';
+      if(status==='recebido') return 'recv';
       if(status==='block') return 'block';
       if(status==='exec') return 'exec';
       const d=parseBRDate(dateStr); if(!d) return 'ok';
@@ -206,10 +217,17 @@
     };
     const compareByPrazo = (a,b)=>{
       const u = ds => { const d=parseBRDate(ds); if(!d) return 3; const h=(d-new Date())/HOUR; return (h<=0)?0:(h<=48?1:2) };
-      const ua=u(a.prazo_esperado||a.prazo||''), ub=u(b.prazo_esperado||b.prazo||'');
+      const aDate=a.prazo_esperado||a.prazo||a.previsao||a.data||'';
+      const bDate=b.prazo_esperado||b.prazo||b.previsao||b.data||'';
+      const ua=u(aDate), ub=u(bDate);
       if(ua!==ub) return ua-ub;
-      const da=parseBRDate(a.prazo_esperado||a.prazo||''), db=parseBRDate(b.prazo_esperado||b.prazo||'');
+      const da=parseBRDate(aDate), db=parseBRDate(bDate);
       if(da&&db) return da-db; if(da&&!db) return -1; if(!da&&db) return 1; return 0;
+    };
+    const compareOC = (a,b)=>{
+      const ar=!!a.recebido, br=!!b.recebido; if(ar!==br) return (br - ar);
+      if(ar&&br){ const da=parseBRDate(a.recebido), db=parseBRDate(b.recebido); if(da&&db) return db-da; if(da&&!db) return -1; if(!da&&db) return 1; }
+      return compareByPrazo({previsao:a.previsao,status:a.status},{previsao:b.previsao,status:b.status});
     };
 
     /* ===== Share helpers ===== */
@@ -275,15 +293,25 @@
 
     /* ===== Render ===== */
     const boardEl = $('#board');
-    function render(){
-      boardEl.innerHTML='';
+
+    // NOVO: finalizados sempre no fim + auto concluir quando pct >= 100
+    function isDone(t){ return t.status==='done' || t.status==='FINALIZADA' || Number(t.pct||0) >= 100; }
+
+    function sortTasksWithDoneLast(a,b){
+      const ad = isDone(a), bd = isDone(b);
+      if(ad !== bd) return ad ? 1 : -1; // done vai pro fim
+      return compareByPrazo(a,b);
+    }
+
+    function renderEncColumns(){
       for(const enc of DATA.encarregados){
         const col = el('section','column'); col.setAttribute('role','region'); col.setAttribute('aria-label',enc.nome);
         col.appendChild(el('h2','',enc.nome));
         const list = el('div','list');
-        const tasks = (enc.tarefas||[]).slice().sort(compareByPrazo);
+        const tasks = (enc.tarefas||[]).slice().sort(sortTasksWithDoneLast);
         for(const t of tasks){
           const pct = Math.max(0, Math.min(100, Number(t.pct||0)));
+          if(pct>=100 && !(t.status==='done'||t.status==='FINALIZADA')) t.status='done'; // auto-concluir 100%
           const dueStr = t.prazo_esperado||t.prazo||'';
           const card = el('article', 'task '+urgencyByDate(dueStr,t.status));
 
@@ -293,7 +321,7 @@
 
           const btn = document.createElement('button');
           btn.className='share-btn'; btn.type='button'; btn.title='Compartilhar no WhatsApp'; btn.setAttribute('aria-label','Compartilhar no WhatsApp');
-          btn.innerHTML = '<svg class="wa-ico" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.11.548 4.09 1.504 5.82L4 29l8.332-1.46C14.016 28.48 15.975 29 18 29c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 2c5.523 0 10 4.477 10 10s-4.477 10-10 10c-1.822 0-3.53-.5-4.99-1.365l-.356-.213-4.7.824.85-4.572-.232-.375C5.557 18.188 5 16.65 5 15 5 9.477 10.477 5 16 5zm-4.04 4.75c-.202 0-.52.074-.792.37-.272.296-1.04 1.015-1.04 2.469s1.06 2.864 1.22 3.079c.162.215 2.09 3.183 5.073 4.454.715.305 1.273.484 1.71.617.72.22 1.372.186 1.89.11.58-.083 1.78-.73 2.04-1.43.26-.7.26-1.316.19-1.437-.07-.12-.277-.196-.575-.337-.298-.14-1.75-.87-2.02-.97-.27-.1-.47-.144-.668.14-.198.283-.786.942-.958 1.128-.17.186-.334.202-.624.067-.29-.135-1.24-.46-2.37-1.485-.88-.798-1.49-1.783-1.66-2.082-.17-.3-.02-.466.124-.61.122-.12.3-.33.447-.5.147-.17.2-.294.308-.49.108-.196.053-.368-.022-.512-.075-.143-.683-1.64-.94-2.236-.256-.595-.503-.52-.682-.52z" fill="#fff"/></svg>';
+          btn.innerHTML = '<svg class="wa-ico" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.11.548 4.09 1.504 5.82L4 29l8.332-1.46C14.016 28.48 15.975 29 18 29c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 2c5.523 0 10 4.477 10 10s-4.477 10-10 10c-1.822 0-3.53-.5-4.99-1.365l-.356-.213-4.7.824.85-4.572-.232-.375C5.557 18.188 5 16.65 5 15 5 9.477 10.477 5 16 5zm-4.04 4.75c-.202 0-.52.074-.792.37-.272.296-1.04 1.015-1.04 2.469s1.06 2.864 1.22 3.079c.162.215 2.09 3.183 5.073 4.454.715.305 1.273.484 1.71.617.72.22 1.372.186 1.89.11.58-.083 1.78-.73 2.04-1.43.26-.7.26-1.316.19-1.437-.07-.12-.277-.196-.575-.337-.298-.14-1.75-.87-2.02-.97-.27-.1-.47-.144-.668.14-.198.283-.786.942-.958 1.128-.17.186-.334.202-.624.067-.29-.135-1.24-.46-2.37-1.485-.88-.798-1.49-1.783-1.66-2.082-.17-.3-.02-.466.124-.61.122-.12.3-.33.447-.5.147-.17.2-.294.308-.49.108-.196.053-.368-.022-.512-.075-.143-.683-1.64-.94-2.236-.256-.595-.503-.52-.682-.52z" fill="#fff"/>';
           btn.addEventListener('click', (e)=>{ e.stopPropagation(); openModal({t, enc: enc.nome}); });
 
           const meta = el('div','meta-text');
@@ -318,6 +346,53 @@
       }
     }
 
+    function renderSuppliesColumn(){
+      const sup = DATA.suprimentos || {}; const rqs=(sup.requisicoes||[]).slice(); const ocs=(sup.ocs||[]).slice();
+      rqs.sort((a,b)=>compareByPrazo(a,b)); ocs.sort(compareOC);
+      const col = el('section','column'); col.setAttribute('role','region'); col.setAttribute('aria-label','Suprimentos');
+      col.appendChild(el('h2','', 'Suprimentos'));
+      const list = el('div','list');
+
+      // Requisições
+      const rqHdr = el('div','title','Requisições em Aberto'); list.appendChild(rqHdr);
+      for(const rq of rqs){
+        const it = el('article','item '+urgencyByDate(rq.prazo, rq.status));
+        const rowTop=el('div','row'); const left=el('div');
+        left.appendChild(el('span','code','#'+(rq.codigo||rq.numero||''))); left.appendChild(el('strong','',rq.numero||rq.codigo||'RQ'));
+        rowTop.appendChild(left); rowTop.appendChild(el('span','',rq.status||''));
+        const kv1=el('div','kv','Data: '+(rq.data||'-')+' • Prazo: '+(rq.prazo||'-'));
+        const kv2=el('div','kv','Resp.: '+(rq.responsavel||'-')+' • Contrato: '+(rq.contrato||'-')+' • Material: '+(rq.material||'-'));
+        const kv3=el('div','kv','Aplicação: '+(rq.aplicacao||'-')+' • Obs.: '+(rq.obs||'-'));
+        it.appendChild(rowTop); it.appendChild(kv1); it.appendChild(kv2); it.appendChild(kv3);
+        list.appendChild(it);
+      }
+
+      // OCs
+      const ocHdr = el('div','title','Ordens de Compra (OC)'); list.appendChild(ocHdr);
+      for(const oc of ocs){
+        const cls = oc.recebido? 'recv' : urgencyByDate(oc.previsao, oc.status);
+        const it2 = el('article','item '+cls);
+        const rowTop2=el('div','row'); const left2=el('div');
+        left2.appendChild(el('span','code','#'+(oc.codigo||oc.numero||''))); left2.appendChild(el('strong','',oc.numero||oc.codigo||'OC'));
+        rowTop2.appendChild(left2); rowTop2.appendChild(el('span','',oc.status||''));
+        const kv3=el('div','kv','Fornecedor: '+(oc.fornecedor||'-')+' • Comprador: '+(oc.comprador||'-')+' • Origem: '+(oc.origem_rq||'-'));
+        const kv4=el('div','kv','Material: '+(oc.material||'-')+' • Aplicação: '+(oc.aplicacao||'-'));
+        const kv5=el('div','kv','Emissão: '+(oc.emissao||'-')+' • Previsão: '+(oc.previsao||'-'));
+        const st=el('div','kv', oc.recebido?('Recebido em '+oc.recebido):'Pendente');
+        it2.appendChild(rowTop2); it2.appendChild(kv3); it2.appendChild(kv4); it2.appendChild(kv5); it2.appendChild(st);
+        if(oc.obs_comprador) it2.appendChild(el('div','kv','Obs. comprador: '+(oc.obs_comprador||'')));
+        list.appendChild(it2);
+      }
+
+      col.appendChild(list); boardEl.appendChild(col);
+    }
+
+    function render(){
+      boardEl.innerHTML='';
+      renderEncColumns();
+      renderSuppliesColumn();
+    }
+
     function pad2(n){return String(n).padStart(2,'0')}
     function fmtClock(){ const t=new Date(); return `${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}` }
     function setStamp(){ const d=new Date(); const stamp=`${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`; document.getElementById('stamp').textContent=stamp; }
@@ -332,4 +407,3 @@
   </script>
 </body>
 </html>
-
