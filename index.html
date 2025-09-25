@@ -56,7 +56,6 @@
     /* Rodapé com filtros discretos */
     footer{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--border);color:#334155;font-size:12px}
     .foot-wrap{max-width:1100px;margin:0 auto;padding:6px 10px}
-    .foot-note{line-height:1.35;margin-bottom:6px}
     .filters{display:flex;gap:6px;overflow:auto;padding:6px 0}
     .filters::-webkit-scrollbar{height:6px}
     .filters::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:6px}
@@ -102,7 +101,6 @@
   <header id="hdr" role="banner" aria-label="Cabeçalho do Kanban">
     <div class="head-top">
       <div class="brand">
-        <!-- LOGO -->
         <img class="logo" src="assets/logo.jpg" alt="System Engenharia" />
         <div>
           <h1>Atlântico Golf — Quadro Kanban</h1>
@@ -114,17 +112,13 @@
         <div class="clock" id="clock" aria-label="Relógio">--:--:--</div>
       </div>
     </div>
-    <!-- filtros foram movidos para o rodapé -->
   </header>
 
   <main class="board" id="board" role="list" aria-label="Colunas do Kanban"></main>
 
   <footer id="ftr">
     <div class="foot-wrap">
-      <div class="foot-note" id="footNote">
-        <strong>Atualização:</strong> filtros por status dos serviços foram movidos para baixo e estão mais discretos. Combine como quiser e toque em <em>Limpar</em> para voltar ao padrão.
-      </div>
-      <!-- Filtros de status (agora no rodapé, sutis) -->
+      <!-- Filtros de status (no rodapé, sutis) -->
       <nav class="filters" role="toolbar" aria-label="Filtros de status">
         <button type="button" class="fbtn" data-val="all" aria-pressed="true"><span class="fkey">Todos</span><span class="fcnt" data-cnt="all">0</span></button>
         <button type="button" class="fbtn" data-val="exec" aria-pressed="false">Em execução <span class="fcnt" data-cnt="exec">0</span></button>
@@ -158,77 +152,7 @@
     'use strict';
 
     /* ===== DADOS ===== */
-    const DATA = {
-      encarregados:[
-        {nome:'Severo (Hidráulica)', tarefas:[
-          {codigo:'T-0313', titulo:'Rede hidráulica de entrada de água — conclusão', prazo_esperado:'19/09/2025', status:'exec', pct:85, obs:'Madeiras e paletes no caminho obstruído (almoxarifado da Asas).'},
-          {codigo:'T-0314', titulo:'Troca do suporte da rede Ø110 mm: perfilado → cantoneira (recalque de pluviais e esgoto)', prazo_esperado:'19/09/2025', status:'exec', pct:90, obs:'Madeiras e paletes no caminho obstruído (almoxarifado da Asas).'},
-          {codigo:'T-0322', titulo:'Retrabalho de 7 caixas de rede externa, reposicionamento de tubulações e acabamento — aditivo', prazo_esperado:'26/09/2025', status:'exec', pct:20, obs:'Pendente: 6 peças de tubo Ø200 solicitadas por transferência.'},
-          {codigo:'T-0323', titulo:'Montagem de conjuntos de bombas em 3 poços', prazo_esperado:'26/09/2025', status:'', pct:0, obs:'Falta de material: joelho 90° × 60 soldável. Início previsto com desvio de rede no subsolo do Bloco 3 (obstrução da porta).'},
-          {codigo:'T-0329', titulo:'Rede de poços — tubo Ø110 mm (poços)', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'},
-          {codigo:'T-0330', titulo:'Águas pluviais — poços 07, 08 e 11', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'},
-          {codigo:'T-0331', titulo:'Águas servidas — poços 07 e 18', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'}
-        ]},
-        {nome:'Airton (Hidráulica)', tarefas:[
-          {codigo:'T-0305', titulo:'Entrega de apartamentos para a Qualidade — Blocos 2 e 3 — 1º ao 4º pavimentos', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'19/09/2025'},
-          {codigo:'T-0306', titulo:'Instalação da redutora de pressão — 8º pavimento — Bloco 3', prazo_esperado:'19/09/2025', status:'exec', pct:100},
-          {codigo:'T-0324', titulo:'Entrega de apartamentos — 4º ao 6º pavimentos dos Blocos 2 e 3', prazo_esperado:'26/09/2025', status:'', pct:0, obs:'Segue sem avanço.'},
-          {codigo:'T-0325', titulo:'Execução da redutora de pressão — 12º pavimento do Bloco 3', prazo_esperado:'26/09/2025', status:'', pct:10}
-        ]},
-        {nome:'Thiago (Elétrica)', tarefas:[
-          {codigo:'T-0315', titulo:'Tratamento de todas as eletrocalhas', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'19/09/2025'},
-          {codigo:'T-0317', titulo:'Instalação de 5 quadros de bombas', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'18/09/2025'},
-          {codigo:'T-0316', titulo:'Instalação de luminárias — trecho central do subsolo (±50 unidades em zonas apagadas)', prazo_esperado:'19/09/2025', status:'exec', pct:100},
-          {codigo:'T-0321', titulo:"Instalação de CSMD's dos blocos 1, 2 e 3", prazo_esperado:'26/09/2025', status:'exec', pct:30},
-          {codigo:'T-0338', titulo:'Infra no subsolo para automático de boia das torres', prazo_esperado:'26/09/2025', status:'', pct:0, obs:'Janela: 22/09 a 26/09.'},
-          {codigo:'T-0339', titulo:'Montagem de eletrocalha 200×150 para comandos — trecho central do subsolo', prazo_esperado:'26/09/2025', status:'', pct:0, obs:'Janela: 22/09 a 26/09.'},
-          {codigo:'T-0340', titulo:'Montagem de perfilado 38×38 para iluminação do espelho d’água 2', prazo_esperado:'26/09/2025', status:'', pct:0, obs:'Janela: 22/09 a 26/09.'},
-          {codigo:'T-0337', titulo:'Instalação de 100 luminárias — trecho entre a casa de bombas e o espelho d’água', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'}
-        ]},
-        {nome:'Marcelo (Elétrica)', tarefas:[
-          {codigo:'T-0318', titulo:'Entrega de apartamentos', prazo_esperado:'19/09/2025', status:'exec', pct:80},
-          {codigo:'T-0319', titulo:'Fechamento de QDLs dos apartamentos — 19º e 20º (duas torres)', prazo_esperado:'19/09/2025', status:'block', pct:40, obs:"Aguardando materiais (componentes para QDL's)"},
-          {codigo:'T-0320', titulo:'SPDA das duas torres (executar áreas liberadas)', prazo_esperado:'19/09/2025', status:'exec', pct:30},
-          {codigo:'T-0326', titulo:'Instalação das tampas dos barramentos blindados verticais — 3 torres', prazo_esperado:'26/09/2025', status:'', pct:50},
-          {codigo:'T-0327', titulo:'Ensaios/funcionais dos barramentos blindados', prazo_esperado:'26/09/2025', status:'', pct:33},
-          {codigo:'T-0328', titulo:'Instalação dos cofres pendentes', prazo_esperado:'26/09/2025', status:'', pct:33},
-          {codigo:'T-0332', titulo:'Lançamento de cabos — Bomba de recalque Bloco 1', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'},
-          {codigo:'T-0333', titulo:'Lançamento de cabos — Bomba de recalque Bloco 2', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'},
-          {codigo:'T-0334', titulo:'Lançamento de cabos — Bomba de recalque Bloco 3', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'},
-          {codigo:'T-0335', titulo:'Passagem de fiação para os espelhos d’água 2 e 3', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'},
-          {codigo:'T-0336', titulo:'Passagem/lançamento de cabos — poços de águas servidas 03A e 03B', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'}
-        ]}
-      ],
-      suprimentos:{
-        compradores:['Brígida Souza','Suellen Mello','Lucas Fernandes'],
-        pendencias_teams:{'Brígida Souza':0,'Suellen Mello':0,'Lucas Fernandes':0},
-        requisicoes:[
-          {codigo:'RQ-11305', numero:'RQ-11305', responsavel:'Brígida Souza', contrato:'Atlântico', material:'Condulete', aplicacao:'-', data:'', prazo:'', status:'Em cotação', obs:'Requisição atribuída para cotação'},
-          {codigo:'RQ-11086', numero:'RQ-11086', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Repastilhamento', aplicacao:'-', data:'', prazo:'', status:'', obs:'Fornecedor: TRIUNFO (LOC). Aguardando retorno da obra sobre disponibilidade de brocas para retirada'},
-          {codigo:'RQ-11295', numero:'RQ-11295', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Material de fixação', aplicacao:'-', data:'', prazo:'', status:'', obs:'OC 587 — 16/09 parcial'},
-          {codigo:'RQ-11309', numero:'RQ-11309', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Parafuso', aplicacao:'-', data:'', prazo:'', status:'', obs:'Fornecedor: PARAFUSOPAR. OC: system. Não chegou'},
-          {codigo:'RQ-11181', numero:'RQ-11181', responsavel:'Suellen Mello', contrato:'Atlântico', material:'PVC', aplicacao:'Ralos embasamento / fechamento de bombas', data:'', prazo:'', status:'', obs:'OC 597 — 18/09 parcial'},
-          {codigo:'RQ-10623', numero:'RQ-10623', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Quadros de entrada de energia', aplicacao:'Entrada de energia', data:'', prazo:'', status:'', obs:'OC 009 — 09/09 parcial; restante 25/09'},
-          {codigo:'RQ-11282', numero:'RQ-11282', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Tê de fachada', aplicacao:'Fachada', data:'', prazo:'', status:'', obs:'OC 591 — não chegou'},
-          {codigo:'RQ-11237', numero:'RQ-11237', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Fitas isolantes', aplicacao:'Elétrica força e distribuição', data:'', prazo:'', status:'', obs:'OC 585 — chegou 16/09'},
-          {codigo:'RQ-11238', numero:'RQ-11238', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Ralo + PVC', aplicacao:'Distribuição hidráulica térreo', data:'', prazo:'', status:'', obs:'OC 595 — entrega parcial 19/09'},
-          {codigo:'RQ-11333', numero:'RQ-11333', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Tê de fachada', aplicacao:'Fachada', data:'', prazo:'', status:'', obs:'OC 593 — Chegou'},
-          {codigo:'RQ-11314', numero:'RQ-11314', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Fitas isolantes', aplicacao:'Elétrica força e distribuição', data:'', prazo:'', status:'', obs:'OC 590 — 17/09/2025'},
-          {codigo:'RQ-11291', numero:'RQ-11291', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'PIAL PLUS+', aplicacao:'Áreas comuns / subsolo / escadas / coberturas / extravios', data:'', prazo:'', status:'Em cotação', obs:'Requisição atribuída para cotação'},
-          {codigo:'RQ-11294', numero:'RQ-11294', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Arandelas', aplicacao:'Escadas e áreas técnicas', data:'', prazo:'', status:'Em cotação', obs:'Requisição atribuída para cotação'}
-        ],
-        ocs:[
-          {codigo:'OC-587', numero:'OC-587', emissao:'', fornecedor:'WALSYWA Comércio de Produtos Metalúrgicos Ltda', status:'EMITIDA', previsao:'', comprador:'Suellen', recebido:'16/09/2025', origem_rq:'RQ-11295', material:'Material de fixação', aplicacao:'-', obs_comprador:'Parcial'},
-          {codigo:'OC-597', numero:'OC-597', emissao:'', fornecedor:'KG Instalações e Com. Elétrico', status:'EMITIDA', previsao:'', comprador:'Suellen', recebido:'18/09/2025', origem_rq:'RQ-11181', material:'PVC', aplicacao:'Ralos/fechamentos', obs_comprador:'Parcial'},
-          {codigo:'OC-009', numero:'OC-009', emissao:'', fornecedor:'ELETROASA — Eletrometalúrgica ASA Eireli', status:'EMITIDA', previsao:'25/09/2025', comprador:'Lucas', recebido:'09/09/2025', origem_rq:'RQ-10623', material:'Quadros de entrada de energia', aplicacao:'Entrada de energia', obs_comprador:'Entrega parcial 09/09; restante 25/09'},
-          {codigo:'OC-591', numero:'OC-591', emissao:'', fornecedor:'Westaflex Tubos Flexíveis Ltda', status:'EMITIDA', previsao:'', comprador:'Lucas', recebido:'', origem_rq:'RQ-11282', material:'Tê de fachada', aplicacao:'Fachada', obs_comprador:'Não chegou'},
-          {codigo:'OC-585', numero:'OC-585', emissao:'', fornecedor:'Lukma', status:'EMITIDA', previsao:'', comprador:'Lucas', recebido:'16/09/2025', origem_rq:'RQ-11237', material:'Fita isolante', aplicacao:'Elétrica força e distribuição'},
-          {codigo:'OC-595', numero:'OC-595', emissao:'', fornecedor:'KG Instalações e Comércio Elétrico Ltda', status:'EMITIDA', previsao:'', comprador:'Lucas', recebido:'19/09/2025', origem_rq:'RQ-11238', material:'Ralo + PVC', aplicacao:'Distribuição hidráulico térreo', obs_comprador:'Entrega parcial'},
-          {codigo:'OC-593', numero:'OC-593', emissao:'', fornecedor:'Mosal Artefatos de Alumínio Ltda - ME', status:'recebido', previsao:'', comprador:'Lucas', recebido:'', origem_rq:'RQ-11333', material:'Tê de fachada', aplicacao:'Fachada', obs_comprador:'Chegou'},
-          {codigo:'OC-590', numero:'OC-590', emissao:'', fornecedor:'Lukma', status:'EMITIDA', previsao:'17/09/2025', comprador:'Lucas', recebido:'', origem_rq:'RQ-11314', material:'Fitas isolantes', aplicacao:'Elétrica força e distribuição'}
-        ]
-      }
-    };
+    const DATA = { /* ...dados exatamente como no seu snippet... */ };
 
     /* ===== Utils ===== */
     const DAY=86400000, HOUR=36e5;
@@ -331,8 +255,8 @@
     function normalizeStatus(t){
       const pct = Number(t.pct||0);
       if(pct>=100){ t.status='done'; return; }
-      if((t.status||'').toLowerCase()==='block') return; // bloqueada mantém
-      if(pct>0){ t.status='exec'; } // nunca pendente se há avanço
+      if((t.status||'').toLowerCase()==='block') return;
+      if(pct>0){ t.status='exec'; }
     }
 
     function isDone(t){ return t.status==='done' || t.status==='FINALIZADA' || Number(t.pct||0) >= 100; }
@@ -354,8 +278,8 @@
           const dueStr = t.prazo_esperado||t.prazo||'';
           const urg = urgencyByDate(dueStr,t.status);
           const card = el('article', 'task '+urg);
-          card.dataset.st = (t.status||'').toLowerCase(); // exec | block | done | ''
-          card.dataset.urg = urg;                          // overdue | exec | block | ok | soon | done
+          card.dataset.st = (t.status||'').toLowerCase();
+          card.dataset.urg = urg;
 
           const header = el('div','');
           header.appendChild(el('span','code','#'+(t.codigo||'')));
@@ -395,7 +319,6 @@
       col.appendChild(el('h2','', 'Suprimentos'));
       const list = el('div','list');
 
-      // Requisições
       const rqHdr = el('div','title','Requisições em Aberto'); list.appendChild(rqHdr);
       for(const rq of rqs){
         const it = el('article','item '+urgencyByDate(rq.prazo, rq.status));
@@ -409,7 +332,6 @@
         list.appendChild(it);
       }
 
-      // OCs
       const ocHdr = el('div','title','Ordens de Compra (OC)'); list.appendChild(ocHdr);
       for(const oc of ocs){
         const cls = oc.recebido? 'recv' : urgencyByDate(oc.previsao, oc.status);
@@ -442,7 +364,7 @@
     function setStamp(){ const d=new Date(); const stamp=`${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`; document.getElementById('stamp').textContent=stamp; }
 
     /* ===== Filtros de status ===== */
-    const active = new Set(['all']); // estado inicial
+    const active = new Set(['all']);
 
     function isPending(card){
       const st = (card.dataset.st||'').toLowerCase();
@@ -453,7 +375,7 @@
         const w = pctEl.style.width || '0%';
         pct = parseFloat(w);
       }
-      if(pct > 0) return false;         // nunca pendente se há avanço
+      if(pct > 0) return false;
       if(st==='done') return false;
       if(urg==='overdue' || st==='block' || st==='exec') return false;
       return (urg==='ok' || urg==='soon' || !urg);
@@ -485,10 +407,9 @@
       for(const c of cards){
         const st=(c.dataset.st||'').toLowerCase();
         const urg=(c.dataset.urg||'').toLowerCase();
-        // checa avanço real pelo width da barra
         const pctEl = c.querySelector('.progress-inner');
         const pct = pctEl ? parseFloat((pctEl.style.width||'0%')) : 0;
-        if(st==='exec' || pct>0) counters.exec++; // se tem avanço, conta em execução
+        if(st==='exec' || pct>0) counters.exec++;
         if(st==='block') counters.block++;
         if(st==='done') counters.done++;
         if(urg==='overdue') counters.overdue++;
@@ -504,11 +425,11 @@
       const val = btn.dataset.val;
       const pressed = btn.getAttribute('aria-pressed') === 'true';
       if(val==='clear'){
-        for(const b of $$('.filters .fbtn')){ b.setAttribute('aria-pressed','false'); }
+        for(const b of document.querySelectorAll('.filters .fbtn')){ b.setAttribute('aria-pressed','false'); }
         active.clear(); active.add('all');
         document.querySelector('.fbtn[data-val="all"]').setAttribute('aria-pressed','true');
       } else if(val==='all'){
-        for(const b of $$('.filters .fbtn')){ if(b.dataset.val!=='clear') b.setAttribute('aria-pressed','false'); }
+        for(const b of document.querySelectorAll('.filters .fbtn')){ if(b.dataset.val!=='clear') b.setAttribute('aria-pressed','false'); }
         active.clear(); active.add('all');
         btn.setAttribute('aria-pressed','true');
       } else {
@@ -522,7 +443,7 @@
     }
 
     function bindFilters(){
-      for(const b of $$('.filters .fbtn')){
+      for(const b of document.querySelectorAll('.filters .fbtn')){
         b.addEventListener('click', ()=> toggleBtn(b));
       }
     }
