@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Atlântico Golf — Kanban (WhatsApp Share + Suprimentos)</title>
-  <meta name="description" content="Kanban mobile. Botão WhatsApp em cada card (nota obrigatória) e coluna de Suprimentos. Filtros no rodapé com relógio e texto de atualização." />
+  <title>Atlântico Golf — Kanban (Refatorado p/ IA)</title>
+  <meta name="description" content="Kanban mobile com WhatsApp Share, coluna de Suprimentos, filtros com contagem, diferença Planejado×Real e arquitetura preparada para interface com IA." />
   <meta name="theme-color" content="#0b2a4a" />
   <style>
     :root{ --bg:#f6f8fc; --text:#0f172a; --muted:#475569; --brand:#0e3a6d; --brand2:#0b2a4a;
@@ -26,7 +26,7 @@
 
     /* Board */
     .board{height:calc(100vh - var(--header-h) - var(--footer-h));display:flex;gap:12px;padding:12px 12px 16px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
-    .column{background:var(--card);border:1px solid var(--border);border-radius:14px;min-width:300px;max-width:480px;flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden;scroll-snap-align:start;contain:layout paint;}
+    .column{background:var(--card);border:1px solid var(--border);border-radius:14px;min-width:300px;max-width:480px;flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden;scroll-snap-align:start;contain:layout paint}
     .column h2{position:sticky;top:0;z-index:10;margin:0;padding:10px 12px;background:var(--head);font-size:16px;font-weight:800;border-bottom:1px solid var(--border);text-align:center}
     .list{flex:1;overflow:auto;padding:10px}
 
@@ -146,7 +146,23 @@
   (()=>{
     'use strict';
 
-    /* ===== DADOS ===== */
+    /* =============================================================
+     *  BLOCO DE EDIÇÃO RÁPIDA (para uso com IA) — DADOS + REGRAS
+     *  (inicie o copie e cole aqui)
+     * ============================================================= */
+
+    const RULES = {
+      /**
+       * Regras de negócio
+       * - autoFinalizeAtPct: % a partir do qual a tarefa é automaticamente marcada como concluída.
+       * - assumeDueAsDoneDateWhenMissing: se true, tarefas concluídas sem data_conclusao assumem prazo_esperado como data real.
+       * - sortDoneLast: tarefas concluídas descem automaticamente na listagem.
+       */
+      autoFinalizeAtPct: 100,
+      assumeDueAsDoneDateWhenMissing: true,
+      sortDoneLast: true
+    };
+
     const DATA = {
       encarregados:[
         {nome:'Severo (Hidráulica)', tarefas:[
@@ -165,7 +181,7 @@
           {codigo:'T-0325', titulo:'Execução da redutora de pressão — 12º pavimento do Bloco 3', prazo_esperado:'26/09/2025', status:'', pct:10}
         ]},
         {nome:'Thiago (Elétrica)', tarefas:[
-          {codigo:'T-0315', titulo:'Tratamento de todas as eletrocalhas', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'18/09/2025'}, // adiantado 1 dia
+          {codigo:'T-0315', titulo:'Tratamento de todas as eletrocalhas', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'18/09/2025'},
           {codigo:'T-0317', titulo:'Instalação de 5 quadros de bombas', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'19/09/2025'},
           {codigo:'T-0316', titulo:'Instalação de luminárias — trecho central do subsolo (±50 unidades em zonas apagadas)', prazo_esperado:'19/09/2025', status:'exec', pct:100},
           {codigo:'T-0321', titulo:"Instalação de CSMD's dos blocos 1, 2 e 3", prazo_esperado:'26/09/2025', status:'exec', pct:30},
@@ -219,6 +235,10 @@
       }
     };
 
+    /* =============================================================
+     *  (terminei o copie e cole aqui)
+     * ============================================================= */
+
     /* ===== Utils ===== */
     const DAY=86400000, HOUR=36e5;
     const $ = sel => document.querySelector(sel);
@@ -255,11 +275,10 @@
     /* ===== Diferença de dias (planejado x real) ===== */
     const diffDias = (plannedStr, realStr) => {
       const p = parseBRDate(plannedStr), r = parseBRDate(realStr);
-      if(!p || !r) return null;
+      if(!p || !r) return 0; // regra: se faltar data, exibir 0
       return Math.round((r - p)/DAY); // negativo = adiantado
     };
     const fmtDiffPlain = n => {
-      if(n===null) return 'Diferença: 0 dias';
       const abs = Math.abs(n);
       const plural = abs===1? 'dia' : 'dias';
       if(n===0) return `Diferença: 0 dias`;
@@ -276,9 +295,7 @@
     }
     function nowStamp(){
       const d = new Date();
-      const dd = pad(d.getDate()), mm = pad(d.getMonth()+1), yyyy=d.getFullYear();
-      const hh = pad(d.getHours()), mi = pad(d.getMinutes());
-      return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
+      return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
     }
     function buildTaskMessage(t, encarregado, note){
       const due = t.prazo_esperado||t.prazo||'-';
@@ -337,27 +354,26 @@
       openWhatsAppWithText(msg);
     });
 
-    /* ===== Render ===== */
+    /* ===== Núcleo do Kanban ===== */
     const boardEl = document.querySelector('#board');
 
     // Normaliza status com base no %
     function normalizeStatus(t){
       const pct = Number(t.pct||0);
-      if(pct>=100){ t.status='done'; return; }
+      if(pct>=RULES.autoFinalizeAtPct){ t.status='done'; return; }
       if((t.status||'').toLowerCase()==='block') return;
       if(pct>0){ t.status='exec'; }
     }
 
-    function isDone(t){ return t.status==='done' || t.status==='FINALIZADA' || Number(t.pct||0) >= 100; }
+    function isDone(t){ return t.status==='done' || t.status==='FINALIZADA' || Number(t.pct||0) >= RULES.autoFinalizeAtPct; }
 
-    // ★★ GARANTIA: TODAS as concluídas terão Prazo, Concluído em e Diferença
+    // Garante: todas as concluídas terão Prazo, Concluído em e Diferença
     function ensureConclusionDates(){
       for(const enc of DATA.encarregados){
         for(const t of (enc.tarefas||[])){
           normalizeStatus(t);
           if(isDone(t)){
-            if(!t.data_conclusao){
-              // regra: concluídas no prazo → data_real = prazo_esperado
+            if(!t.data_conclusao && RULES.assumeDueAsDoneDateWhenMissing){
               t.data_conclusao = t.prazo_esperado || t.prazo || '';
             }
           }
@@ -365,9 +381,11 @@
       }
     }
 
-    function sortTasksWithDoneLast(a,b){
-      const ad = isDone(a), bd = isDone(b);
-      if(ad !== bd) return ad ? 1 : -1;
+    function sortTasks(a,b){
+      if(RULES.sortDoneLast){
+        const ad = isDone(a), bd = isDone(b);
+        if(ad !== bd) return ad ? 1 : -1;
+      }
       return compareByPrazo(a,b);
     }
 
@@ -377,7 +395,7 @@
         const col = el('section','column'); col.setAttribute('role','region'); col.setAttribute('aria-label',enc.nome);
         col.appendChild(el('h2','',enc.nome));
         const list = el('div','list');
-        const tasks = (enc.tarefas||[]).slice().sort(sortTasksWithDoneLast);
+        const tasks = (enc.tarefas||[]).slice().sort(sortTasks);
         for(const t of tasks){
           normalizeStatus(t);
           const pct = Math.max(0, Math.min(100, Number(t.pct||0)));
@@ -404,7 +422,7 @@
           if(t.status!=='done' && t.status!=='FINALIZADA') pEsperado += ' • '+dLabel(dueStr||'');
           parts.push(pEsperado);
 
-          // Se concluída: SEMPRE mostrar Concluído em + Diferença (garantido pelo ensureConclusionDates)
+          // Se concluída: SEMPRE mostrar Concluído em + Diferença
           const isFinal = (t.status==='done'||t.status==='FINALIZADA') && !!t.data_conclusao;
           if(isFinal){
             parts.push('Concluído em: '+t.data_conclusao);
@@ -440,14 +458,14 @@
       const rqHdr = el('div','title','Requisições em Aberto'); list.appendChild(rqHdr);
       for(const rq of rqs){
         const it = el('article','item '+urgencyByDate(rq.prazo, rq.status));
-        const rowTop=el('div','row'); const left=el('div');
-        left.appendChild(el('span','code','#'+(rq.codigo||rq.numero||''))); left.appendChild(el('strong','',rq.numero||rq.codigo||'RQ'));
-        rowTop.appendChild(left); rowTop.appendChild(el('span','',rq.status||''));
-        const kv1=el('div','kv','Data: '+(rq.data||'-')+' • Prazo: '+(rq.prazo||'-'));
-        const kv2=el('div','kv','Resp.: '+(rq.responsavel||'-')+' • Contrato: '+(rq.contrato||'-')+' • Material: '+(rq.material||'-'));
-        const kv3=el('div','kv','Aplicação: '+(rq.aplicacao||'-')+' • Obs.: '+(rq.obs||'-'));
-        it.appendChild(rowTop); it.appendChild(kv1); it.appendChild(kv2); it.appendChild(kv3);
-        list.appendChild(it);
+        const kv1=el('div','meta-text','');
+        kv1.innerHTML = [
+          `<div><span class="code">#${rq.codigo||rq.numero||''}</span><strong>${rq.numero||rq.codigo||'RQ'}</strong></div>`,
+          `<div>Data: ${rq.data||'-'} • Prazo: ${rq.prazo||'-'}</div>`,
+          `<div>Resp.: ${rq.responsavel||'-'} • Contrato: ${rq.contrato||'-'} • Material: ${rq.material||'-'}</div>`,
+          `<div>Aplicação: ${rq.aplicacao||'-'} • Obs.: ${rq.obs||'-'}</div>`
+        ].join('');
+        list.appendChild(it); it.appendChild(kv1);
       }
 
       // OCs
@@ -455,16 +473,16 @@
       for(const oc of ocs){
         const cls = oc.recebido? 'recv' : urgencyByDate(oc.previsao, oc.status);
         const it2 = el('article','item '+cls);
-        const rowTop2=el('div','row'); const left2=el('div');
-        left2.appendChild(el('span','code','#'+(oc.codigo||oc.numero||''))); left2.appendChild(el('strong','',oc.numero||oc.codigo||'OC'));
-        rowTop2.appendChild(left2); rowTop2.appendChild(el('span','',oc.status||''));
-        const kv3=el('div','kv','Fornecedor: '+(oc.fornecedor||'-')+' • Comprador: '+(oc.comprador||'-')+' • Origem: '+(oc.origem_rq||'-'));
-        const kv4=el('div','kv','Material: '+(oc.material||'-')+' • Aplicação: '+(oc.aplicacao||'-'));
-        const kv5=el('div','kv','Emissão: '+(oc.emissao||'-')+' • Previsão: '+(oc.previsao||'-'));
-        const st=el('div','kv', oc.recebido?('Recebido em '+oc.recebido):'Pendente');
-        it2.appendChild(rowTop2); it2.appendChild(kv3); it2.appendChild(kv4); it2.appendChild(kv5); it2.appendChild(st);
-        if(oc.obs_comprador) it2.appendChild(el('div','kv','Obs. comprador: '+(oc.obs_comprador||'')));
-        list.appendChild(it2);
+        const kv2=el('div','meta-text','');
+        kv2.innerHTML = [
+          `<div><span class="code">#${oc.codigo||oc.numero||''}</span><strong>${oc.numero||oc.codigo||'OC'}</strong></div>`,
+          `<div>Fornecedor: ${oc.fornecedor||'-'} • Comprador: ${oc.comprador||'-'} • Origem: ${oc.origem_rq||'-'}</div>`,
+          `<div>Material: ${oc.material||'-'} • Aplicação: ${oc.aplicacao||'-'}</div>`,
+          `<div>Emissão: ${oc.emissao||'-'} • Previsão: ${oc.previsao||'-'}</div>`,
+          `<div>${oc.recebido?('Recebido em '+oc.recebido):'Pendente'}</div>`,
+          `${oc.obs_comprador?(`<div>Obs. comprador: ${oc.obs_comprador}</div>`):''}`
+        ].join('');
+        list.appendChild(it2); it2.appendChild(kv2);
       }
 
       col.appendChild(list); boardEl.appendChild(col);
@@ -478,10 +496,6 @@
       applyFilters();
     }
 
-    function pad2(n){return String(n).padStart(2,'0')}
-    function fmtClock(){ const t=new Date(); return `${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}` }
-    function setStamp(){ const d=new Date(); const stamp=`${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`; document.getElementById('stamp').textContent=stamp; }
-
     /* ===== Filtros de status ===== */
     const active = new Set(['all']); // estado inicial
 
@@ -489,11 +503,7 @@
       const st = (card.dataset.st||'').toLowerCase();
       const urg = (card.dataset.urg||'').toLowerCase();
       const pctEl = card.querySelector('.progress-inner');
-      let pct = 0;
-      if(pctEl){
-        const w = pctEl.style.width || '0%';
-        pct = parseFloat(w);
-      }
+      const pct = pctEl ? parseFloat((pctEl.style.width||'0%')) : 0;
       if(pct > 0) return false;         // nunca pendente se há avanço
       if(st==='done') return false;
       if(urg==='overdue' || st==='block' || st==='exec') return false;
@@ -528,15 +538,15 @@
         const urg=(c.dataset.urg||'').toLowerCase();
         const pctEl = c.querySelector('.progress-inner');
         const pct = pctEl ? parseFloat((pctEl.style.width||'0%')) : 0;
-        if(st==='exec' && pct < 100) counters.exec++;
+        if(st==='exec' && pct < RULES.autoFinalizeAtPct) counters.exec++;
         if(st==='block') counters.block++;
-        if(st==='done' || pct >= 100) counters.done++;
+        if(st==='done' || pct >= RULES.autoFinalizeAtPct) counters.done++;
         if(urg==='overdue') counters.overdue++;
         if(isPending(c)) counters.pending++;
       }
       for(const k of Object.keys(counters)){
-        const el = document.querySelector(`[data-cnt="${k}"]`);
-        if(el) el.textContent = counters[k];
+        const e = document.querySelector(`[data-cnt="${k}"]`);
+        if(e) e.textContent = counters[k];
       }
     }
 
@@ -544,43 +554,49 @@
       const val = btn.dataset.val;
       const pressed = btn.getAttribute('aria-pressed') === 'true';
       if(val==='clear'){
-        for(const b of document.querySelectorAll('.filters .fbtn')){ b.setAttribute('aria-pressed','false'); }
+        $$('.filters .fbtn').forEach(b=>b.setAttribute('aria-pressed','false'));
         active.clear(); active.add('all');
-        document.querySelector('.fbtn[data-val="all"]').setAttribute('aria-pressed','true');
+        $(".fbtn[data-val=\"all\"]").setAttribute('aria-pressed','true');
       } else if(val==='all'){
-        for(const b of document.querySelectorAll('.filters .fbtn')){ if(b.dataset.val!=='clear') b.setAttribute('aria-pressed','false'); }
+        $$('.filters .fbtn').forEach(b=>{ if(b.dataset.val!=='clear') b.setAttribute('aria-pressed','false'); });
         active.clear(); active.add('all');
         btn.setAttribute('aria-pressed','true');
       } else {
-        document.querySelector('.fbtn[data-val="all"]').setAttribute('aria-pressed','false');
+        $(".fbtn[data-val=\"all\"]").setAttribute('aria-pressed','false');
         active.delete('all');
         btn.setAttribute('aria-pressed', String(!pressed));
         if(pressed){ active.delete(val); } else { active.add(val); }
-        if(active.size===0){ active.add('all'); document.querySelector('.fbtn[data-val="all"]').setAttribute('aria-pressed','true'); }
+        if(active.size===0){ active.add('all'); $(".fbtn[data-val=\"all\"]").setAttribute('aria-pressed','true'); }
       }
       applyFilters();
     }
 
-    function bindFilters(){
-      for(const b of document.querySelectorAll('.filters .fbtn')){
-        b.addEventListener('click', ()=> toggleBtn(b));
-      }
-    }
+    function bindFilters(){ $$('.filters .fbtn').forEach(b=> b.addEventListener('click', ()=> toggleBtn(b))); }
 
-    /* ===== Relógio (rodapé) ===== */
-    function fmtClock2(){ const t=new Date(); return `${pad(t.getHours())}:${pad(t.getMinutes())}:${pad(t.getSeconds())}` }
+    /* ===== Relógio e carimbo ===== */
+    function setStamp(){ const d=new Date(); const stamp=`${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; $('#stamp').textContent=stamp; }
+    function tickClock(){ const t=new Date(); $('#clock').textContent = `${pad(t.getHours())}:${pad(t.getMinutes())}:${pad(t.getSeconds())}` }
+
+    /* ===== API mínima p/ IA ===== */
+    window.KANBAN_EXPORT = {
+      getData: ()=> JSON.parse(JSON.stringify(DATA)),
+      replaceData: (next)=>{ Object.assign(DATA, next||{}); render(); },
+      addTask: (encName, task)=>{
+        const enc = (DATA.encarregados||[]).find(e=>e.nome===encName);
+        if(!enc) return false; enc.tarefas.push(task); render(); return true;
+      }
+    };
 
     document.addEventListener('DOMContentLoaded', ()=>{
       render();
       bindFilters();
       setStamp();
-      const clk = document.getElementById('clock');
-      const tick = ()=>{ if(clk) clk.textContent = fmtClock2(); };
-      tick();
-      setInterval(tick, 1000);
+      tickClock();
+      setInterval(tickClock, 1000);
     });
   })();
   </script>
 </body>
 </html>
+
 
