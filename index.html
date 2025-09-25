@@ -2,84 +2,121 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Atlântico Golf — Quadro Kanban</title>
-  <meta name="description" content="Kanban por encarregado + Suprimentos. Títulos fixos e rolagem independente por coluna. Códigos únicos por processo. % executado e atraso por tarefa." />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Atlântico Golf — Kanban (WhatsApp Share simples)</title>
+  <meta name="description" content="Kanban mobile. Botão WhatsApp em cada card: abre campo de nota e envia mensagem formatada (tarefa + comentário + data/hora) para o WhatsApp." />
+  <meta name="theme-color" content="#0b2a4a" />
   <style>
-    :root{
-      --bg:#f5f7fb; --text:#111827; --muted:#475569; --brand:#0e3a6d;
-      --brand2:#0b2a4a; --card:#ffffff; --border:#cbd5e1; --header:#f1f5f9;
+    :root{ --bg:#f6f8fc; --text:#0f172a; --muted:#475569; --brand:#0e3a6d; --brand2:#0b2a4a;
+      --card:#ffffff; --border:#d6e0ea; --head:#f1f5f9; --ring:#38bdf8;
       --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c; --block:#9333ea; --exec:#0ea5e9; --recv:#15803d;
-      --chip:#e2e8f0; --mono:#0f172a;
-      --header-h: 112px; --footer-h: 0px;
-    }
+      --chip:#e2e8f0; --mono:#111827; --wa:#25D366; --wa-dark:#1EA955;
+      --header-h:108px; --footer-h:52px; }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;background:var(--bg);color:var(--text)}
-    header{position:sticky;top:0;z-index:100;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px;box-shadow:0 2px 10px rgba(0,0,0,.18);background:linear-gradient(90deg,var(--brand2) 0%, var(--brand) 100%)}
-    .brand{display:flex;align-items:center;gap:16px}
-    .logo-box{width:164px;height:64px;background:#fff;border-radius:10px;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;overflow:hidden}
-    .logo-img{max-width:100%;max-height:100%;display:none}
-    .logo-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#0f172a;font-weight:800;letter-spacing:.3px}
-    h1{margin:0;font-size:24px;letter-spacing:.2px}
-    .subtitle{margin-top:2px;font-size:13px;opacity:.9}
-    .meta{ text-align:right; display:flex; flex-direction:column; gap:4px }
-    .stamp{font-size:13px;font-weight:700}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text)}
+
+    header{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;background:linear-gradient(90deg,var(--brand2),var(--brand));color:#fff;box-shadow:0 4px 18px rgba(2,6,23,.18)}
+    .brand{display:flex;align-items:center;gap:12px;min-width:240px}
+    h1{margin:0;font-size:20px}
+    .subtitle{margin-top:2px;font-size:12px;opacity:.9}
+    .meta{display:flex;flex-direction:column;gap:4px;text-align:right}
+    .stamp{font-size:12px;font-weight:700}
     .clock{font-variant-numeric:tabular-nums;font-size:12px;opacity:.95}
-    .board{height:calc(100vh - var(--header-h) - var(--footer-h));display:flex;gap:16px;padding:16px;overflow-x:auto;overflow-y:hidden}
-    .column{background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:320px;max-width:480px;flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden}
-    .column h2{position:sticky;top:0;z-index:10;margin:0;padding:12px;background:var(--header);font-size:18px;font-weight:800;text-decoration:underline;border-bottom:1px solid var(--border);text-align:center;box-shadow:0 1px 0 rgba(0,0,0,.06)}
-    .list{flex:1;overflow:auto;padding:10px;overscroll-behavior:contain}
-    .task{background:#ffffff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(2,6,23,.06);position:relative}
+
+    .board{height:calc(100vh - var(--header-h) - var(--footer-h));display:flex;gap:12px;padding:12px 12px 16px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+    .column{background:var(--card);border:1px solid var(--border);border-radius:14px;min-width:300px;max-width:480px;flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden;scroll-snap-align:start;contain:layout paint;}
+    .column h2{position:sticky;top:0;z-index:10;margin:0;padding:10px 12px;background:var(--head);font-size:16px;font-weight:800;border-bottom:1px solid var(--border);text-align:center}
+    .list{flex:1;overflow:auto;padding:10px}
+
+    .task{background:#fff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:12px;padding:12px 12px 10px;box-shadow:0 3px 10px rgba(2,6,23,.06);position:relative}
     .task.overdue{border-left-color:var(--late)}
     .task.block{border-left-color:var(--block)}
     .task.exec{border-left-color:var(--exec)}
     .task.done{border-left-color:var(--ok)}
-    .title{font-weight:800;margin-bottom:6px}
-    .meta-text{font-size:13px;color:var(--muted)}
+
+    .title{font-weight:800;margin-bottom:6px;line-height:1.25}
+    .meta-text{font-size:13px;color:var(--muted);display:grid;gap:2px}
     .chip{display:inline-block;background:var(--chip);padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700;margin-left:6px}
-    .code{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;background:#eef2ff;color:#0f172a;border:1px solid #c7d2fe;padding:2px 6px;border-radius:6px;margin-right:6px}
+    .code{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;background:#eef2ff;color:var(--mono);border:1px solid #c7d2fe;padding:2px 6px;border-radius:6px;margin-right:6px}
+
     .progress{margin-top:8px;background:#e5e7eb;border:1px solid #d1d5db;border-radius:999px;height:10px;overflow:hidden}
-    .progress-inner{height:100%;width:0%;background:linear-gradient(90deg, #60a5fa, #22c55e);transition:width .3s ease}
+    .progress-inner{height:100%;width:0%;background:linear-gradient(90deg,#60a5fa,#22c55e);transition:width .35s ease}
     .progress-label{margin-top:4px;font-size:12px;color:#334155;display:flex;justify-content:space-between}
-    .section{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}
-    .section h3{position:sticky;top:0;z-index:6;margin:0 0 6px;background:var(--header);padding:8px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:14px}
-    .item{background:#ffffff;border:1px solid var(--border);border-left:8px solid var(--border);border-radius:10px;padding:10px;margin:8px 0;box-shadow:0 2px 6px rgba(2,6,23,.06);position:relative}
-    .item.overdue{border-left-color:var(--late)}
-    .item.soon{border-left-color:var(--warn)}
-    .item.ok{border-left-color:var(--ok)}
-    .item.recv{border-left-color:var(--recv)}
-    .row{display:flex;justify-content:space-between;gap:8px;font-size:14px}
-    .kv{font-size:12px;color:var(--muted)}
-    footer{padding:10px 16px;border-top:1px solid var(--border);background:#fff;color:#334155;font-size:12px; display:flex; justify-content:center; align-items:center; min-height:40px;}
+
+    footer{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--border);color:#334155;font-size:12px;display:flex;justify-content:center;align-items:center;min-height:var(--footer-h);padding:6px 10px;text-align:center}
+    .foot-note{max-width:1100px;line-height:1.35}
+
+    .share-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;border:none;border-radius:999px;background:var(--wa);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:.92;box-shadow:0 2px 6px rgba(2,6,23,.15)}
+    .share-btn:hover{opacity:1}
+    .share-btn:active{transform:scale(.96)}
+    .share-btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+    .wa-ico{width:16px;height:16px;display:block}
+
+    .modal{position:fixed;inset:0;background:rgba(2,6,23,.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:200}
+    .modal.open{display:flex}
+    .modal-card{width:100%;max-width:520px;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 30px rgba(2,6,23,.25);padding:14px}
+    .modal-title{margin:0 0 8px;font-size:16px;font-weight:800}
+    .modal-sub{margin:0 0 8px;font-size:12px;color:var(--muted)}
+    .modal-textarea{width:100%;min-height:96px;border:1px solid var(--border);border-radius:10px;padding:10px;font-size:14px;resize:vertical}
+    .modal-actions{margin-top:12px;display:flex;gap:8px;justify-content:flex-end}
+    .btn{appearance:none;border:none;padding:10px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+    .btn.cancel{background:#e5e7eb}
+    .btn.send{background:var(--wa);color:#fff;display:inline-flex;align-items:center;gap:8px}
+    .btn.send .wa-ico{filter:brightness(0) invert(1)}
+
+    @media (prefers-color-scheme:dark){
+      :root{--bg:#0b1220;--text:#e5e7eb;--muted:#94a3b8;--card:#0f172a;--border:#1f2937}
+      .btn.cancel{background:#1f2937;color:#e5e7eb}
+      .share-btn{background:var(--wa-dark)}
+    }
   </style>
 </head>
 <body>
-  <header id="hdr">
+  <header id="hdr" role="banner" aria-label="Cabeçalho do Kanban">
     <div class="brand">
-      <div class="logo-box"><img id="logo" class="logo-img" alt="Logo System Engenharia" /><div id="logoPh" class="logo-ph">LOGO</div></div>
       <div>
         <h1>Atlântico Golf — Quadro Kanban</h1>
-        <div class="subtitle" id="subtitle">Visão consolidada de campo e suprimentos. Histórico sempre preservado.</div>
+        <div class="subtitle">Share do card no WhatsApp com comentário e timestamp.</div>
       </div>
     </div>
-    <div class="meta">
-      <div class="stamp" id="stamp">Quadro atualizado pela engenharia em --/--/---- --:--</div>
-      <div class="clock" id="clock">--:--:--</div>
+    <div class="meta" aria-live="polite">
+      <div class="stamp" id="stamp">--/--/---- --:--</div>
+      <div class="clock" id="clock" aria-label="Relógio">--:--:--</div>
     </div>
   </header>
 
-  <div class="board" id="board"></div>
+  <main class="board" id="board" role="list" aria-label="Colunas do Kanban"></main>
 
-  <footer id="ftr"></footer>
+  <footer id="ftr">
+    <div class="foot-note" id="footNote">
+      <strong>Atualização:</strong> o botão <em>Compartilhar no WhatsApp</em> foi incorporado para agilizar a comunicação das tarefas.
+      Para manter a organização, <strong>centralize as mensagens no grupo “Atlântico Interno”</strong>. Obrigado!
+    </div>
+  </footer>
+
+  <!-- Modal de nota antes de compartilhar -->
+  <div class="modal" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+    <div class="modal-card">
+      <h3 class="modal-title" id="shareTitle">Enviar no WhatsApp</h3>
+      <p class="modal-sub">Escreva o comentário que vai junto. O texto do card é preenchido automaticamente com data e hora.</p>
+      <textarea id="shareNote" class="modal-textarea" placeholder="Ex.: Aguardando liberação do acesso no subsolo."></textarea>
+      <div class="modal-actions">
+        <button class="btn cancel" id="shareCancel">Cancelar</button>
+        <button class="btn send" id="shareSend">
+          <svg class="wa-ico" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.11.548 4.09 1.504 5.82L4 29l8.332-1.46C14.016 28.48 15.975 29 18 29c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 2c5.523 0 10 4.477 10 10s-4.477 10-10 10c-1.822 0-3.53-.5-4.99-1.365l-.356-.213-4.7.824.85-4.572-.232-.375C5.557 18.188 5 16.65 5 15 5 9.477 10.477 5 16 5zm-4.04 4.75c-.202 0-.52.074-.792.37-.272.296-1.04 1.015-1.04 2.469s1.06 2.864 1.22 3.079c.162.215 2.09 3.183 5.073 4.454.715.305 1.273.484 1.71.617.72.22 1.372.186 1.89.11.58-.083 1.78-.73 2.04-1.43.26-.7.26-1.316.19-1.437-.07-.12-.277-.196-.575-.337-.298-.14-1.75-.87-2.02-.97-.27-.1-.47-.144-.668.14-.198.283-.786.942-.958 1.128-.17.186-.334.202-.624.067-.29-.135-1.24-.46-2.37-1.485-.88-.798-1.49-1.783-1.66-2.082-.17-.3-.02-.466.124-.61.122-.12.3-.33.447-.5.147-.17.2-.294.308-.49.108-.196.053-.368-.022-.512-.075-.143-.683-1.64-.94-2.236-.256-.595-.503-.52-.682-.52z" fill="#fff"/></svg>
+          Enviar no WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script>
-  (function(){
+  (()=>{
     'use strict';
 
-    /* =================== DADOS =================== */
-    var DATA = {
-      logo_src: 'assets/logo.jpg',
+    /* ===== DADOS (ajustados conforme sua lista) ===== */
+    const DATA = {
       encarregados:[
         {nome:'Severo (Hidráulica)', tarefas:[
           {codigo:'T-0313', titulo:'Rede hidráulica de entrada de água — conclusão', prazo_esperado:'19/09/2025', status:'exec', pct:85, obs:'Madeiras e paletes no caminho obstruído (almoxarifado da Asas).'},
@@ -100,15 +137,10 @@
           {codigo:'T-0315', titulo:'Tratamento de todas as eletrocalhas', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'19/09/2025'},
           {codigo:'T-0317', titulo:'Instalação de 5 quadros de bombas', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'18/09/2025'},
           {codigo:'T-0316', titulo:'Instalação de luminárias — trecho central do subsolo (±50 unidades em zonas apagadas)', prazo_esperado:'19/09/2025', status:'exec', pct:100},
-
-          <!-- MANTIDO APENAS O TÍTULO E PRAZO ORIGINAL; OBS DAS FRENTES FOI DESMEMBRADA -->
           {codigo:'T-0321', titulo:"Instalação de CSMD's dos blocos 1, 2 e 3", prazo_esperado:'26/09/2025', status:'exec', pct:30},
-
-          <!-- NOVOS CARDS DESMEMBRADOS, SEQUÊNCIA APÓS O MAIOR CÓDIGO EXISTENTE (T-0337) -->
           {codigo:'T-0338', titulo:'Infra no subsolo para automático de boia das torres', prazo_esperado:'26/09/2025', status:'', pct:0, obs:'Janela: 22/09 a 26/09.'},
           {codigo:'T-0339', titulo:'Montagem de eletrocalha 200×150 para comandos — trecho central do subsolo', prazo_esperado:'26/09/2025', status:'', pct:0, obs:'Janela: 22/09 a 26/09.'},
           {codigo:'T-0340', titulo:'Montagem de perfilado 38×38 para iluminação do espelho d’água 2', prazo_esperado:'26/09/2025', status:'', pct:0, obs:'Janela: 22/09 a 26/09.'},
-
           {codigo:'T-0337', titulo:'Instalação de 100 luminárias — trecho entre a casa de bombas e o espelho d’água', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'}
         ]},
         {nome:'Marcelo (Elétrica)', tarefas:[
@@ -125,7 +157,6 @@
           {codigo:'T-0336', titulo:'Passagem/lançamento de cabos — poços de águas servidas 03A e 03B', prazo_esperado:'03/10/2025', status:'', pct:0, obs:'Janela: 29/09 a 03/10.'}
         ]}
       ],
-      /* =================== SUPRIMENTOS — APENAS NOVAS INFORMAÇÕES =================== */
       suprimentos:{
         compradores:['Brígida Souza','Suellen Mello','Lucas Fernandes'],
         pendencias_teams:{'Brígida Souza':0,'Suellen Mello':0,'Lucas Fernandes':0},
@@ -157,194 +188,148 @@
       }
     };
 
-    /* ==== Datas, ordenação e helpers ==== */
-    var DAY=86400000, HOUR=36e5;
-    function parseBRDate(s){ if(!s) return null; var a=s.split('/'); if(a.length!==3) return null; var d=+a[0],m=+a[1],y=+a[2]; var dt=new Date(y,m-1,d,12,0,0); return isNaN(dt)?null:dt }
-    function diffDays(a,b){ return Math.round((a-b)/DAY) }
-    function fmtClock(){ var t=new Date(); var pad=n=>String(n).padStart(2,'0'); return pad(t.getHours())+':'+pad(t.getMinutes())+':'+pad(t.getSeconds()) }
-    function getDueDate(t){ return parseBRDate(t.prazo_esperado||t.prazo||t.previsao||t.data||''); }
-    function getDoneDate(t){ return parseBRDate(t.data_conclusao||t.finalizado_em||''); }
-    function dLabel(dateStr){ var d=parseBRDate(dateStr); if(!d) return ''; var delta=Math.floor((d-new Date())/DAY); if(delta===0) return 'D-0'; return (delta>0)?('D-'+delta):('D+'+Math.abs(delta)) }
-    function isPastDue(dateStr){ var d=parseBRDate(dateStr); if(!d) return false; return (new Date() - d) > 0; }
-    function urgencyByDate(dateStr,status){
+    /* ===== Utils ===== */
+    const DAY=86400000, HOUR=36e5;
+    const $ = sel => document.querySelector(sel);
+    const el = (tag, cls, text) => { const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e };
+    const pad = n => String(n).padStart(2,'0');
+    const parseBRDate = s => { if(!s) return null; const a=s.split('/'); if(a.length!==3) return null; const [d,m,y]=a.map(Number); const dt=new Date(y,(m||1)-1,d||1,12,0,0); return isNaN(dt)?null:dt };
+    const dLabel = s => { const d=parseBRDate(s); if(!d) return ''; const delta=Math.floor((d - new Date())/DAY); return delta===0? 'D-0' : (delta>0? 'D-'+delta : 'D+'+Math.abs(delta)); };
+    const isPastDue = s => { const d=parseBRDate(s); return !!(d && (new Date() - d) > 0); };
+    const urgencyByDate = (dateStr,status)=>{
       if(status==='done'||status==='FINALIZADA') return 'done';
       if(isPastDue(dateStr)) return 'overdue';
-      if(status==='recebido') return 'recv';
       if(status==='block') return 'block';
       if(status==='exec') return 'exec';
-      var d=parseBRDate(dateStr); if(!d) return 'ok';
-      var h=(d-new Date())/HOUR; if(h<=48) return 'soon';
-      return 'ok';
-    }
-    function effectiveDone(t){ return (t.status==='done'||t.status==='FINALIZADA'|| Number(t.pct||0) >= 100); }
-    function doneSortDate(t){ return getDoneDate(t) || new Date(0); }
-    function weightUrgencyByDate(ds){ var d=parseBRDate(ds); if(!d) return 3; var h=(d-new Date())/HOUR; if(h<=0) return 0; if(h<=48) return 1; return 2 }
-    function compareByPrazo(a,b){
-      var aDone = effectiveDone(a), bDone = effectiveDone(b);
-      if(aDone !== bDone){ return aDone ? 1 : -1; }
-      if(aDone && bDone){
-        var da = doneSortDate(a), db = doneSortDate(b);
-        if(da && db) return da - db;
-        if(da && !db) return -1;
-        if(!da && db) return 1;
-        return 0;
-      }
-      var ua=weightUrgencyByDate(a.prazo_esperado||a.prazo||a.previsao||a.data||''), ub=weightUrgencyByDate(b.prazo_esperado||b.prazo||b.previsao||b.data||'');
+      const d=parseBRDate(dateStr); if(!d) return 'ok';
+      const h=(d-new Date())/HOUR; return (h<=48)?'soon':'ok';
+    };
+    const compareByPrazo = (a,b)=>{
+      const u = ds => { const d=parseBRDate(ds); if(!d) return 3; const h=(d-new Date())/HOUR; return (h<=0)?0:(h<=48?1:2) };
+      const ua=u(a.prazo_esperado||a.prazo||''), ub=u(b.prazo_esperado||b.prazo||'');
       if(ua!==ub) return ua-ub;
-      var da2=getDueDate(a), db2=getDueDate(b);
-      if(da2&&db2) return da2-db2; if(da2&&!db2) return -1; if(!da2&&db2) return 1; return 0;
+      const da=parseBRDate(a.prazo_esperado||a.prazo||''), db=parseBRDate(b.prazo_esperado||b.prazo||'');
+      if(da&&db) return da-db; if(da&&!db) return -1; if(!da&&db) return 1; return 0;
+    };
+
+    /* ===== Share helpers ===== */
+    function formatStatus(status, dueStr){
+      if(status==='exec') return 'Em execução';
+      if(status==='block') return 'Bloqueada';
+      if(status==='done'||status==='FINALIZADA') return 'Finalizada';
+      return isPastDue(dueStr)?'Atrasada':'Pendente';
     }
-    function compareOC(a,b){
-      var ar=!!a.recebido, br=!!b.recebido;
-      if(ar!==br) return br-ar;
-      if(ar&&br){ var da=parseBRDate(a.recebido), db=parseBRDate(b.recebido);
-        if(da&&db) return db-da; if(da&&!db) return -1; if(!da&&db) return 1; return 0 }
-      var pa = {status:a.status,prazo:a.previsao}, pb = {status:b.status,prazo:b.previsao};
-      return compareByPrazo(pa,pb)
+    function nowStamp(){
+      const d = new Date();
+      const dd = pad(d.getDate()), mm = pad(d.getMonth()+1), yyyy=d.getFullYear();
+      const hh = pad(d.getHours()), mi = pad(d.getMinutes());
+      return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
     }
-    function deltaConclusaoDias(t){
-      var due=getDueDate(t), done=getDoneDate(t);
-      if(!due || !done) return null;
-      return Math.round((done - due)/86400000);
+    function buildTaskMessage(t, encarregado, note){
+      const due = t.prazo_esperado||t.prazo||'-';
+      const status = formatStatus(t.status, due);
+      const pct = Math.max(0, Math.min(100, Number(t.pct||0)));
+      const header = `*${t.codigo||''} — ${t.titulo}*`;
+      const body = [
+        `Responsável: ${encarregado}`,
+        `Status: ${status} • Avanço: ${pct}%`,
+        `Prazo: ${due}${due? ` (${dLabel(due)})`:''}`,
+        t.obs? `Obs.: ${t.obs}`: null,
+      ].filter(Boolean).join('\n');
+      const stamp = nowStamp();
+      const comment = `*Comentário (${stamp}):* ${note}`;
+      return `${header}\n${body}\n\n${comment}`;
+    }
+    function openWhatsAppWithText(text){
+      const enc = encodeURIComponent(text);
+      const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+      const deeplink = `whatsapp://send?text=${enc}`; // mobile apps
+      const web = `https://wa.me/?text=${enc}`;       // web/desktop
+      if(isMobile){
+        const w = window.open(deeplink, '_blank');
+        setTimeout(()=>{ if(!w || w.closed) window.open(web, '_blank'); }, 600);
+      } else {
+        window.open(web, '_blank');
+      }
     }
 
-    /* =================== DOM =================== */
-    function el(tag,cls,text){ var e=document.createElement(tag); if(cls)e.className=cls; if(text!=null)e.textContent=text; return e }
-    var boardEl=document.getElementById('board');
+    /* ===== Modal ===== */
+    const modal = $('#shareModal');
+    const noteEl = $('#shareNote');
+    const sendBtn = $('#shareSend');
+    const cancelBtn = $('#shareCancel');
+    let shareCtx = null; // {t, enc}
+    function openModal(ctx){ shareCtx = ctx; noteEl.value=''; modal.classList.add('open'); noteEl.focus(); }
+    function closeModal(){ modal.classList.remove('open'); shareCtx=null; }
+    cancelBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
 
+    sendBtn.addEventListener('click', ()=>{
+      if(!shareCtx) return;
+      const note = noteEl.value.trim();
+      if(!note){ noteEl.focus(); noteEl.setCustomValidity('Digite uma nota.'); noteEl.reportValidity(); setTimeout(()=>noteEl.setCustomValidity(''), 800); return; }
+      const msg = buildTaskMessage(shareCtx.t, shareCtx.enc, note);
+      closeModal();
+      openWhatsAppWithText(msg);
+    });
+
+    /* ===== Render ===== */
+    const boardEl = $('#board');
     function render(){
       boardEl.innerHTML='';
-      for(var i=0;i<DATA.encarregados.length;i++){
-        var enc=DATA.encarregados[i];
-        var tasks=(enc.tarefas||[]).slice().sort(compareByPrazo);
-        var col=el('section','column');
+      for(const enc of DATA.encarregados){
+        const col = el('section','column'); col.setAttribute('role','region'); col.setAttribute('aria-label',enc.nome);
         col.appendChild(el('h2','',enc.nome));
-        var list=el('div','list');
+        const list = el('div','list');
+        const tasks = (enc.tarefas||[]).slice().sort(compareByPrazo);
+        for(const t of tasks){
+          const pct = Math.max(0, Math.min(100, Number(t.pct||0)));
+          const dueStr = t.prazo_esperado||t.prazo||'';
+          const card = el('article', 'task '+urgencyByDate(dueStr,t.status));
 
-        for(var j=0;j<tasks.length;j++){
-          var t=tasks[j];
-          var pctVal = Math.max(0, Math.min(100, Number(t.pct||0)));
-          if(pctVal >= 100 && !(t.status==='done'||t.status==='FINALIZADA')){
-            t.status = 'done';
-          }
-          var dueStr=t.prazo_esperado||t.prazo||'';
-          var cls=urgencyByDate(dueStr,t.status);
-          var card=el('div','task '+cls);
+          const header = el('div','');
+          header.appendChild(el('span','code','#'+(t.codigo||'')));
+          const title = el('span','title'); title.textContent = t.titulo; header.appendChild(title);
 
-          var code=el('span','code','#'+(t.codigo||''));
-          var title=el('span','title'); title.textContent=t.titulo;
-          var header=el('div'); header.appendChild(code); header.appendChild(title);
+          const btn = document.createElement('button');
+          btn.className='share-btn'; btn.type='button'; btn.title='Compartilhar no WhatsApp'; btn.setAttribute('aria-label','Compartilhar no WhatsApp');
+          btn.innerHTML = '<svg class="wa-ico" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.11.548 4.09 1.504 5.82L4 29l8.332-1.46C14.016 28.48 15.975 29 18 29c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 2c5.523 0 10 4.477 10 10s-4.477 10-10 10c-1.822 0-3.53-.5-4.99-1.365l-.356-.213-4.7.824.85-4.572-.232-.375C5.557 18.188 5 16.65 5 15 5 9.477 10.477 5 16 5zm-4.04 4.75c-.202 0-.52.074-.792.37-.272.296-1.04 1.015-1.04 2.469s1.06 2.864 1.22 3.079c.162.215 2.09 3.183 5.073 4.454.715.305 1.273.484 1.71.617.72.22 1.372.186 1.89.11.58-.083 1.78-.73 2.04-1.43.26-.7.26-1.316.19-1.437-.07-.12-.277-.196-.575-.337-.298-.14-1.75-.87-2.02-.97-.27-.1-.47-.144-.668.14-.198.283-.786.942-.958 1.128-.17.186-.334.202-.624.067-.29-.135-1.24-.46-2.37-1.485-.88-.798-1.49-1.783-1.66-2.082-.17-.3-.02-.466.124-.61.122-.12.3-.33.447-.5.147-.17.2-.294.308-.49.108-.196.053-.368-.022-.512-.075-.143-.683-1.64-.94-2.236-.256-.595-.503-.52-.682-.52z" fill="#fff"/></svg>';
+          btn.addEventListener('click', (e)=>{ e.stopPropagation(); openModal({t, enc: enc.nome}); });
 
-          var meta=el('div','meta-text');
-          var partes=[];
-          var label1='Prazo esperado: '+(dueStr||'-');
-          if(!(t.status==='done'||t.status==='FINALIZADA')) label1 += ' • '+dLabel(dueStr||'');
-          partes.push(label1);
+          const meta = el('div','meta-text');
+          const parts = [];
+          let p1 = 'Prazo esperado: '+(dueStr||'-');
+          if(t.status!=='done' && t.status!=='FINALIZADA') p1 += ' • '+dLabel(dueStr||'');
+          parts.push(p1);
+          if(t.obs) parts.push('Obs.: '+t.obs);
+          meta.innerHTML = parts.map(p=>`<div>${p}</div>`).join('');
 
-          if(t.data_conclusao||t.finalizado_em){
-            partes.push('Data de conclusão: '+(t.data_conclusao||t.finalizado_em));
-          }
-          var dlt=deltaConclusaoDias(t);
-          if(dlt!==null){
-            var sinal = dlt>0?'+': (dlt<0?'-':'±');
-            var legenda = dlt>0? ' (atraso)': (dlt<0? ' (adiantado)':' (no prazo)');
-            partes.push('Diferença: '+sinal+Math.abs(dlt)+'d'+legenda);
-          }
-          if(t.obs){ partes.push('Obs.: '+t.obs); }
+          let statusLabel='Pendente';
+          if(t.status==='exec') statusLabel='Em execução'; else if(t.status==='block') statusLabel='Bloqueada'; else if(t.status==='done'||t.status==='FINALIZADA') statusLabel='Finalizada 🏆'; else if(card.className.includes('overdue')) statusLabel='Atrasada';
+          const chip = el('span','chip',statusLabel); meta.appendChild(chip);
 
-          meta.innerHTML = partes.map(function(p){return '<div>'+p+'</div>';}).join('');
+          const pWrap = el('div','progress'); const pBar = el('div','progress-inner'); pBar.style.width = pct+'%'; pWrap.appendChild(pBar);
+          const pLabel = el('div','progress-label'); pLabel.appendChild(el('span','', 'Avanço: '+pct+'%'));
 
-          var statusLabel='Pendente';
-          if(t.status==='exec')statusLabel='Em execução';
-          else if(t.status==='block')statusLabel='Bloqueada';
-          else if(t.status==='done'||t.status==='FINALIZADA')statusLabel='Finalizada 🏆';
-          else if(cls==='overdue')statusLabel='Atrasada';
-          var chip=el('span','chip',statusLabel);
-          meta.appendChild(chip);
-
-          var pWrap=el('div','progress'); var pBar=el('div','progress-inner'); pBar.style.width=pctVal+'%'; pWrap.appendChild(pBar);
-          var pLabel=el('div','progress-label'); pLabel.appendChild(el('span','', 'Avanço: '+pctVal+'%'));
-          pLabel.appendChild(el('span','', (cls==='overdue'?'⚠️ atenção ao prazo':'')));
-
-          card.appendChild(header);
-          card.appendChild(meta);
-          card.appendChild(pWrap); card.appendChild(pLabel);
+          card.appendChild(header); card.appendChild(meta); card.appendChild(pWrap); card.appendChild(pLabel); card.appendChild(btn);
           list.appendChild(card);
         }
-
         col.appendChild(list); boardEl.appendChild(col);
       }
-
-      // === Coluna Suprimentos ===
-      var sup=el('section','column'); sup.appendChild(el('h2','','Suprimentos')); var sList=el('div','list');
-
-      var rqSec=el('div','section'); rqSec.appendChild(el('h3','', 'Requisições em Aberto'));
-      var rqs=(DATA.suprimentos.requisicoes||[]).slice().sort(function(a,b){
-        var pa={status:a.status,prazo:a.prazo,finalizado_em:a.finalizado_em}, pb={status:b.status,prazo:b.prazo,finalizado_em:b.finalizado_em};
-        return compareByPrazo(pa,pb);
-      });
-      for(var r=0;r<rqs.length;r++){
-        var rq=rqs[r]; var dtPrazo=parseBRDate(rq.prazo); var dtData=parseBRDate(rq.data);
-        var lt=(dtPrazo&&dtData)?(Math.round((dtPrazo-dtData)/86400000)+'d'):'-';
-        var clsRq=urgencyByDate(rq.prazo,rq.status);
-        var it=el('div','item '+clsRq);
-
-        var rowTop=el('div','row');
-        var left=el('div'); left.appendChild(el('span','code','#'+(rq.codigo||rq.numero||''))); left.appendChild(el('strong','',rq.numero||rq.codigo||'RQ'));
-        rowTop.appendChild(left); rowTop.appendChild(el('span','',rq.status||''));
-
-        var kv1=el('div','kv','Data: '+(rq.data||'-')+' • Prazo: '+(rq.prazo||'-')+' • Lead time esperado: '+lt);
-        var kv2=el('div','kv','Responsável: '+(rq.responsavel||'-')+' • Contrato: '+(rq.contrato||'-')+' • Material: '+(rq.material||'-'));
-        var kv3=el('div','kv','Aplicação: '+(rq.aplicacao||'-')+' • Obs.: '+(rq.obs||'-'));
-        it.appendChild(rowTop); it.appendChild(kv1); it.appendChild(kv2); it.appendChild(kv3);
-        if(rq.obs_comprador){ it.appendChild(el('div','kv','Obs. comprador: '+rq.obs_comprador)); }
-        rqSec.appendChild(it);
-      }
-      sList.appendChild(rqSec);
-
-      var ocSec=el('div','section'); ocSec.appendChild(el('h3','', 'Ordens de Compra (OC)'));
-      var ocs=(DATA.suprimentos.ocs||[]).slice().sort(compareOC);
-      for(var o=0;o<ocs.length;o++){
-        var oc=ocs[o];
-        var dtRec=parseBRDate(oc.recebido); var dtEmi=parseBRDate(oc.emissao);
-        var ltReal=(dtRec&&dtEmi)?(Math.round((dtRec-dtEmi)/86400000)+'d'):'-';
-        var clsOc=oc.recebido?'recv':urgencyByDate(oc.previsao,oc.status);
-        var it2=el('div','item '+clsOc);
-
-        var rowTop2=el('div','row'); var left2=el('div');
-        left2.appendChild(el('span','code','#'+(oc.codigo||oc.numero||''))); left2.appendChild(el('strong','',oc.numero||oc.codigo||'OC'));
-        rowTop2.appendChild(left2); rowTop2.appendChild(el('span','',oc.status||''));
-
-        var kv3=el('div','kv','Fornecedor: '+(oc.fornecedor||'-')+' • Comprador: '+(oc.comprador||'-')+' • Origem: '+(oc.origem_rq||'-'));
-        var kv4=el('div','kv','Material: '+(oc.material||'-')+' • Aplicação: '+(oc.aplicacao||'-'));
-        var kv5=el('div','kv','Emissão: '+(oc.emissao||'-')+' • Previsão: '+(oc.previsao||'-')+' • Lead time real: '+ltReal);
-        var st=el('div','kv', oc.recebido?('Recebido em '+oc.recebido):'Pendente');
-        it2.appendChild(rowTop2); it2.appendChild(kv3); it2.appendChild(kv4); it2.appendChild(kv5); it2.appendChild(st);
-        if(oc.obs_comprador){ it2.appendChild(el('div','kv','Obs. comprador: '+oc.obs_comprador)); }
-        ocSec.appendChild(it2);
-      }
-      sList.appendChild(ocSec);
-      sup.appendChild(sList); boardEl.appendChild(sup);
     }
 
-    function initLogo(){ var img=document.getElementById('logo'); var ph=document.getElementById('logoPh'); var src=DATA.logo_src||''; if(!src){img.style.display='none'; ph.style.display='flex'; return;} img.onload=function(){img.style.display='block'; ph.style.display='none';}; img.onerror=function(){img.style.display='none'; ph.style.display='flex';}; img.src=src; }
-    function fmt2(n){return String(n).padStart(2,'0')}
-    function tick(){ var t=new Date(); document.getElementById('clock').textContent = fmt2(t.getHours())+':'+fmt2(t.getMinutes())+':'+fmt2(t.getSeconds()); }
-    function updateHeaderHeights(){ var h = document.getElementById('hdr').offsetHeight || 112; document.documentElement.style.setProperty('--header-h', h + 'px'); }
-    function setStamp(){ var d = new Date(); var pad=n=>String(n).padStart(2,'0'); var stamp = 'Quadro atualizado pela engenharia em ' + pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes()); document.getElementById('stamp').textContent = stamp; }
-    function setFooterNote(){ var d = new Date(); var pad=n=>String(n).padStart(2,'0'); document.getElementById('ftr').textContent = 'Código atualizado pela engenharia em '+pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' às '+pad(d.getHours())+':'+pad(d.getMinutes()); }
+    function pad2(n){return String(n).padStart(2,'0')}
+    function fmtClock(){ const t=new Date(); return `${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}` }
+    function setStamp(){ const d=new Date(); const stamp=`${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`; document.getElementById('stamp').textContent=stamp; }
 
-    document.addEventListener('DOMContentLoaded', function(){
-      initLogo();
+    document.addEventListener('DOMContentLoaded', ()=>{
       render();
       setStamp();
-      setFooterNote();
-      updateHeaderHeights();
-      tick();
-      setInterval(tick, 1000);
-      window.addEventListener('resize', updateHeaderHeights);
+      document.getElementById('clock').textContent = fmtClock();
+      setInterval(()=>document.getElementById('clock').textContent = fmtClock(), 1000);
     });
   })();
   </script>
 </body>
 </html>
+
