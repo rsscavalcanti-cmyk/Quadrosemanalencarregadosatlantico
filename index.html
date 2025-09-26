@@ -12,6 +12,7 @@
       --card:#ffffff; --border:#d6e0ea; --head:#f1f5f9; --ring:#38bdf8;
       --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c; --block:#9333ea; --exec:#0ea5e9; --recv:#15803d;
       --chip:#e2e8f0; --mono:#111827; --wa:#25D366; --wa-dark:#1EA955;
+      --pend:#cbd5e1; /* NOVO: cinza claro para PENDENTES */
       --header-h:92px; --footer-h:84px; --radius:14px;
     }
     *{box-sizing:border-box}
@@ -34,12 +35,13 @@
 
     .card{background:#fff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:12px;padding:12px 12px 10px;box-shadow:0 3px 10px rgba(2,6,23,.06);position:relative}
     .overdue{border-left-color:var(--late)}
-    .block{border-left-color:var(--block)}
+    .block{border-left-color:var(--block)} /* BLOQUEADAS: roxo */
     .exec{border-left-color:var(--exec)}
     .done{border-left-color:var(--ok)}
     .soon{border-left-color:var(--warn)}
     .ok{border-left-color:var(--ok)}
     .recv{border-left-color:var(--recv)}
+    .pending{border-left-color:var(--pend)} /* NOVO: PENDENTES: cinza claro */
 
     .title{font-weight:800;margin-bottom:6px;line-height:1.25}
     .meta-text{font-size:13px;color:var(--muted);display:grid;gap:2px}
@@ -144,7 +146,7 @@
       <div class="modal-actions">
         <button class="btn cancel" id="shareCancel">Cancelar</button>
         <button class="btn send" id="shareSend">
-          <svg class="wa-ico" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.11.548 4.09 1.504 5.82L4 29l8.332-1.46C14.016 28.48 15.975 29 18 29c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 2c5.523 0 10 4.477 10 10s-4.477 10-10 10c-1.822 0-3.53-.5-4.99-1.365l-.356-.213-4.7.824.85-4.572-.232-.375C5.557 18.188 5 16.65 5 15 5 9.477 10.477 5 16 5zm-4.04 4.75c-.202 0-.52.074-.792.37-.272.296-1.04 1.015-1.04 2.469s1.06 2.864 1.22 3.079c.162.215 2.09 3.183 5.073 4.454.715.305 1.273.484 1.71.617.72.22 1.372.186 1.89.11.58-.083 1.78-.73 2.04-1.43.26-.7.26-1.316.19-1.437-.07-.12-.277-.196-.575-.337-.298-.14-1.75-.87-2.02-.97-.27-.1-.47-.144-.668.14-.198.283-.786.942-.958 1.128-.17.186-.334.202-.624.067-.29-.135-1.24-.46-2.37-1.485-.88-.798-1.49-1.783-1.66-2.082-.17-.3-.02-.466.124-.61.122-.12.3-.33.447-.5.147-.17.2-.294.308-.49.108-.196.053-.368-.022-.512-.075-.143-.683-1.64-.94-2.236-.256-.595-.503-.52-.682-.52z" fill="#fff"/></svg>
+          <svg class="wa-ico" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.11.548 4.09 1.504 5.82L4 29l8.332-1.46C14.016 28.48 15.975 29 18 29c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 2c5.523 0 10 4.477 10 10s-4.477 10-10 10c-1.822 0-3.53-.5-4.99-1.365l-.356-.213-4.7.824.85-4.572-.232-.375C5.557 18.188 5 16.65 5 15 5 9.477 10.477 5 16 5zm-4.04 4.75c-.202 0-.52.074-.792.37-.272.296-1.04 1.015-1.04 2.469s1.06 2.864 1.22 3.079c.162.215 2.09 3.183 5.073 4.454.715.305 1.273.484 1.71.617.72.22 1.372.186 1.89.11.58-.083 1.78-.73 2.04-1.43.26-.7.26-1.316.19-1.437-.07-.12-.277-.196-.575-.337-.298-.14-1.75-.87-2.02-.97-.27-.1-.47-.144-.668.14-.198.283-.786.942-.958 1.128-.17.186-.334.202-.624.067-.29-.135-1.24-.46-2.37-1.485-.88-.798-1.49-1.783-1.66-2.082-.17-.3-.02-.466.124-.61.122-.12.3-.33.447-.5.147-.17.2-.294.308-.49.108-.196.53-.368-.022-.512-.075-.143-.683-1.64-.94-2.236-.256-.595-.503-.52-.682-.52z" fill="#fff"/></svg>
           Enviar
         </button>
       </div>
@@ -416,6 +418,15 @@
       return s;
     }
 
+    // NOVO: lógica de "pendente" (0%) para aplicar tarja cinza
+    function isTaskPendingStatus(t, urg, pct){
+      const st = (t.status||'').toLowerCase();
+      if(pct > 0) return false;
+      if(st==='done' || st==='finalizada' || st==='exec' || st==='block') return false;
+      if(urg==='overdue') return false;
+      return (urg==='ok' || urg==='soon' || !urg);
+    }
+
     function buildTaskCard(t, encarregado){
       const pct = Math.max(0, Math.min(100, Number(t.pct||0)));
       const dueStr = t.prazo_esperado||t.prazo||'';
@@ -424,6 +435,9 @@
       card.dataset.st = (t.status||'').toLowerCase();
       card.dataset.urg = urg;
       card.dataset.pct = String(pct);
+
+      // aplica classe visual de pendente (tarja cinza claro)
+      if(isTaskPendingStatus(t, urg, pct)) card.classList.add('pending');
 
       const header = cardHeader(t);
       const btn = document.createElement('button');
@@ -632,3 +646,4 @@
   </script>
 </body>
 </html>
+
