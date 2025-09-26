@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Atlântico Golf — Kanban (Refatorado p/ IA)</title>
-  <meta name="description" content="Kanban mobile com WhatsApp Share, coluna de Suprimentos, filtros com contagem, diferença Planejado×Real e arquitetura preparada para interface com IA. Com selo inspirador em tarefas finalizadas." />
+  <title>Atlântico Golf — Kanban (Refatorado p/ IA) + Sugestão Rápida</title>
+  <meta name="description" content="Kanban mobile com WhatsApp Share, Suprimentos, filtros com contagem, diferença Planejado×Real, selo inspirador e barra sutil de sugestão rápida com link (ex.: YouTube)." />
   <meta name="theme-color" content="#0b2a4a" />
   <style>
     :root{
@@ -12,20 +12,28 @@
       --card:#ffffff; --border:#d6e0ea; --head:#f1f5f9; --ring:#38bdf8;
       --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c; --block:#9333ea; --exec:#0ea5e9; --recv:#15803d;
       --chip:#e2e8f0; --mono:#111827; --wa:#25D366; --wa-dark:#1EA955;
-      --pend:#cbd5e1; /* NOVO: cinza claro para PENDENTES */
-      --header-h:92px; --footer-h:84px; --radius:14px;
+      --pend:#cbd5e1;
+      --header-h:92px; --footer-h:108px; --radius:14px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text)}
 
-    header{position:sticky;top:0;z-index:100;display:flex;flex-direction:column;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--brand2),var(--brand));color:#fff;box-shadow:0 4px 18px rgba(2,6,23,.18)}
+    header{position:sticky;top:0;z-index:100;display:flex;flex-direction:column;gap:8px;padding:12px 16px;background:linear-gradient(90deg,var(--brand2),var(--brand));color:#fff;box-shadow:0 4px 18px rgba(2,6,23,.18)}
     .head-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
     .brand{display:flex;align-items:center;gap:12px;min-width:240px}
     .logo{height:42px;width:auto;display:block;object-fit:contain}
     h1{margin:0;font-size:20px}
     .meta{display:flex;flex-direction:column;gap:4px;text-align:right}
     .stamp{font-size:12px;font-weight:700}
+
+    /* Barra sutil de sugestão rápida */
+    .quickbar{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border:1px dashed rgba(255,255,255,.25);border-radius:12px;padding:8px 10px}
+    .quickbar .tip{display:flex;align-items:center;gap:8px;font-size:12px;opacity:.95}
+    .quickbar .tip svg{width:16px;height:16px;flex:0 0 16px}
+    .quickbar a.quicklink{max-width:62ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e0f2fe;text-decoration:none;border-bottom:1px dotted rgba(224,242,254,.4)}
+    .quickbar a.quicklink:hover{filter:brightness(1.1)}
+    .quickbar .src{opacity:.8}
 
     /* Board */
     .board{height:calc(100vh - var(--header-h) - var(--footer-h));display:flex;gap:12px;padding:12px 12px 16px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
@@ -35,13 +43,13 @@
 
     .card{background:#fff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:12px;padding:12px 12px 10px;box-shadow:0 3px 10px rgba(2,6,23,.06);position:relative}
     .overdue{border-left-color:var(--late)}
-    .block{border-left-color:var(--block)} /* BLOQUEADAS: roxo */
+    .block{border-left-color:var(--block)}
     .exec{border-left-color:var(--exec)}
     .done{border-left-color:var(--ok)}
     .soon{border-left-color:var(--warn)}
     .ok{border-left-color:var(--ok)}
     .recv{border-left-color:var(--recv)}
-    .pending{border-left-color:var(--pend)} /* NOVO: PENDENTES: cinza claro */
+    .pending{border-left-color:var(--pend)}
 
     .title{font-weight:800;margin-bottom:6px;line-height:1.25}
     .meta-text{font-size:13px;color:var(--muted);display:grid;gap:2px}
@@ -52,14 +60,14 @@
     .progress-inner{height:100%;width:0%;background:linear-gradient(90deg,#60a5fa,#22c55e);transition:width .35s ease}
     .progress-label{margin-top:4px;font-size:12px;color:#334155;display:flex;justify-content:space-between}
 
-    /* Selo inspirador (tarefas finalizadas) */
+    /* Selo inspirador */
     .seal{position:absolute;top:-8px;left:-8px;z-index:5;padding:6px 10px;border-radius:999px;color:#fff;font-size:11px;font-weight:900;letter-spacing:.3px;box-shadow:0 6px 18px rgba(2,6,23,.2);transform:rotate(-7deg)}
     .seal svg{width:14px;height:14px;vertical-align:-2px;margin-right:6px}
     .seal.ontime{background:linear-gradient(135deg,#2563eb,#38bdf8)}
     .seal.early{background:linear-gradient(135deg,#16a34a,#22c55e)}
-    .seal.late{background:linear-gradient(135deg,#7c3aed,#a78bfa)} /* tom positivo mesmo no atraso: foco no feito */
+    .seal.late{background:linear-gradient(135deg,#7c3aed,#a78bfa)}
 
-    /* Rodapé: filtros + relógio e texto */
+    /* Rodapé */
     footer{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--border);color:#334155;font-size:12px}
     .foot-wrap{max-width:1100px;margin:0 auto;padding:6px 10px}
     .foot-note{display:flex;align-items:center;gap:8px;line-height:1.35;margin-bottom:6px}
@@ -99,6 +107,7 @@
       .fcnt{background:#1f2937}
       .fbtn[aria-pressed="true"]{background:#0b1220;border-color:#2563eb}
       .foot-note .badge{background:#1f2937}
+      .quickbar{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.18)}
     }
   </style>
 </head>
@@ -113,6 +122,15 @@
       </div>
       <div class="meta" aria-live="polite">
         <div class="stamp" id="stamp">--/--/---- --:--</div>
+      </div>
+    </div>
+    <!-- Barra sutil de sugestão rápida -->
+    <div class="quickbar" id="quickbar" aria-live="polite" aria-label="Sugestão rápida">
+      <div class="tip" id="quickTip">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#fefefe" d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+        <span>Conteúdo rápido:</span>
+        <a class="quicklink" id="quickLink" href="#" target="_blank" rel="noopener">(carregando título...)</a>
+        <span class="src" id="quickSrc"></span>
       </div>
     </div>
   </header>
@@ -169,6 +187,10 @@
     };
 
     const DATA = {
+      // NOVO: sugestões rápidas (links externos). Preencha url e, se quiser, um título manual.
+      sugestoesRapidas:[
+        { url: 'https://youtu.be/bUUEvoa6N9Y?si=Rs4nQLF5taisA_h1', titulo: '' }
+      ],
       encarregados:[
         {nome:'Severo (Hidráulica)', tarefas:[
           {codigo:'T-0313', titulo:'Rede hidráulica de entrada de água — conclusão', prazo_esperado:'19/09/2025', status:'exec', pct:85, obs:'Madeiras e paletes no caminho obstruído (almoxarifado da Asas).'},
@@ -332,6 +354,9 @@
         lines.push(`${eDif} ${fmtDiffPlain(dif)}`);
       }
       if(obsText){ lines.push(`${eObs} Obs.: ${obsText}`); }
+      // Se houver sugestão rápida, anexa no final
+      const sug = (DATA.sugestoesRapidas && DATA.sugestoesRapidas[0]) || null;
+      if(sug && sug.url){ lines.push(`🔗 Conteúdo sugerido: ${sug.titulo? ('*'+sug.titulo+'* — '):''}${sug.url}`); }
       const stamp = nowStamp();
       const comment = `💬 *Comentário (${stamp}):* ${note}`;
       return `${header}\n${lines.join('\n')}\n\n${comment}`;
@@ -418,7 +443,6 @@
       return s;
     }
 
-    // NOVO: lógica de "pendente" (0%) para aplicar tarja cinza
     function isTaskPendingStatus(t, urg, pct){
       const st = (t.status||'').toLowerCase();
       if(pct > 0) return false;
@@ -436,7 +460,6 @@
       card.dataset.urg = urg;
       card.dataset.pct = String(pct);
 
-      // aplica classe visual de pendente (tarja cinza claro)
       if(isTaskPendingStatus(t, urg, pct)) card.classList.add('pending');
 
       const header = cardHeader(t);
@@ -468,7 +491,6 @@
       const pBar = el('div','progress-inner'); pBar.style.width = pct+'%'; pWrap.appendChild(pBar);
       const pLabel = el('div','progress-label'); pLabel.appendChild(el('span','', 'Avanço: '+pct+'%'));
 
-      // SELO INSPIRADOR
       if(isFinal){
         const seal = makeSeal(dif);
         card.appendChild(seal);
@@ -614,6 +636,47 @@
     function setStamp(){ const d=new Date(); const stamp=`${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; document.querySelector('#stamp').textContent=stamp; }
     function tickClock(){ const t=new Date(); document.querySelector('#clock').textContent = `${pad(t.getHours())}:${pad(t.getMinutes())}:${pad(t.getSeconds())}` }
 
+    /* =========================
+       Sugestão rápida — título
+       ========================= */
+    async function resolveTitle(url){
+      // Tenta YouTube oEmbed; se falhar, tenta noembed; por fim usa hostname
+      const tryFetch = async (u)=>{
+        const ctrl = new AbortController();
+        const to = setTimeout(()=>ctrl.abort(), 4000);
+        try{
+          const r = await fetch(u, {signal: ctrl.signal});
+          clearTimeout(to);
+          if(!r.ok) throw new Error('HTTP '+r.status);
+          return await r.json();
+        }catch(e){ clearTimeout(to); return null; }
+      };
+      const enc = encodeURIComponent(url);
+      const yt = await tryFetch(`https://www.youtube.com/oembed?url=${enc}&format=json`);
+      if(yt && yt.title) return yt.title;
+      const ne = await tryFetch(`https://noembed.com/embed?url=${enc}`);
+      if(ne && ne.title) return ne.title;
+      try{ return new URL(url).hostname.replace('www.',''); }catch{ return url; }
+    }
+
+    async function hydrateQuickBar(){
+      const qb = $('#quickbar');
+      const a = $('#quickLink');
+      const src = $('#quickSrc');
+      const sug = (DATA.sugestoesRapidas && DATA.sugestoesRapidas[0]) || null;
+      if(!sug || !sug.url){ qb.style.display='none'; return; }
+      a.href = sug.url;
+      a.textContent = (sug.titulo && sug.titulo.trim()) ? sug.titulo.trim() : '(carregando título...)';
+      src.textContent = '';
+      if(!sug.titulo){
+        const title = await resolveTitle(sug.url);
+        if(title){ a.textContent = title; }
+        try{ src.textContent = '• ' + (new URL(sug.url).hostname.replace('www.','')); }catch{ /* noop */ }
+      }else{
+        try{ src.textContent = '• ' + (new URL(sug.url).hostname.replace('www.','')); }catch{}
+      }
+    }
+
     function runTests(){
       try{
         console.group('%cKanban Smoke Tests','color:#0ea5e9;font-weight:bold');
@@ -630,8 +693,9 @@
 
     window.KANBAN_EXPORT = {
       getData: ()=> JSON.parse(JSON.stringify(DATA)),
-      replaceData: (next)=>{ Object.assign(DATA, next||{}); render(); },
-      addTask: (encName, task)=>{ const enc = (DATA.encarregados||[]).find(e=>e.nome===encName); if(!enc) return false; enc.tarefas.push(task); render(); return true; }
+      replaceData: (next)=>{ Object.assign(DATA, next||{}); render(); hydrateQuickBar(); },
+      addTask: (encName, task)=>{ const enc = (DATA.encarregados||[]).find(e=>e.nome===encName); if(!enc) return false; enc.tarefas.push(task); render(); return true; },
+      setQuickLink: (url, titulo='')=>{ DATA.sugestoesRapidas=[{url, titulo}]; hydrateQuickBar(); }
     };
 
     document.addEventListener('DOMContentLoaded', ()=>{
@@ -640,10 +704,12 @@
       setStamp();
       tickClock();
       setInterval(tickClock, 1000);
+      hydrateQuickBar();
       runTests();
     });
   })();
   </script>
 </body>
 </html>
+
 
