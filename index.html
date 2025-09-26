@@ -4,14 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Atlântico Golf — Kanban (Refatorado p/ IA)</title>
-  <meta name="description" content="Kanban mobile com WhatsApp Share, coluna de Suprimentos, filtros com contagem, diferença Planejado×Real e arquitetura preparada para interface com IA." />
+  <meta name="description" content="Kanban mobile com WhatsApp Share, coluna de Suprimentos, filtros com contagem, diferença Planejado×Real e arquitetura preparada para interface com IA. Com selo inspirador em tarefas finalizadas." />
   <meta name="theme-color" content="#0b2a4a" />
   <style>
-    :root{ --bg:#f6f8fc; --text:#0f172a; --muted:#475569; --brand:#0e3a6d; --brand2:#0b2a4a;
+    :root{
+      --bg:#f6f8fc; --text:#0f172a; --muted:#475569; --brand:#0e3a6d; --brand2:#0b2a4a;
       --card:#ffffff; --border:#d6e0ea; --head:#f1f5f9; --ring:#38bdf8;
       --ok:#16a34a; --warn:#ca8a04; --late:#b91c1c; --block:#9333ea; --exec:#0ea5e9; --recv:#15803d;
       --chip:#e2e8f0; --mono:#111827; --wa:#25D366; --wa-dark:#1EA955;
-      --header-h:92px; --footer-h:84px; }
+      --header-h:92px; --footer-h:84px; --radius:14px;
+    }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -26,18 +28,18 @@
 
     /* Board */
     .board{height:calc(100vh - var(--header-h) - var(--footer-h));display:flex;gap:12px;padding:12px 12px 16px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
-    .column{background:var(--card);border:1px solid var(--border);border-radius:14px;min-width:300px;max-width:480px;flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden;scroll-snap-align:start;contain:layout paint}
+    .column{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);min-width:300px;max-width:480px;flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden;scroll-snap-align:start;contain:layout paint}
     .column h2{position:sticky;top:0;z-index:10;margin:0;padding:10px 12px;background:var(--head);font-size:16px;font-weight:800;border-bottom:1px solid var(--border);text-align:center}
     .list{flex:1;overflow:auto;padding:10px}
 
-    .task,.item{background:#fff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:12px;padding:12px 12px 10px;box-shadow:0 3px 10px rgba(2,6,23,.06);position:relative}
-    .task.overdue,.item.overdue{border-left-color:var(--late)}
-    .task.block,.item.block{border-left-color:var(--block)}
-    .task.exec,.item.exec{border-left-color:var(--exec)}
-    .task.done,.item.done{border-left-color:var(--ok)}
-    .item.soon{border-left-color:var(--warn)}
-    .item.ok{border-left-color:var(--ok)}
-    .item.recv{border-left-color:var(--recv)}
+    .card{background:#fff;margin:8px 0;border:1px solid var(--border);border-left:10px solid var(--border);border-radius:12px;padding:12px 12px 10px;box-shadow:0 3px 10px rgba(2,6,23,.06);position:relative}
+    .overdue{border-left-color:var(--late)}
+    .block{border-left-color:var(--block)}
+    .exec{border-left-color:var(--exec)}
+    .done{border-left-color:var(--ok)}
+    .soon{border-left-color:var(--warn)}
+    .ok{border-left-color:var(--ok)}
+    .recv{border-left-color:var(--recv)}
 
     .title{font-weight:800;margin-bottom:6px;line-height:1.25}
     .meta-text{font-size:13px;color:var(--muted);display:grid;gap:2px}
@@ -47,6 +49,13 @@
     .progress{margin-top:8px;background:#e5e7eb;border:1px solid #d1d5db;border-radius:999px;height:10px;overflow:hidden}
     .progress-inner{height:100%;width:0%;background:linear-gradient(90deg,#60a5fa,#22c55e);transition:width .35s ease}
     .progress-label{margin-top:4px;font-size:12px;color:#334155;display:flex;justify-content:space-between}
+
+    /* Selo inspirador (tarefas finalizadas) */
+    .seal{position:absolute;top:-8px;left:-8px;z-index:5;padding:6px 10px;border-radius:999px;color:#fff;font-size:11px;font-weight:900;letter-spacing:.3px;box-shadow:0 6px 18px rgba(2,6,23,.2);transform:rotate(-7deg)}
+    .seal svg{width:14px;height:14px;vertical-align:-2px;margin-right:6px}
+    .seal.ontime{background:linear-gradient(135deg,#2563eb,#38bdf8)}
+    .seal.early{background:linear-gradient(135deg,#16a34a,#22c55e)}
+    .seal.late{background:linear-gradient(135deg,#7c3aed,#a78bfa)} /* tom positivo mesmo no atraso: foco no feito */
 
     /* Rodapé: filtros + relógio e texto */
     footer{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--border);color:#334155;font-size:12px}
@@ -68,7 +77,7 @@
 
     .modal{position:fixed;inset:0;background:rgba(2,6,23,.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:200}
     .modal.open{display:flex}
-    .modal-card{width:100%;max-width:520px;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 30px rgba(2,6,23,.25);padding:14px}
+    .modal-card{width:100%;max-width:520px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 12px 30px rgba(2,6,23,.25);padding:14px}
     .modal-title{margin:0 0 8px;font-size:16px;font-weight:800}
     .modal-sub{margin:0 0 8px;font-size:12px;color:var(--muted)}
     .modal-textarea{width:100%;min-height:96px;border:1px solid var(--border);border-radius:10px;padding:10px;font-size:14px;resize:vertical}
@@ -95,7 +104,6 @@
   <header id="hdr" role="banner" aria-label="Cabeçalho do Kanban">
     <div class="head-top">
       <div class="brand">
-        <!-- LOGO -->
         <img class="logo" src="assets/logo.jpg" alt="System Engenharia" />
         <div>
           <h1>Atlântico Golf — Quadro Kanban</h1>
@@ -136,7 +144,8 @@
       <div class="modal-actions">
         <button class="btn cancel" id="shareCancel">Cancelar</button>
         <button class="btn send" id="shareSend">
-          <svg class="wa-ico" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.11.548 4.09 1.504 5.82L4 29l8.332-1.46C14.016 28.48 15.975 29 18 29c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 2c5.523 0 10 4.477 10 10s-4.477 10-10 10c-1.822 0-3.53-.5-4.99-1.365l-.356-.213-4.7.824.85-4.572-.232-.375C5.557 18.188 5 16.65 5 15 5 9.477 10.477 5 16 5zm-4.04 4.75c-.202 0-.52.074-.792.37-.272.296-1.04 1.015-1.04 2.469s1.06 2.864 1.22 3.079c.162.215 2.09 3.183 5.073 4.454.715.305 1.273.484 1.71.617.72.22 1.372.186 1.89.11.58-.083 1.78-.73 2.04-1.43.26-.7.26-1.316.19-1.437-.07-.12-.277-.196-.575-.337-.298-.14-1.75-.87-2.02-.97-.27-.1-.47-.144-.668.14-.198.283-.786.942-.958 1.128-.17.186-.334.202-.624.067-.29-.135-1.24-.46-2.37-1.485-.88-.798-1.49-1.783-1.66-2.082-.17-.3-.02-.466.124-.61.122-.12.3-.33.447-.5.147-.17.2-.294.308-.49.108-.196.053-.368-.022-.512-.075-.143-.683-1.64-.94-2.236-.256-.595-.503-.52-.682-.52z" fill="#fff"/>
+          <svg class="wa-ico" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.11.548 4.09 1.504 5.82L4 29l8.332-1.46C14.016 28.48 15.975 29 18 29c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 2c5.523 0 10 4.477 10 10s-4.477 10-10 10c-1.822 0-3.53-.5-4.99-1.365l-.356-.213-4.7.824.85-4.572-.232-.375C5.557 18.188 5 16.65 5 15 5 9.477 10.477 5 16 5zm-4.04 4.75c-.202 0-.52.074-.792.37-.272.296-1.04 1.015-1.04 2.469s1.06 2.864 1.22 3.079c.162.215 2.09 3.183 5.073 4.454.715.305 1.273.484 1.71.617.72.22 1.372.186 1.89.11.58-.083 1.78-.73 2.04-1.43.26-.7.26-1.316.19-1.437-.07-.12-.277-.196-.575-.337-.298-.14-1.75-.87-2.02-.97-.27-.1-.47-.144-.668.14-.198.283-.786.942-.958 1.128-.17.186-.334.202-.624.067-.29-.135-1.24-.46-2.37-1.485-.88-.798-1.49-1.783-1.66-2.082-.17-.3-.02-.466.124-.61.122-.12.3-.33.447-.5.147-.17.2-.294.308-.49.108-.196.053-.368-.022-.512-.075-.143-.683-1.64-.94-2.236-.256-.595-.503-.52-.682-.52z" fill="#fff"/></svg>
+          Enviar
         </button>
       </div>
     </div>
@@ -152,12 +161,6 @@
      * ============================================================= */
 
     const RULES = {
-      /**
-       * Regras de negócio
-       * - autoFinalizeAtPct: % a partir do qual a tarefa é automaticamente marcada como concluída.
-       * - assumeDueAsDoneDateWhenMissing: se true, tarefas concluídas sem data_conclusao assumem prazo_esperado como data real.
-       * - sortDoneLast: tarefas concluídas descem automaticamente na listagem.
-       */
       autoFinalizeAtPct: 100,
       assumeDueAsDoneDateWhenMissing: true,
       sortDoneLast: true
@@ -239,15 +242,20 @@
      *  (terminei o copie e cole aqui)
      * ============================================================= */
 
-    /* ===== Utils ===== */
     const DAY=86400000, HOUR=36e5;
     const $ = sel => document.querySelector(sel);
     const $$ = sel => Array.from(document.querySelectorAll(sel));
     const el = (tag, cls, text) => { const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e };
     const pad = n => String(n).padStart(2,'0');
     const parseBRDate = s => { if(!s) return null; const a=s.split('/'); if(a.length!==3) return null; const [d,m,y]=a.map(Number); const dt=new Date(y,(m||1)-1,d||1,12,0,0); return isNaN(dt)?null:dt };
-    const dLabel = s => { const d=parseBRDate(s); if(!d) return ''; const delta=Math.floor((d - new Date())/DAY); return delta===0? 'D-0' : (delta>0? 'D-'+delta : 'D+'+Math.abs(delta)); };
-    const isPastDue = s => { const d=parseBRDate(s); return !!(d && (new Date() - d) > 0); };
+
+    const STATUS_LABEL = { exec:'Em execução', block:'Bloqueada', done:'Finalizada', FINALIZADA:'Finalizada', pending:'Pendente' };
+
+    const WHATSVG = '<svg class="wa-ico" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.11.548 4.09 1.504 5.82L4 29l8.332-1.46C14.016 28.48 15.975 29 18 29c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 2c5.523 0 10 4.477 10 10s-4.477 10-10 10c-1.822 0-3.53-.5-4.99-1.365l-.356-.213-4.7.824.85-4.572-.232-.375C5.557 18.188 5 16.65 5 15 5 9.477 10.477 5 16 5zm-4.04 4.75c-.202 0-.52.074-.792.37-.272.296-1.04 1.015-1.04 2.469s1.06 2.864 1.22 3.079c.162.215 2.09 3.183 5.073 4.454.715.305 1.273.484 1.71.617.72.22 1.372.186 1.89.11.58-.083 1.78-.73 2.04-1.43.26-.7.26-1.316.19-1.437-.07-.12-.277-.196-.575-.337-.298-.14-1.75-.87-2.02-.97-.27-.1-.47-.144-.668.14-.198.283-.786.942-.958 1.128-.17.186-.334.202-.624.067-.29-.135-1.24-.46-2.37-1.485-.88-.798-1.49-1.783-1.66-2.082-.17-.3-.02-.466.124-.61.122-.12.3-.33.447-.5.147-.17.2-.294.308-.49.108-.196.53-.368-.022-.512-.075-.143-.683-1.64-.94-2.236-.256-.595-.503-.52-.682-.52z" fill="#fff"/></svg>';
+
+    let NOW = new Date();
+    const dLabel = s => { const d=parseBRDate(s); if(!d) return ''; const delta=Math.floor((d - NOW)/DAY); return delta===0? 'D-0' : (delta>0? 'D-'+delta : 'D+'+Math.abs(delta)); };
+    const isPastDue = s => { const d=parseBRDate(s); return !!(d && (NOW - d) > 0); };
     const urgencyByDate = (dateStr,status)=>{
       if(status==='done'||status==='FINALIZADA') return 'done';
       if(isPastDue(dateStr)) return 'overdue';
@@ -255,10 +263,11 @@
       if(status==='block') return 'block';
       if(status==='exec') return 'exec';
       const d=parseBRDate(dateStr); if(!d) return 'ok';
-      const h=(d-new Date())/HOUR; return (h<=48)?'soon':'ok';
+      const h=(d-NOW)/HOUR; return (h<=48)?'soon':'ok';
     };
+
     const compareByPrazo = (a,b)=>{
-      const u = ds => { const d=parseBRDate(ds); if(!d) return 3; const h=(d-new Date())/HOUR; return (h<=0)?0:(h<=48?1:2) };
+      const u = ds => { const d=parseBRDate(ds); if(!d) return 3; const h=(d-NOW)/HOUR; return (h<=0)?0:(h<=48?1:2) };
       const aDate=a.prazo_esperado||a.prazo||a.previsao||a.data||'';
       const bDate=b.prazo_esperado||b.prazo||b.previsao||b.data||'';
       const ua=u(aDate), ub=u(bDate);
@@ -266,17 +275,17 @@
       const da=parseBRDate(aDate), db=parseBRDate(bDate);
       if(da&&db) return da-db; if(da&&!db) return -1; if(!da&&db) return 1; return 0;
     };
+
     const compareOC = (a,b)=>{
       const ar=!!a.recebido, br=!!b.recebido; if(ar!==br) return (br - ar);
       if(ar&&br){ const da=parseBRDate(a.recebido), db=parseBRDate(b.recebido); if(da&&db) return db-da; if(da&&!db) return -1; if(!da&&db) return 1; }
       return compareByPrazo({previsao:a.previsao,status:a.status},{previsao:b.previsao,status:b.status});
     };
 
-    /* ===== Diferença de dias (planejado x real) ===== */
     const diffDias = (plannedStr, realStr) => {
       const p = parseBRDate(plannedStr), r = parseBRDate(realStr);
-      if(!p || !r) return 0; // regra: se faltar data, exibir 0
-      return Math.round((r - p)/DAY); // negativo = adiantado
+      if(!p || !r) return 0;
+      return Math.round((r - p)/DAY);
     };
     const fmtDiffPlain = n => {
       const abs = Math.abs(n);
@@ -286,39 +295,43 @@
       return `Diferença: ${n} ${plural} (em atraso)`;
     };
 
-    /* ===== Share helpers ===== */
     function formatStatus(status, dueStr){
-      if(status==='exec') return 'Em execução';
-      if(status==='block') return 'Bloqueada';
-      if(status==='done'||status==='FINALIZADA') return 'Finalizada';
+      if(status in STATUS_LABEL) return STATUS_LABEL[status];
       return isPastDue(dueStr)?'Atrasada':'Pendente';
     }
     function nowStamp(){
       const d = new Date();
       return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
     }
+
     function buildTaskMessage(t, encarregado, note){
+      const EMOJI_BY_STATUS = { exec:'🛠️', block:'⛔', done:'✅', FINALIZADA:'✅', overdue:'⏰', pending:'🟡', recv:'📦' };
       const due = t.prazo_esperado||t.prazo||'-';
-      const status = formatStatus(t.status, due);
       const pct = Math.max(0, Math.min(100, Number(t.pct||0)));
-      const header = `*${t.codigo||''} — ${t.titulo}*`;
-
-      const lines = [
-        `Responsável: ${encarregado}`,
-        `Status: ${status} • Avanço: ${pct}%`,
-        `Prazo esperado: ${due}${due? ` (${dLabel(due)})`:''}`
-      ];
-
-      // Sempre mostrar em concluídas
-      if((t.status==='done' || t.status==='FINALIZADA') && t.data_conclusao){
-        const dif = diffDias(due, t.data_conclusao);
-        lines.push(`Concluído em: ${t.data_conclusao}`);
-        lines.push(fmtDiffPlain(dif));
+      const urg = urgencyByDate(due, t.status);
+      const status = formatStatus(t.status, due);
+      const eStatus = EMOJI_BY_STATUS[t.status] || (urg==='overdue' ? '⏰' : (status==='Pendente' ? '🟡' : '📌'));
+      const obsText = (t.obs||'');
+      const eObs = obsText.match(/material|OC|fornecedor|chegou|entrega/i) ? '📦' :
+                   obsText.match(/aguard|obstru|acesso|libera/i) ? '🚧' :
+                   obsText.match(/janela|prazo|programa/i) ? '🗓️' : '📝';
+      const dLbl = due ? dLabel(due) : '';
+      const isFinal = (t.status==='done'||t.status==='FINALIZADA') && !!t.data_conclusao;
+      const dif = isFinal ? diffDias(due, t.data_conclusao) : 0;
+      const eDif = isFinal ? (dif<0 ? '🟢' : (dif>0 ? '🔴' : '⚖️')) : '';
+      const code = t.codigo ? `\`#${t.codigo}\`` : '';
+      const header = `${eStatus} *${code} ${t.titulo}*`;
+      const lines = [];
+      lines.push(`👤 Responsável: ${encarregado}`);
+      lines.push(`📈 Status: *${status}* • Avanço: *${pct}%*`);
+      lines.push(`📅 Prazo esperado: *${due || '-'}*${dLbl? ` • ${dLbl}`:''}`);
+      if(isFinal){
+        lines.push(`🏁 Concluído em: *${t.data_conclusao}*`);
+        lines.push(`${eDif} ${fmtDiffPlain(dif)}`);
       }
-      if(t.obs) lines.push(`Obs.: ${t.obs}`);
-
+      if(obsText){ lines.push(`${eObs} Obs.: ${obsText}`); }
       const stamp = nowStamp();
-      const comment = `*Comentário (${stamp}):* ${note}`;
+      const comment = `💬 *Comentário (${stamp}):* ${note}`;
       return `${header}\n${lines.join('\n')}\n\n${comment}`;
     }
     function openWhatsAppWithText(text){
@@ -334,7 +347,6 @@
       }
     }
 
-    /* ===== Modal ===== */
     const modal = document.querySelector('#shareModal');
     const noteEl = document.querySelector('#shareNote');
     const sendBtn = document.querySelector('#shareSend');
@@ -344,7 +356,6 @@
     function closeModal(){ modal.classList.remove('open'); shareCtx=null; }
     cancelBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
-
     sendBtn.addEventListener('click', ()=>{
       if(!shareCtx) return;
       const note = noteEl.value.trim();
@@ -354,28 +365,23 @@
       openWhatsAppWithText(msg);
     });
 
-    /* ===== Núcleo do Kanban ===== */
     const boardEl = document.querySelector('#board');
 
-    // Normaliza status com base no %
     function normalizeStatus(t){
       const pct = Number(t.pct||0);
       if(pct>=RULES.autoFinalizeAtPct){ t.status='done'; return; }
-      if((t.status||'').toLowerCase()==='block') return;
+      const s=(t.status||'').toLowerCase();
+      if(s==='block') return;
       if(pct>0){ t.status='exec'; }
     }
-
     function isDone(t){ return t.status==='done' || t.status==='FINALIZADA' || Number(t.pct||0) >= RULES.autoFinalizeAtPct; }
 
-    // Garante: todas as concluídas terão Prazo, Concluído em e Diferença
     function ensureConclusionDates(){
       for(const enc of DATA.encarregados){
         for(const t of (enc.tarefas||[])){
           normalizeStatus(t);
-          if(isDone(t)){
-            if(!t.data_conclusao && RULES.assumeDueAsDoneDateWhenMissing){
-              t.data_conclusao = t.prazo_esperado || t.prazo || '';
-            }
+          if(isDone(t) && !t.data_conclusao && RULES.assumeDueAsDoneDateWhenMissing){
+            t.data_conclusao = t.prazo_esperado || t.prazo || '';
           }
         }
       }
@@ -389,62 +395,89 @@
       return compareByPrazo(a,b);
     }
 
+    function cardHeader(t){
+      const header = el('div','');
+      header.appendChild(el('span','code','#'+(t.codigo||'')));
+      const title = el('span','title'); title.textContent = t.titulo; header.appendChild(title);
+      return header;
+    }
+
+    function makeSeal(diff){
+      const s = document.createElement('div');
+      s.className = 'seal';
+      let label = 'Concluído';
+      let cls = 'late';
+      if(diff < 0){ label = 'Adiantado'; cls = 'early'; }
+      else if(diff === 0){ label = 'No Prazo'; cls = 'ontime'; }
+      s.classList.add(cls);
+      s.setAttribute('title', 'Parabéns! Trabalho entregue.');
+      s.setAttribute('aria-label', 'Selo de conclusão');
+      s.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2l2.39 4.84 5.34.78-3.86 3.76.91 5.31L12 14.77 6.22 16.69l.91-5.31L3.27 7.62l5.34-.78L12 2z"/></svg> <span>${label}</span>`;
+      return s;
+    }
+
+    function buildTaskCard(t, encarregado){
+      const pct = Math.max(0, Math.min(100, Number(t.pct||0)));
+      const dueStr = t.prazo_esperado||t.prazo||'';
+      const urg = urgencyByDate(dueStr,t.status);
+      const card = el('article', `card task-card ${urg}`);
+      card.dataset.st = (t.status||'').toLowerCase();
+      card.dataset.urg = urg;
+      card.dataset.pct = String(pct);
+
+      const header = cardHeader(t);
+      const btn = document.createElement('button');
+      btn.className='share-btn'; btn.type='button'; btn.title='Compartilhar no WhatsApp'; btn.setAttribute('aria-label','Compartilhar no WhatsApp');
+      btn.innerHTML = WHATSVG;
+      btn.addEventListener('click', (e)=>{ e.stopPropagation(); openModal({t, enc: encarregado}); });
+
+      const meta = el('div','meta-text');
+      const parts = [];
+      let pEsperado = 'Prazo esperado: '+(dueStr||'-');
+      if(card.dataset.st!=='done' && card.dataset.st!=='finalizada') pEsperado += ' • '+dLabel(dueStr||'');
+      parts.push(pEsperado);
+
+      const isFinal = (t.status==='done'||t.status==='FINALIZADA') && !!t.data_conclusao;
+      let dif = 0;
+      if(isFinal){
+        parts.push('Concluído em: '+t.data_conclusao);
+        dif = diffDias(dueStr, t.data_conclusao);
+        parts.push(fmtDiffPlain(dif));
+      }
+      if(t.obs) parts.push('Obs.: '+t.obs);
+      meta.innerHTML = parts.map(p=>`<div>${p}</div>`).join('');
+
+      const label = STATUS_LABEL[t.status] || (card.className.includes('overdue')? 'Atrasada' : 'Pendente');
+      const chip = el('span','chip',label); meta.appendChild(chip);
+
+      const pWrap = el('div','progress');
+      const pBar = el('div','progress-inner'); pBar.style.width = pct+'%'; pWrap.appendChild(pBar);
+      const pLabel = el('div','progress-label'); pLabel.appendChild(el('span','', 'Avanço: '+pct+'%'));
+
+      // SELO INSPIRADOR
+      if(isFinal){
+        const seal = makeSeal(dif);
+        card.appendChild(seal);
+      }
+
+      card.appendChild(header); card.appendChild(meta); card.appendChild(pWrap); card.appendChild(pLabel); card.appendChild(btn);
+      return card;
+    }
+
     function renderEncColumns(){
       ensureConclusionDates();
+      const frag = document.createDocumentFragment();
       for(const enc of DATA.encarregados){
         const col = el('section','column'); col.setAttribute('role','region'); col.setAttribute('aria-label',enc.nome);
         col.appendChild(el('h2','',enc.nome));
         const list = el('div','list');
         const tasks = (enc.tarefas||[]).slice().sort(sortTasks);
         for(const t of tasks){
-          normalizeStatus(t);
-          const pct = Math.max(0, Math.min(100, Number(t.pct||0)));
-          const dueStr = t.prazo_esperado||t.prazo||'';
-          const urg = urgencyByDate(dueStr,t.status);
-          const card = el('article', 'task '+urg);
-          card.dataset.st = (t.status||'').toLowerCase();
-          card.dataset.urg = urg;
-
-          const header = el('div','');
-          header.appendChild(el('span','code','#'+(t.codigo||'')));
-          const title = el('span','title'); title.textContent = t.titulo; header.appendChild(title);
-
-          const btn = document.createElement('button');
-          btn.className='share-btn'; btn.type='button'; btn.title='Compartilhar no WhatsApp'; btn.setAttribute('aria-label','Compartilhar no WhatsApp');
-          btn.innerHTML = '<svg class="wa-ico" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.11.548 4.09 1.504 5.82L4 29l8.332-1.46C14.016 28.48 15.975 29 18 29c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 2c5.523 0 10 4.477 10 10s-4.477 10-10 10c-1.822 0-3.53-.5-4.99-1.365l-.356-.213-4.7.824.85-4.572-.232-.375C5.557 18.188 5 16.65 5 15 5 9.477 10.477 5 16 5zm-4.04 4.75c-.202 0-.52.074-.792.37-.272.296-1.04 1.015-1.04 2.469s1.06 2.864 1.22 3.079c.162.215 2.09 3.183 5.073 4.454.715.305 1.273.484 1.71.617.72.22 1.372.186 1.89.11.58-.083 1.78-.73 2.04-1.43.26-.7.26-1.316.19-1.437-.07-.12-.277-.196-.575-.337-.298-.14-1.75-.87-2.02-.97-.27-.1-.47-.144-.668.14-.198.283-.786.942-.958 1.128-.17.186-.334.202-.624.067-.29-.135-1.24-.46-2.37-1.485-.88-.798-1.49-1.783-1.66-2.082-.17-.3-.02-.466.124-.61.122-.12.3-.33.447-.5.147-.17.2-.294.308-.49.108-.196.053-.368-.022-.512-.075-.143-.683-1.64-.94-2.236-.256-.595-.503-.52-.682-.52z" fill="#fff"/>';
-          btn.addEventListener('click', (e)=>{ e.stopPropagation(); openModal({t, enc: enc.nome}); });
-
-          const meta = el('div','meta-text');
-          const parts = [];
-
-          // Padrão: sempre mostrar Prazo esperado
-          let pEsperado = 'Prazo esperado: '+(dueStr||'-');
-          if(t.status!=='done' && t.status!=='FINALIZADA') pEsperado += ' • '+dLabel(dueStr||'');
-          parts.push(pEsperado);
-
-          // Se concluída: SEMPRE mostrar Concluído em + Diferença
-          const isFinal = (t.status==='done'||t.status==='FINALIZADA') && !!t.data_conclusao;
-          if(isFinal){
-            parts.push('Concluído em: '+t.data_conclusao);
-            const dif = diffDias(dueStr, t.data_conclusao);
-            parts.push(fmtDiffPlain(dif));
-          }
-
-          if(t.obs) parts.push('Obs.: '+t.obs);
-          meta.innerHTML = parts.map(p=>`<div>${p}</div>`).join('');
-
-          let statusLabel='Pendente';
-          if(t.status==='exec') statusLabel='Em execução'; else if(t.status==='block') statusLabel='Bloqueada'; else if(t.status==='done'||t.status==='FINALIZADA') statusLabel='Finalizada 🏆'; else if(card.className.includes('overdue')) statusLabel='Atrasada';
-          const chip = el('span','chip',statusLabel); meta.appendChild(chip);
-
-          const pWrap = el('div','progress'); const pBar = el('div','progress-inner'); pBar.style.width = pct+'%'; pWrap.appendChild(pBar);
-          const pLabel = el('div','progress-label'); pLabel.appendChild(el('span','', 'Avanço: '+pct+'%'));
-
-          card.appendChild(header); card.appendChild(meta); card.appendChild(pWrap); card.appendChild(pLabel); card.appendChild(btn);
-          list.appendChild(card);
+          list.appendChild(buildTaskCard(t, enc.nome));
         }
-        col.appendChild(list); boardEl.appendChild(col);
+        col.appendChild(list); frag.appendChild(col);
       }
+      boardEl.appendChild(frag);
     }
 
     function renderSuppliesColumn(){
@@ -454,10 +487,9 @@
       col.appendChild(el('h2','', 'Suprimentos'));
       const list = el('div','list');
 
-      // Requisições
       const rqHdr = el('div','title','Requisições em Aberto'); list.appendChild(rqHdr);
       for(const rq of rqs){
-        const it = el('article','item '+urgencyByDate(rq.prazo, rq.status));
+        const it = el('article','card '+urgencyByDate(rq.prazo, rq.status));
         const kv1=el('div','meta-text','');
         kv1.innerHTML = [
           `<div><span class="code">#${rq.codigo||rq.numero||''}</span><strong>${rq.numero||rq.codigo||'RQ'}</strong></div>`,
@@ -468,20 +500,19 @@
         list.appendChild(it); it.appendChild(kv1);
       }
 
-      // OCs
       const ocHdr = el('div','title','Ordens de Compra (OC)'); list.appendChild(ocHdr);
       for(const oc of ocs){
         const cls = oc.recebido? 'recv' : urgencyByDate(oc.previsao, oc.status);
-        const it2 = el('article','item '+cls);
+        const it2 = el('article','card '+cls);
         const kv2=el('div','meta-text','');
         kv2.innerHTML = [
           `<div><span class="code">#${oc.codigo||oc.numero||''}</span><strong>${oc.numero||oc.codigo||'OC'}</strong></div>`,
           `<div>Fornecedor: ${oc.fornecedor||'-'} • Comprador: ${oc.comprador||'-'} • Origem: ${oc.origem_rq||'-'}</div>`,
           `<div>Material: ${oc.material||'-'} • Aplicação: ${oc.aplicacao||'-'}</div>`,
           `<div>Emissão: ${oc.emissao||'-'} • Previsão: ${oc.previsao||'-'}</div>`,
-          `<div>${oc.recebido?('Recebido em '+oc.recebido):'Pendente'}</div>`,
-          `${oc.obs_comprador?(`<div>Obs. comprador: ${oc.obs_comprador}</div>`):''}`
+          `${oc.recebido?(`<div>Recebido em ${oc.recebido}</div>`):'<div>Pendente</div>'}`
         ].join('');
+        if(oc.obs_comprador){ kv2.innerHTML += `<div>Obs. comprador: ${oc.obs_comprador}</div>`; }
         list.appendChild(it2); it2.appendChild(kv2);
       }
 
@@ -489,6 +520,7 @@
     }
 
     function render(){
+      NOW = new Date();
       boardEl.innerHTML='';
       renderEncColumns();
       renderSuppliesColumn();
@@ -496,15 +528,13 @@
       applyFilters();
     }
 
-    /* ===== Filtros de status ===== */
-    const active = new Set(['all']); // estado inicial
+    const active = new Set(['all']);
 
     function isPending(card){
       const st = (card.dataset.st||'').toLowerCase();
       const urg = (card.dataset.urg||'').toLowerCase();
-      const pctEl = card.querySelector('.progress-inner');
-      const pct = pctEl ? parseFloat((pctEl.style.width||'0%')) : 0;
-      if(pct > 0) return false;         // nunca pendente se há avanço
+      const pct = parseFloat(card.dataset.pct||'0');
+      if(pct > 0) return false;
       if(st==='done') return false;
       if(urg==='overdue' || st==='block' || st==='exec') return false;
       return (urg==='ok' || urg==='soon' || !urg);
@@ -524,30 +554,24 @@
     }
 
     function applyFilters(){
-      const cards = document.querySelectorAll('.task');
-      for(const c of cards){
-        c.classList.toggle('hidden', !cardMatches(c));
-      }
+      const cards = document.querySelectorAll('.task-card');
+      for(const c of cards){ c.classList.toggle('hidden', !cardMatches(c)); }
     }
 
     function updateFilterCounts(){
-      const cards = document.querySelectorAll('.task');
+      const cards = document.querySelectorAll('.task-card');
       const counters = {all: cards.length, exec:0, block:0, overdue:0, pending:0, done:0};
       for(const c of cards){
         const st=(c.dataset.st||'').toLowerCase();
         const urg=(c.dataset.urg||'').toLowerCase();
-        const pctEl = c.querySelector('.progress-inner');
-        const pct = pctEl ? parseFloat((pctEl.style.width||'0%')) : 0;
+        const pct = parseFloat(c.dataset.pct||'0');
         if(st==='exec' && pct < RULES.autoFinalizeAtPct) counters.exec++;
         if(st==='block') counters.block++;
         if(st==='done' || pct >= RULES.autoFinalizeAtPct) counters.done++;
         if(urg==='overdue') counters.overdue++;
         if(isPending(c)) counters.pending++;
       }
-      for(const k of Object.keys(counters)){
-        const e = document.querySelector(`[data-cnt="${k}"]`);
-        if(e) e.textContent = counters[k];
-      }
+      for(const k in counters){ const e = document.querySelector(`[data-cnt="${k}"]`); if(e) e.textContent = counters[k]; }
     }
 
     function toggleBtn(btn){
@@ -556,35 +580,44 @@
       if(val==='clear'){
         $$('.filters .fbtn').forEach(b=>b.setAttribute('aria-pressed','false'));
         active.clear(); active.add('all');
-        $(".fbtn[data-val=\"all\"]").setAttribute('aria-pressed','true');
+        document.querySelector('.fbtn[data-val="all"]').setAttribute('aria-pressed','true');
       } else if(val==='all'){
         $$('.filters .fbtn').forEach(b=>{ if(b.dataset.val!=='clear') b.setAttribute('aria-pressed','false'); });
         active.clear(); active.add('all');
         btn.setAttribute('aria-pressed','true');
       } else {
-        $(".fbtn[data-val=\"all\"]").setAttribute('aria-pressed','false');
+        document.querySelector('.fbtn[data-val="all"]').setAttribute('aria-pressed','false');
         active.delete('all');
         btn.setAttribute('aria-pressed', String(!pressed));
         if(pressed){ active.delete(val); } else { active.add(val); }
-        if(active.size===0){ active.add('all'); $(".fbtn[data-val=\"all\"]").setAttribute('aria-pressed','true'); }
+        if(active.size===0){ active.add('all'); document.querySelector('.fbtn[data-val="all"]').setAttribute('aria-pressed','true'); }
       }
       applyFilters();
     }
 
     function bindFilters(){ $$('.filters .fbtn').forEach(b=> b.addEventListener('click', ()=> toggleBtn(b))); }
 
-    /* ===== Relógio e carimbo ===== */
-    function setStamp(){ const d=new Date(); const stamp=`${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; $('#stamp').textContent=stamp; }
-    function tickClock(){ const t=new Date(); $('#clock').textContent = `${pad(t.getHours())}:${pad(t.getMinutes())}:${pad(t.getSeconds())}` }
+    function setStamp(){ const d=new Date(); const stamp=`${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; document.querySelector('#stamp').textContent=stamp; }
+    function tickClock(){ const t=new Date(); document.querySelector('#clock').textContent = `${pad(t.getHours())}:${pad(t.getMinutes())}:${pad(t.getSeconds())}` }
 
-    /* ===== API mínima p/ IA ===== */
+    function runTests(){
+      try{
+        console.group('%cKanban Smoke Tests','color:#0ea5e9;font-weight:bold');
+        console.assert(parseBRDate('19/09/2025') instanceof Date, 'parseBRDate deve retornar Date');
+        console.assert(parseBRDate('')===null, 'parseBRDate vazio deve retornar null');
+        console.assert(diffDias('01/01/2020','03/01/2020')===2, 'diffDias básico');
+        const msg = buildTaskMessage({codigo:'T-000', titulo:'Teste', prazo_esperado:'10/10/2025', status:'exec', pct:50, obs:'Aguardando material'}, 'Dev', 'Ok');
+        console.assert(typeof msg==='string' && msg.includes('Comentário') && msg.includes('\n'), 'Mensagem WA formatada');
+        console.groupEnd();
+      }catch(e){
+        console.error('Falha nos testes:', e);
+      }
+    }
+
     window.KANBAN_EXPORT = {
       getData: ()=> JSON.parse(JSON.stringify(DATA)),
       replaceData: (next)=>{ Object.assign(DATA, next||{}); render(); },
-      addTask: (encName, task)=>{
-        const enc = (DATA.encarregados||[]).find(e=>e.nome===encName);
-        if(!enc) return false; enc.tarefas.push(task); render(); return true;
-      }
+      addTask: (encName, task)=>{ const enc = (DATA.encarregados||[]).find(e=>e.nome===encName); if(!enc) return false; enc.tarefas.push(task); render(); return true; }
     };
 
     document.addEventListener('DOMContentLoaded', ()=>{
@@ -593,10 +626,9 @@
       setStamp();
       tickClock();
       setInterval(tickClock, 1000);
+      runTests();
     });
   })();
   </script>
 </body>
 </html>
-
-
