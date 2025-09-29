@@ -159,13 +159,15 @@
 
     /* =============================================================
      *  BLOCO DE EDIÇÃO RÁPIDA (para uso com IA) — DADOS + REGRAS
-     *  (inicie o copie e cole aqui)
+      *  (inicie o copie e cole aqui)
  * ============================================================= */
 
 const RULES = {
   autoFinalizeAtPct: 100,
   assumeDueAsDoneDateWhenMissing: true,
-  sortDoneLast: true
+  sortDoneLast: true,
+  // Campo para finalizar a colagem/rolagem:
+  finalizeOnPaste: true
 };
 
 const DATA = {
@@ -215,33 +217,34 @@ const DATA = {
       {codigo:'T-0343', titulo:'Lançamento de cabos alimentadores — QT-SS-BL1, QT-Guarita, QT-Gourmet 1, QT-Gourmet 2, QT-Águas Servidas 03A', prazo_esperado:'03/10/2025', status:'exec', pct:15}
     ]}
   ],
+
   suprimentos:{
     compradores:['Brígida Souza','Suellen Mello','Lucas Fernandes'],
     pendencias_teams:{'Brígida Souza':0,'Suellen Mello':0,'Lucas Fernandes':0},
+
+    // Somente RQs que ainda não viraram OC
     requisicoes:[
-      {codigo:'RQ-11305', numero:'RQ-11305', responsavel:'Brígida Souza', contrato:'Atlântico', material:'Condulete', aplicacao:'-', data:'', prazo:'', status:'Em cotação', obs:'Requisição atribuída para cotação'},
-      {codigo:'RQ-11086', numero:'RQ-11086', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Repastilhamento', aplicacao:'-', data:'', prazo:'', status:'', obs:'Fornecedor: TRIUNFO (LOC). Aguardando retorno da obra sobre disponibilidade de brocas para retirada'},
-      {codigo:'RQ-11295', numero:'RQ-11295', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Material de fixação', aplicacao:'-', data:'', prazo:'', status:'', obs:'OC 587 — 16/09 parcial'},
-      {codigo:'RQ-11309', numero:'RQ-11309', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Parafuso', aplicacao:'-', data:'', prazo:'', status:'', obs:'Fornecedor: PARAFUSOPAR. OC: system. Não chegou'},
-      {codigo:'RQ-11181', numero:'RQ-11181', responsavel:'Suellen Mello', contrato:'Atlântico', material:'PVC', aplicacao:'Ralos embasamento / fechamento de bombas', data:'', prazo:'', status:'', obs:'OC 597 — 18/09 parcial'},
-      {codigo:'RQ-10623', numero:'RQ-10623', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Quadros de entrada de energia', aplicacao:'Entrada de energia', data:'', prazo:'', status:'', obs:'OC 009 — 09/09 parcial; restante 25/09'},
-      {codigo:'RQ-11282', numero:'RQ-11282', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Tê de fachada', aplicacao:'Fachada', data:'', prazo:'', status:'', obs:'OC 591 — não chegou'},
-      {codigo:'RQ-11237', numero:'RQ-11237', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Fitas isolantes', aplicacao:'Elétrica força e distribuição', data:'', prazo:'', status:'', obs:'OC 585 — chegou 16/09'},
-      {codigo:'RQ-11238', numero:'RQ-11238', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Ralo + PVC', aplicacao:'Distribuição hidráulica térreo', data:'', prazo:'', status:'', obs:'OC 595 — entrega parcial 19/09'},
-      {codigo:'RQ-11333', numero:'RQ-11333', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Tê de fachada', aplicacao:'Fachada', data:'', prazo:'', status:'', obs:'OC 593 — Chegou'},
-      {codigo:'RQ-11314', numero:'RQ-11314', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Fitas isolantes', aplicacao:'Elétrica força e distribuição', data:'', prazo:'', status:'', obs:'OC 590 — 17/09/2025'},
-      {codigo:'RQ-11291', numero:'RQ-11291', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'PIAL PLUS+', aplicacao:'Áreas comuns / subsolo / escadas / coberturas / extravios', data:'', prazo:'', status:'Em cotação', obs:'Requisição atribuída para cotação'},
-      {codigo:'RQ-11294', numero:'RQ-11294', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Arandelas', aplicacao:'Escadas e áreas técnicas', data:'', prazo:'', status:'Em cotação', obs:'Requisição atribuída para cotação'}
+      {codigo:'RQ-11305', numero:'RQ-11305', responsavel:'Brígida Souza', contrato:'Atlântico', material:'Condulete', aplicacao:'-', data:'', prazo:'', status:'Em cotação', obs:'Sem atualização'},
+      {codigo:'RQ-11379', numero:'RQ-11379', responsavel:'Brígida Souza', contrato:'Atlântico', material:'Aditivo', aplicacao:'-', data:'', prazo:'', status:'Em cotação', obs:'Sem atualização'},
+      {codigo:'RQ-11086', numero:'RQ-11086', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Repastilhamento', aplicacao:'-', data:'', prazo:'', status:'Em aprovação', obs:'Aguardando definição do Enivaldo'},
+      {codigo:'RQ-11291', numero:'RQ-11291', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'PIAL PLUS+', aplicacao:'Áreas comuns / subsolo / escadas / coberturas / extravios', data:'', prazo:'', status:'Em aprovação', obs:'Aguardando aprovação do cliente'},
+      {codigo:'RQ-11294', numero:'RQ-11294', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Arandelas', aplicacao:'Escadas e áreas técnicas', data:'', prazo:'', status:'Em aprovação', obs:'Aguardando aprovação do cliente'},
+      // Mantida como RQ (não há nº de OC na planilha)
+      {codigo:'RQ-11309', numero:'RQ-11309', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Parafuso', aplicacao:'-', data:'26/09/2025', prazo:'', status:'Em andamento', obs:'Fornecedor: PARAFUSOPAR. Não chegou'}
     ],
+
+    // Todos os processos que viraram OC (com origem_rq) — entregues vão ao final
     ocs:[
-      {codigo:'OC-587', numero:'OC-587', emissao:'', fornecedor:'WALSYWA Comércio de Produtos Metalúrgicos Ltda', status:'EMITIDA', previsao:'', comprador:'Suellen', recebido:'16/09/2025', origem_rq:'RQ-11295', material:'Material de fixação', aplicacao:'-', obs_comprador:'Parcial'},
-      {codigo:'OC-597', numero:'OC-597', emissao:'', fornecedor:'KG Instalações e Com. Elétrico', status:'EMITIDA', previsao:'', comprador:'Suellen', recebido:'18/09/2025', origem_rq:'RQ-11181', material:'PVC', aplicacao:'Ralos/fechamentos', obs_comprador:'Parcial'},
-      {codigo:'OC-009', numero:'OC-009', emissao:'', fornecedor:'ELETROASA — Eletrometalúrgica ASA Eireli', status:'EMITIDA', previsao:'25/09/2025', comprador:'Lucas', recebido:'09/09/2025', origem_rq:'RQ-10623', material:'Quadros de entrada de energia', aplicacao:'Entrada de energia', obs_comprador:'Entrega parcial 09/09; restante 25/09'},
-      {codigo:'OC-591', numero:'OC-591', emissao:'', fornecedor:'Westaflex Tubos Flexíveis Ltda', status:'EMITIDA', previsao:'', comprador:'Lucas', recebido:'', origem_rq:'RQ-11282', material:'Tê de fachada', aplicacao:'Fachada', obs_comprador:'Não chegou'},
-      {codigo:'OC-585', numero:'OC-585', emissao:'', fornecedor:'Lukma', status:'EMITIDA', previsao:'', comprador:'Lucas', recebido:'16/09/2025', origem_rq:'RQ-11237', material:'Fita isolante', aplicacao:'Elétrica força e distribuição'},
-      {codigo:'OC-595', numero:'OC-595', emissao:'', fornecedor:'KG Instalações e Comércio Elétrico Ltda', status:'EMITIDA', previsao:'', comprador:'Lucas', recebido:'19/09/2025', origem_rq:'RQ-11238', material:'Ralo + PVC', aplicacao:'Distribuição hidráulico térreo', obs_comprador:'Entrega parcial'},
-      {codigo:'OC-593', numero:'OC-593', emissao:'', fornecedor:'Mosal Artefatos de Alumínio Ltda - ME', status:'recebido', previsao:'', comprador:'Lucas', recebido:'', origem_rq:'RQ-11333', material:'Tê de fachada', aplicacao:'Fachada', obs_comprador:'Chegou'},
-      {codigo:'OC-590', numero:'OC-590', emissao:'', fornecedor:'Lukma', status:'EMITIDA', previsao:'17/09/2025', comprador:'Lucas', recebido:'', origem_rq:'RQ-11314', material:'Fitas isolantes', aplicacao:'Elétrica força e distribuição'}
+      {codigo:'OC-587', numero:'OC-587', emissao:'', fornecedor:'WALSYWA Comércio de Produtos Metalúrgicos Ltda', status:'EMITIDA', previsao:'', comprador:'Suellen Mello', recebido:'16/09/2025 (parcial)', origem_rq:'RQ-11295', material:'Material de fixação', aplicacao:'-', obs_comprador:'Parcial'},
+      {codigo:'OC-597', numero:'OC-597', emissao:'', fornecedor:'KG Instalações e Com. Elétrico', status:'EMITIDA', previsao:'', comprador:'Suellen Mello', recebido:'18/09/2025 (parcial)', origem_rq:'RQ-11181', material:'PVC', aplicacao:'Ralos/fechamentos', obs_comprador:'Parcial'},
+      {codigo:'OC-009', numero:'OC-009', emissao:'', fornecedor:'ELETROASA — Eletrometalúrgica ASA Eireli', status:'EMITIDA', previsao:'03/10/2025', comprador:'Lucas Fernandes', recebido:'09/09/2025 (parcial)', origem_rq:'RQ-10623', material:'Quadros de entrada de energia', aplicacao:'Entrada de energia', obs_comprador:'Entrega parcial 09/09; restante 03/10'},
+      {codigo:'OC-591', numero:'OC-591', emissao:'', fornecedor:'Westaflex Tubos Flexíveis Ltda', status:'EMITIDA', previsao:'', comprador:'Lucas Fernandes', recebido:'', origem_rq:'RQ-11282', material:'Tê de fachada', aplicacao:'Fachada', obs_comprador:'Não chegou'},
+      {codigo:'OC-595', numero:'OC-595', emissao:'', fornecedor:'KG Instalações e Comércio Elétrico Ltda', status:'EMITIDA', previsao:'', comprador:'Lucas Fernandes', recebido:'19/09/2025 (parcial)', origem_rq:'RQ-11238', material:'Ralo + PVC', aplicacao:'Distribuição hidráulico térreo', obs_comprador:'Entrega parcial'},
+      {codigo:'OC-590', numero:'OC-590', emissao:'', fornecedor:'Lukma', status:'EMITIDA', previsao:'17/09/2025', comprador:'Lucas Fernandes', recebido:'', origem_rq:'RQ-11314', material:'Fitas isolantes', aplicacao:'Elétrica força e distribuição'},
+
+      // ======== ENTREGUES (ao final) ========
+      {codigo:'OC-585', numero:'OC-585', emissao:'', fornecedor:'Lukma', status:'RECEBIDO', previsao:'', comprador:'Lucas Fernandes', recebido:'16/09/2025', origem_rq:'RQ-11237', material:'Fita isolante', aplicacao:'Elétrica força e distribuição'},
+      {codigo:'OC-593', numero:'OC-593', emissao:'', fornecedor:'Mosal Artefatos de Alumínio Ltda - ME', status:'RECEBIDO', previsao:'', comprador:'Lucas Fernandes', recebido:'12/09/2025', origem_rq:'RQ-11333', material:'Tê de fachada', aplicacao:'Fachada', obs_comprador:'Chegou'}
     ]
   }
 };
