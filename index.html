@@ -159,7 +159,7 @@
 
     /* =============================================================
      *  BLOCO DE EDIÇÃO RÁPIDA (para uso com IA) — DADOS + REGRAS
-      *  (inicie o copie e cole aqui)
+    (inicie o copie e cole aqui)
  * ============================================================= */
 
 const RULES = {
@@ -167,8 +167,48 @@ const RULES = {
   assumeDueAsDoneDateWhenMissing: true,
   sortDoneLast: true,
   // Campo para finalizar a colagem/rolagem:
-  finalizeOnPaste: true
+  finalizeOnPaste: true,
+
+  // === NOVOS CAMPOS PARA AVISO DE MUDANÇA/DESMOBILIZAÇÃO ===
+  showSiteNotice: true,
+  siteNoticeId: 'AVISO-MUDANCA-2025W40' // use para controlar ocultação se quiser
 };
+
+// Aviso de mudança / desmobilização (banner pronto)
+const SITE_NOTICE = {
+  id: 'AVISO-MUDANCA-2025W40',
+  inicio: '2025-09-29', // ISO (AAAA-MM-DD)
+  fim:    '2025-10-05',
+  titulo: 'Aviso: mudança/desmobilização de almoxarifado e escritório',
+  texto:  'Nesta semana estamos em processo de mudança/desmobilização do almoxarifado e do escritório. Por isso, alguns serviços podem apresentar variações de prazo e disponibilidade. Agradecemos a compreensão.',
+  html: `
+    <div id="aviso-mudanca" style="position:sticky;top:0;z-index:9999;background:#0b2a4a;color:#f1f5f9;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,Liberation Sans,sans-serif;padding:12px 16px;border-bottom:2px solid #073459;display:flex;align-items:start;gap:12px">
+      <div style="flex:1;line-height:1.4">
+        <strong style="display:block;font-weight:700;letter-spacing:.2px">Aviso aos clientes e parceiros</strong>
+        <span>Nesta semana estamos em processo de <b>mudança/desmobilização do almoxarifado e do escritório</b>. Por isso, alguns serviços podem apresentar variações de prazo e disponibilidade. Agradecemos a compreensão.</span>
+      </div>
+      <button aria-label="Fechar aviso" onclick="document.getElementById('aviso-mudanca').remove(); try{localStorage.setItem('hide:'+ (RULES?.siteNoticeId||'AVISO'), '1')}catch(e){}" style="background:transparent;border:0;color:#e2e8f0;font-size:18px;cursor:pointer;line-height:1">&#10005;</button>
+    </div>
+  `.trim()
+};
+
+// Opcional: função rápida para injetar o banner se ativo e dentro do período
+(function injectSiteNotice(){
+  try{
+    if(!RULES.showSiteNotice) return;
+    if(localStorage.getItem('hide:'+ (RULES.siteNoticeId||SITE_NOTICE.id))) return;
+
+    const today = new Date().toISOString().slice(0,10);
+    if(today < SITE_NOTICE.inicio || today > SITE_NOTICE.fim) return;
+
+    if(typeof document!=='undefined'){
+      const host = document.body || document.documentElement;
+      const wrap = document.createElement('div');
+      wrap.innerHTML = SITE_NOTICE.html;
+      host.prepend(wrap.firstChild);
+    }
+  }catch(e){}
+})();
 
 const DATA = {
   encarregados:[
