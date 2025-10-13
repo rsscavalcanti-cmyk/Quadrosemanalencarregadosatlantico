@@ -169,80 +169,52 @@ const RULES = {
   // Campo para finalizar a colagem/rolagem:
   finalizeOnPaste: true,
 
-  // === NOVOS CAMPOS PARA AVISO DE MUDANÇA/DESMOBILIZAÇÃO ===
-  showSiteNotice: true,
-  siteNoticeId: 'AVISO-MUDANCA-2025W40' // use para controlar ocultação se quiser
+  // Aviso removido conforme instrução
+  showSiteNotice: false,
+  siteNoticeId: null
 };
 
-// Aviso de mudança / desmobilização (banner pronto)
-const SITE_NOTICE = {
-  id: 'AVISO-MUDANCA-2025W40',
-  inicio: '2025-09-29', // ISO (AAAA-MM-DD)
-  fim:    '2025-10-05',
-  titulo: 'Aviso: mudança/desmobilização de almoxarifado e escritório',
-  texto:  'Nesta semana estamos em processo de mudança/desmobilização do almoxarifado e do escritório. Por isso, alguns serviços podem apresentar variações de prazo e disponibilidade. Agradecemos a compreensão.',
-  html: `
-    <div id="aviso-mudanca" style="position:sticky;top:0;z-index:9999;background:#0b2a4a;color:#f1f5f9;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,Liberation Sans,sans-serif;padding:12px 16px;border-bottom:2px solid #073459;display:flex;align-items:start;gap:12px">
-      <div style="flex:1;line-height:1.4">
-        <strong style="display:block;font-weight:700;letter-spacing:.2px">Aviso aos clientes e parceiros</strong>
-        <span>Nesta semana estamos em processo de <b>mudança/desmobilização do almoxarifado e do escritório</b>. Por isso, alguns serviços podem apresentar variações de prazo e disponibilidade. Agradecemos a compreensão.</span>
-      </div>
-      <button aria-label="Fechar aviso" onclick="document.getElementById('aviso-mudanca').remove(); try{localStorage.setItem('hide:'+ (RULES?.siteNoticeId||'AVISO'), '1')}catch(e){}" style="background:transparent;border:0;color:#e2e8f0;font-size:18px;cursor:pointer;line-height:1">&#10005;</button>
-    </div>
-  `.trim()
-};
-
-// Opcional: função rápida para injetar o banner se ativo e dentro do período
-(function injectSiteNotice(){
-  try{
-    if(!RULES.showSiteNotice) return;
-    if(localStorage.getItem('hide:'+ (RULES.siteNoticeId||SITE_NOTICE.id))) return;
-
-    const today = new Date().toISOString().slice(0,10);
-    if(today < SITE_NOTICE.inicio || today > SITE_NOTICE.fim) return;
-
-    if(typeof document!=='undefined'){
-      const host = document.body || document.documentElement;
-      const wrap = document.createElement('div');
-      wrap.innerHTML = SITE_NOTICE.html;
-      host.prepend(wrap.firstChild);
-    }
-  }catch(e){}
-})();
+// Aviso de mudança REMOVIDO
 
 const DATA = {
   encarregados:[
     {nome:'Severo (Hidráulica)', tarefas:[
-      {codigo:'T-0313', titulo:'Rede hidráulica de entrada de água — conclusão', prazo_esperado:'19/09/2025', status:'exec', pct:95, obs:'Precisamos acessar almoxarifado de terceiro.'},
-      {codigo:'T-0314', titulo:'Troca do suporte da rede Ø110 mm: perfilado → cantoneira (recalque de pluviais e esgoto)', prazo_esperado:'19/09/2025', status:'exec', pct:90, obs:'Madeiras e paletes no caminho obstruído (almoxarifado da Asas).'},
-      {codigo:'T-0322', titulo:'Retrabalho de 7 caixas de rede externa, reposicionamento de tubulações e acabamento — aditivo', prazo_esperado:'26/09/2025', status:'exec', pct:90, obs:'Todos os materiais para execução estão na obra.'},
-      {codigo:'T-0323', titulo:'Montagem de conjuntos de bombas em 3 poços', prazo_esperado:'26/09/2025', status:'exec', pct:60, obs:'Falta de material: joelho 90° × 60 soldável. Início previsto com desvio de rede no subsolo do Bloco 3 (obstrução da porta).'},
-      /* T-0329 removido conforme instrução */
-      {codigo:'T-0330', titulo:'Águas pluviais — poços 07, 08, 11 e 12', prazo_esperado:'03/10/2025', status:'exec', pct:25, obs:'Janela: 29/09 a 03/10.'},
-      {codigo:'T-0331', titulo:'Águas servidas — poços 07 e 18', prazo_esperado:'03/10/2025', status:'exec', pct:50, obs:'Executado o poço 18. Janela: 29/09 a 03/10.'}
+      {codigo:'T-0313', titulo:'Rede hidráulica de entrada de água — conclusão', prazo_esperado:'19/09/2025', status:'exec', pct:95, obs:'Limpeza Patrimar.'},
+      {codigo:'T-0314', titulo:'Troca do suporte da rede Ø110 mm: perfilado → cantoneira (recalque de pluviais e esgoto)', prazo_esperado:'19/09/2025', status:'done', pct:100},
+      {codigo:'T-0322', titulo:'Retrabalho de 7 caixas de rede externa, reposicionamento de tubulações e acabamento — aditivo', prazo_esperado:'26/09/2025', status:'done', pct:100},
+      {codigo:'T-0323', titulo:'Montagem de conjuntos de bombas em 3 poços', prazo_esperado:'26/09/2025', status:'done', pct:100},
+      {codigo:'T-0330', titulo:'Águas pluviais — poços 07, 08, 11 e 12', prazo_esperado:'03/10/2025', status:'exec', pct:50, obs:'Aguardando adaptadores de 60×2" marrom e joelhos 45°.'},
+      {codigo:'T-0331', titulo:'Águas servidas — poços 07 e 18', prazo_esperado:'03/10/2025', status:'exec', pct:75, obs:'Pendente conexões.'},
+      // Novo serviço Severo
+      {codigo:'T-0348', titulo:'Fechamento de ralos no subsolo (40 ralos)', prazo_esperado:'', status:'exec', pct:1, obs:'Aguardando tubos de 150mm.'}
     ]},
     {nome:'Airton (Hidráulica)', tarefas:[
       {codigo:'T-0305', titulo:'Entrega de apartamentos para a Qualidade — Blocos 2 e 3 — 1º ao 4º pavimentos', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'19/09/2025'},
       {codigo:'T-0306', titulo:'Instalação da redutora de pressão — 8º pavimento — Bloco 3', prazo_esperado:'19/09/2025', status:'exec', pct:100},
-      {codigo:'T-0324', titulo:'Entrega de apartamentos — 4º ao 6º pavimentos dos Blocos 2 e 3', prazo_esperado:'26/09/2025', status:'exec', pct:95, obs:'(Atualizado pela Engenharia em 25/09: avanço 95%).'},
-      {codigo:'T-0325', titulo:'Execução da redutora de pressão — 12º pavimento do Bloco 3', prazo_esperado:'26/09/2025', status:'exec', pct:60},
-      /* Novo serviço para Airton */
-      {codigo:'T-0341', titulo:'Entrega de apartamentos — 7º ao 10º pavimentos dos Blocos 2 e 3', prazo_esperado:'03/10/2025', status:'exec', pct:0}
+      {codigo:'T-0324', titulo:'Entrega de apartamentos — 4º ao 6º pavimentos dos Blocos 2 e 3', prazo_esperado:'26/09/2025', status:'done', pct:100, obs:'Atualizado pela Engenharia em 25/09: avanço 95% (concluído 100%).'},
+      {codigo:'T-0325', titulo:'Execução da redutora de pressão — 12º pavimento do Bloco 3', prazo_esperado:'26/09/2025', status:'done', pct:100},
+      {codigo:'T-0341', titulo:'Entrega de apartamentos — 7º ao 10º pavimentos dos Blocos 2 e 3', prazo_esperado:'03/10/2025', status:'exec', pct:20, obs:'Prazo Patrimar até 25/10.'},
+      // Novos serviços Airton
+      {codigo:'T-0344', titulo:'Redutoras de pressão — Bloco 2 (ajustes com a lixeira)', prazo_esperado:'', status:'block', pct:0, obs:'Verificar com a Patrimar. Aguardando.'},
+      {codigo:'T-0345', titulo:'Instalação de tês de fachada — Bloco 2', prazo_esperado:'', status:'exec', pct:75, obs:'Aguardando instalação do balancim.'},
+      {codigo:'T-0346', titulo:'Instalação de bombas de pressurização — Bloco 3', prazo_esperado:'', status:'exec', pct:80, obs:'Aguardando adaptador.'},
+      {codigo:'T-0347', titulo:'Instalação de bombas de pressurização — Bloco 2', prazo_esperado:'', status:'exec', pct:1}
     ]},
     {nome:'Thiago (Elétrica)', tarefas:[
       {codigo:'T-0315', titulo:'Tratamento de todas as eletrocalhas', prazo_esperado:'19/09/2025', status:'exec', pct:95},
       {codigo:'T-0317', titulo:'Instalação de 5 quadros de bombas', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'19/09/2025'},
       {codigo:'T-0316', titulo:'Instalação de luminárias — trecho central do subsolo (±50 unidades em zonas apagadas)', prazo_esperado:'19/09/2025', status:'exec', pct:100},
-      {codigo:'T-0321', titulo:"Instalação de CSMD's dos blocos 1, 2 e 3", prazo_esperado:'26/09/2025', status:'exec', pct:50, obs:'Aguardando chegada do restante dos painéis da ELETROASA.'},
+      {codigo:'T-0321', titulo:"Instalação de CSMD's dos blocos 1, 2 e 3", prazo_esperado:'26/09/2025', status:'exec', pct:70, obs:'Aguardando chegada do restante dos painéis da ELETROASA.'},
       {codigo:'T-0338', titulo:'Infra no subsolo para automático de boia das torres', prazo_esperado:'26/09/2025', status:'exec', pct:50, obs:'Aguardando chegada de luvas de PVC 1 1/2".'},
       {codigo:'T-0339', titulo:'Montagem de eletrocalha 200×150 para comandos — trecho central do subsolo', prazo_esperado:'26/09/2025', status:'exec', pct:50, obs:'Janela: 22/09 a 26/09.'},
       {codigo:'T-0340', titulo:'Montagem de perfilado 38×38 para iluminação do espelho d’água 2', prazo_esperado:'26/09/2025', status:'done', pct:100, data_conclusao:'25/09/2025'},
-      {codigo:'T-0337', titulo:'Instalação de 100 luminárias — trecho entre a casa de bombas e o espelho d’água', prazo_esperado:'03/10/2025', status:'exec', pct:1, obs:'Janela: 29/09 a 03/10.'},
-      /* Novo serviço para Thiago */
-      {codigo:'T-0342', titulo:'Instalação de tomadas nas 4 edículas e academia', prazo_esperado:'03/10/2025', status:'exec', pct:40}
+      {codigo:'T-0337', titulo:'Instalação de 100 luminárias — trecho entre a casa de bombas e o espelho d’água', prazo_esperado:'03/10/2025', status:'exec', pct:15, obs:'Janela: 29/09 a 03/10.'},
+      {codigo:'T-0342', titulo:'Instalação de tomadas nas 4 edículas e academia', prazo_esperado:'03/10/2025', status:'done', pct:100},
+      // Novo serviço Thiago
+      {codigo:'T-0350', titulo:'Instalação de bases de postes', prazo_esperado:'', status:'exec', pct:0}
     ]},
     {nome:'Marcelo (Elétrica)', tarefas:[
-      {codigo:'T-0318', titulo:'Entrega de apartamentos — 4º ao 6º', prazo_esperado:'19/09/2025', status:'exec', pct:95},
+      {codigo:'T-0318', titulo:'Entrega de apartamentos — 4º ao 6º', prazo_esperado:'19/09/2025', status:'done', pct:100},
       {codigo:'T-0319', titulo:'Fechamento de QDLs dos apartamentos — 19º e 20º (duas torres)', prazo_esperado:'19/09/2025', status:'block', pct:40, obs:"Aguardando materiais (componentes para QDL's)"},
       {codigo:'T-0320', titulo:'SPDA das duas torres (executar áreas liberadas)', prazo_esperado:'19/09/2025', status:'exec', pct:30},
       {codigo:'T-0326', titulo:'Instalação das tampas dos barramentos blindados verticais — 3 torres', prazo_esperado:'26/09/2025', status:'exec', pct:70},
@@ -253,8 +225,9 @@ const DATA = {
       {codigo:'T-0334', titulo:'Lançamento de cabos — Bomba de recalque Bloco 3', prazo_esperado:'03/10/2025', status:'done', pct:100, data_conclusao:'24/09/2025'},
       {codigo:'T-0335', titulo:'Passagem de fiação para os espelhos d’água 2 e 3', prazo_esperado:'03/10/2025', status:'done', pct:100, data_conclusao:'26/09/2025'},
       {codigo:'T-0336', titulo:'Passagem/lançamento de cabos — poços de águas servidas 03A e 03B', prazo_esperado:'03/10/2025', status:'done', pct:100, data_conclusao:'26/09/2025'},
-      /* Novo serviço para Marcelo */
-      {codigo:'T-0343', titulo:'Lançamento de cabos alimentadores — QT-SS-BL1, QT-Guarita, QT-Gourmet 1, QT-Gourmet 2, QT-Águas Servidas 03A', prazo_esperado:'03/10/2025', status:'exec', pct:15}
+      {codigo:'T-0343', titulo:'Lançamento de cabos alimentadores — QT-SS-BL1, QT-Guarita, QT-Gourmet 1, QT-Gourmet 2, QT-Águas Servidas 03A', prazo_esperado:'03/10/2025', status:'exec', pct:40},
+      // Novo serviço Marcelo
+      {codigo:'T-0349', titulo:'Lançamento de cabos alimentadores — QF-A-PLUVIAIS 14, QF-A-SERVIDAS 20, PF-PISCINA BL3, PF-PISCINA 5', prazo_esperado:'', status:'exec', pct:0}
     ]}
   ],
 
