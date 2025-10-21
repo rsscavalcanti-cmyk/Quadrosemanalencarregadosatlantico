@@ -159,7 +159,7 @@
 
     /* =============================================================
      *  BLOCO DE EDIÇÃO RÁPIDA (para uso com IA) — DADOS + REGRAS
- (inicie o copie e cole aqui)
+  (inicie o copie e cole aqui)
  * ============================================================= */
 
 const RULES = {
@@ -185,33 +185,31 @@ const DATA = {
       {codigo:'T-0323', titulo:'Montagem de conjuntos de bombas em 3 poços', prazo_esperado:'26/09/2025', status:'done', pct:100},
       {codigo:'T-0330', titulo:'Águas pluviais — poços 07, 08, 11 e 12', prazo_esperado:'03/10/2025', status:'exec', pct:50, obs:'Aguardando adaptadores de 60×2" marrom e joelhos 45°.'},
       {codigo:'T-0331', titulo:'Águas servidas — poços 07 e 18', prazo_esperado:'03/10/2025', status:'exec', pct:75, obs:'Pendente conexões.'},
-      // Novo serviço Severo (prazo ajustado p/ 17/10)
-      {codigo:'T-0348', titulo:'Fechamento de ralos no subsolo (40 ralos)', prazo_esperado:'17/10/2025', status:'exec', pct:1, obs:'Aguardando tubos de 150mm.'}
+      {codigo:'T-0348', titulo:'Fechamento de ralos no subsolo (todos os ralos) — concluir serviço', prazo_esperado:'28/10/2025', status:'exec', pct:60}
     ]},
     {nome:'Airton (Hidráulica)', tarefas:[
       {codigo:'T-0305', titulo:'Entrega de apartamentos para a Qualidade — Blocos 2 e 3 — 1º ao 4º pavimentos', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'19/09/2025'},
       {codigo:'T-0306', titulo:'Instalação da redutora de pressão — 8º pavimento — Bloco 3', prazo_esperado:'19/09/2025', status:'exec', pct:100},
       {codigo:'T-0324', titulo:'Entrega de apartamentos — 4º ao 6º pavimentos dos Blocos 2 e 3', prazo_esperado:'26/09/2025', status:'done', pct:100, obs:'Atualizado pela Engenharia em 25/09: avanço 95% (concluído 100%).'},
       {codigo:'T-0325', titulo:'Execução da redutora de pressão — 12º pavimento do Bloco 3', prazo_esperado:'26/09/2025', status:'done', pct:100},
-      {codigo:'T-0341', titulo:'Entrega de apartamentos — 7º ao 10º pavimentos dos Blocos 2 e 3', prazo_esperado:'24/10/2025', status:'exec', pct:20, obs:'Prazo Patrimar até 24/10.'},
-      // Novos serviços Airton (prazos ajustados p/ 17/10)
+      {codigo:'T-0341', titulo:'Entrega de apartamentos — 7º ao 10º pavimentos dos Blocos 2 e 3', prazo_esperado:'24/10/2025', status:'exec', pct:40, obs:'Canoplas e acabamentos de varanda + flexível cromado chegaram após.'},
       {codigo:'T-0344', titulo:'Redutoras de pressão — Bloco 2 (ajustes com a lixeira)', prazo_esperado:'17/10/2025', status:'block', pct:0, obs:'Verificar com a Patrimar. Aguardando.'},
       {codigo:'T-0345', titulo:'Instalação de tês de fachada — Bloco 2', prazo_esperado:'17/10/2025', status:'exec', pct:75, obs:'Aguardando instalação do balancim.'},
       {codigo:'T-0346', titulo:'Instalação de bombas de pressurização — Bloco 3', prazo_esperado:'17/10/2025', status:'exec', pct:80, obs:'Aguardando adaptador.'},
-      {codigo:'T-0347', titulo:'Instalação de bombas de pressurização — Bloco 2', prazo_esperado:'17/10/2025', status:'exec', pct:1}
+      {codigo:'T-0347', titulo:'Instalação de bombas de pressurização — Bloco 2', prazo_esperado:'17/10/2025', status:'exec', pct:70}
     ]},
     {nome:'Thiago (Elétrica)', tarefas:[
       {codigo:'T-0315', titulo:'Tratamento de todas as eletrocalhas', prazo_esperado:'19/09/2025', status:'exec', pct:95},
       {codigo:'T-0317', titulo:'Instalação de 5 quadros de bombas', prazo_esperado:'19/09/2025', status:'done', pct:100, data_conclusao:'19/09/2025'},
       {codigo:'T-0316', titulo:'Instalação de luminárias — trecho central do subsolo (±50 unidades em zonas apagadas)', prazo_esperado:'19/09/2025', status:'exec', pct:100},
-      {codigo:'T-0321', titulo:"Instalação de CSMD's dos blocos 1, 2 e 3", prazo_esperado:'26/09/2025', status:'exec', pct:70, obs:'Aguardando chegada do restante dos painéis da ELETROASA.'},
+      {codigo:'T-0321', titulo:"Instalação de CSMD's dos blocos 1, 2 e 3", prazo_esperado:'26/09/2025', status:'exec', pct:70, obs:'Painéis chegaram em 21/10 (ELETROASA).'},
       {codigo:'T-0338', titulo:'Infra no subsolo para automático de boia das torres', prazo_esperado:'26/09/2025', status:'exec', pct:50, obs:'Aguardando chegada de luvas de PVC 1 1/2".'},
-      {codigo:'T-0339', titulo:'Montagem de eletrocalha 200×150 para comandos — trecho central do subsolo', prazo_esperado:'26/09/2025', status:'exec', pct:50, obs:'Janela: 22/09 a 26/09.'},
+      {codigo:'T-0339', titulo:'Montagem de eletrocalha 200×150 para comandos — trecho central do subsolo', prazo_esperado:'26/09/2025', status:'exec', pct:70, obs:'Janela: 22/09 a 26/09.'},
       {codigo:'T-0340', titulo:'Montagem de perfilado 38×38 para iluminação do espelho d’água 2', prazo_esperado:'26/09/2025', status:'done', pct:100, data_conclusao:'25/09/2025'},
-      {codigo:'T-0337', titulo:'Instalação de 100 luminárias — trecho entre a casa de bombas e o espelho d’água', prazo_esperado:'03/10/2025', status:'exec', pct:15, obs:'Janela: 29/09 a 03/10.'},
+      {codigo:'T-0337', titulo:'Instalação de 100 luminárias — trecho entre a casa de bombas e o espelho d’água', prazo_esperado:'03/10/2025', status:'exec', pct:50, obs:'Janela: 29/09 a 03/10.'},
       {codigo:'T-0342', titulo:'Instalação de tomadas nas 4 edículas e academia', prazo_esperado:'03/10/2025', status:'done', pct:100},
-      // Novo serviço Thiago (prazo ajustado p/ 17/10)
-      {codigo:'T-0350', titulo:'Instalação de bases de postes', prazo_esperado:'17/10/2025', status:'exec', pct:0}
+      {codigo:'T-0350', titulo:'Instalação de bases de postes', prazo_esperado:'17/10/2025', status:'exec', pct:30},
+      {codigo:'T-0353', titulo:'Instalação de 5 painéis de serviços no subsolo', prazo_esperado:'24/10/2025', status:'exec', pct:0}
     ]},
     {nome:'Marcelo (Elétrica)', tarefas:[
       {codigo:'T-0318', titulo:'Entrega de apartamentos — 4º ao 6º', prazo_esperado:'19/09/2025', status:'done', pct:100},
@@ -226,40 +224,11 @@ const DATA = {
       {codigo:'T-0335', titulo:'Passagem de fiação para os espelhos d’água 2 e 3', prazo_esperado:'03/10/2025', status:'done', pct:100, data_conclusao:'26/09/2025'},
       {codigo:'T-0336', titulo:'Passagem/lançamento de cabos — poços de águas servidas 03A e 03B', prazo_esperado:'03/10/2025', status:'done', pct:100, data_conclusao:'26/09/2025'},
       {codigo:'T-0343', titulo:'Lançamento de cabos alimentadores — QT-SS-BL1, QT-Guarita, QT-Gourmet 1, QT-Gourmet 2, QT-Águas Servidas 03A', prazo_esperado:'03/10/2025', status:'exec', pct:40},
-      // Novo serviço Marcelo (prazo ajustado p/ 17/10)
-      {codigo:'T-0349', titulo:'Lançamento de cabos alimentadores — QF-A-PLUVIAIS 14, QF-A-SERVIDAS 20, PF-PISCINA BL3, PF-PISCINA 5', prazo_esperado:'17/10/2025', status:'exec', pct:0}
+      {codigo:'T-0349', titulo:'Lançamento de cabos alimentadores — QF-A-PLUVIAIS 14, QF-A-SERVIDAS 20, PF-PISCINA BL3, PF-PISCINA 5', prazo_esperado:'17/10/2025', status:'done', pct:100},
+      {codigo:'T-0351', titulo:'Iluminação das varandas dos blocos 2 e 3 — conclusão', prazo_esperado:'24/10/2025', status:'exec', pct:70},
+      {codigo:'T-0352', titulo:'Fechamento dos quadros de bombas — esgoto 4, 5; pluviais 12, 1; servidas 9, 11, 10', prazo_esperado:'', status:'exec', pct:50}
     ]}
-  ],
-
-  suprimentos:{
-    compradores:['Brígida Souza','Suellen Mello','Lucas Fernandes'],
-    pendencias_teams:{'Brígida Souza':0,'Suellen Mello':0,'Lucas Fernandes':0},
-
-    // Somente RQs que ainda não viraram OC
-    requisicoes:[
-      {codigo:'RQ-11305', numero:'RQ-11305', responsavel:'Brígida Souza', contrato:'Atlântico', material:'Condulete', aplicacao:'-', data:'', prazo:'', status:'Em cotação', obs:'Sem atualização'},
-      {codigo:'RQ-11379', numero:'RQ-11379', responsavel:'Brígida Souza', contrato:'Atlântico', material:'Aditivo', aplicacao:'-', data:'', prazo:'', status:'Em cotação', obs:'Sem atualização'},
-      {codigo:'RQ-11086', numero:'RQ-11086', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Repastilhamento', aplicacao:'-', data:'', prazo:'', status:'Em aprovação', obs:'Almoxarife informar suprimentos para repastilhamento'},
-      {codigo:'RQ-11291', numero:'RQ-11291', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'PIAL PLUS+', aplicacao:'Áreas comuns / subsolo / escadas / coberturas / extravios', data:'', prazo:'', status:'Em aprovação', obs:'Aguardando aprovação do cliente'},
-      {codigo:'RQ-11294', numero:'RQ-11294', responsavel:'Lucas Fernandes', contrato:'Atlântico', material:'Arandelas', aplicacao:'Escadas e áreas técnicas', data:'', prazo:'', status:'Em aprovação', obs:'Aguardando aprovação do cliente'},
-      // Mantida como RQ (não há nº de OC na planilha)
-      {codigo:'RQ-11309', numero:'RQ-11309', responsavel:'Suellen Mello', contrato:'Atlântico', material:'Parafuso', aplicacao:'-', data:'26/09/2025', prazo:'', status:'Em andamento', obs:'Fornecedor: PARAFUSOPAR. Não chegou'}
-    ],
-
-    // Todos os processos que viraram OC (com origem_rq) — entregues vão ao final
-    ocs:[
-      {codigo:'OC-587', numero:'OC-587', emissao:'', fornecedor:'WALSYWA Comércio de Produtos Metalúrgicos Ltda', status:'EMITIDA', previsao:'', comprador:'Suellen Mello', recebido:'16/09/2025 (parcial)', origem_rq:'RQ-11295', material:'Material de fixação', aplicacao:'-', obs_comprador:'Parcial'},
-      {codigo:'OC-597', numero:'OC-597', emissao:'', fornecedor:'KG Instalações e Com. Elétrico', status:'EMITIDA', previsao:'', comprador:'Suellen Mello', recebido:'18/09/2025 (parcial)', origem_rq:'RQ-11181', material:'PVC', aplicacao:'Ralos/fechamentos', obs_comprador:'Parcial'},
-      {codigo:'OC-009', numero:'OC-009', emissao:'', fornecedor:'ELETROASA — Eletrometalúrgica ASA Eireli', status:'EMITIDA', previsao:'03/10/2025', comprador:'Lucas Fernandes', recebido:'09/09/2025 (parcial)', origem_rq:'RQ-10623', material:'Quadros de entrada de energia', aplicacao:'Entrada de energia', obs_comprador:'Entrega parcial 09/09; restante 03/10'},
-      {codigo:'OC-591', numero:'OC-591', emissao:'', fornecedor:'Westaflex Tubos Flexíveis Ltda', status:'EMITIDA', previsao:'', comprador:'Lucas Fernandes', recebido:'', origem_rq:'RQ-11282', material:'Tê de fachada', aplicacao:'Fachada', obs_comprador:'Não chegou'},
-      {codigo:'OC-595', numero:'OC-595', emissao:'', fornecedor:'KG Instalações e Comércio Elétrico Ltda', status:'EMITIDA', previsao:'', comprador:'Lucas Fernandes', recebido:'19/09/2025 (parcial)', origem_rq:'RQ-11238', material:'Ralo + PVC', aplicacao:'Distribuição hidráulico térreo', obs_comprador:'Entrega parcial'},
-      {codigo:'OC-590', numero:'OC-590', emissao:'', fornecedor:'Lukma', status:'EMITIDA', previsao:'17/09/2025', comprador:'Lucas Fernandes', recebido:'', origem_rq:'RQ-11314', material:'Fitas isolantes', aplicacao:'Elétrica força e distribuição'},
-
-      // ======== ENTREGUES (ao final) ========
-      {codigo:'OC-585', numero:'OC-585', emissao:'', fornecedor:'Lukma', status:'RECEBIDO', previsao:'', comprador:'Lucas Fernandes', recebido:'16/09/2025', origem_rq:'RQ-11237', material:'Fita isolante', aplicacao:'Elétrica força e distribuição'},
-      {codigo:'OC-593', numero:'OC-593', emissao:'', fornecedor:'Mosal Artefatos de Alumínio Ltda - ME', status:'RECEBIDO', previsao:'', comprador:'Lucas Fernandes', recebido:'12/09/2025', origem_rq:'RQ-11333', material:'Tê de fachada', aplicacao:'Fachada', obs_comprador:'Chegou'}
-    ]
-  }
+  ]
 };
 
 /* =============================================================
